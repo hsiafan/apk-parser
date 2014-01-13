@@ -1,13 +1,15 @@
 package net.dongliu.apk.parser;
 
 import net.dongliu.apk.parser.bean.ApkMeta;
+import net.dongliu.apk.parser.bean.CertificateMeta;
+import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.struct.AndroidFiles;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.security.cert.CertificateEncodingException;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -97,14 +99,47 @@ public class ApkParserUtils {
 
     }
 
+
+    /**
+     * get apk cetificate info.
+     *
+     * @param apkPath
+     * @return null or empty if no cetificate in apk, otherwise the cetificate list.
+     * @throws IOException
+     */
+    public static List<CertificateMeta> getCertificates(String apkPath) throws IOException {
+
+        ZipArchiveEntry entry;
+        ZipFile zf = null;
+        try {
+            zf = new ZipFile(apkPath);
+            Enumeration<ZipArchiveEntry> enu = zf.getEntries();
+            while (enu.hasMoreElements()) {
+                entry = enu.nextElement();
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                if (!entry.getName().toUpperCase().endsWith(".RSA")
+                        && !entry.getName().toUpperCase().endsWith(".DSA")) {
+                    continue;
+                }
+                CetificateParser parser = new CetificateParser(zf.getInputStream(entry));
+                parser.parse();
+                return parser.getCertificateMetas();
+            }
+            return null;
+        } catch (CertificateEncodingException e) {
+            throw new ParserException(e.getMessage());
+        } finally {
+            ZipFile.closeQuietly(zf);
+        }
+
+    }
+
     public static void main(String args[]) throws IOException {
         String file = args[0];
 
         // Parse Binary XML
-//        System.out.println(getManifestXml(file, null));
-        ApkMeta apkMeta = getApkMeta(file, null);
-        System.out.println(apkMeta.getPackageName() + ", " + apkMeta.getVersionCode() + ", " +
-                apkMeta.getVersionName() + ", " + apkMeta.getMaxSdkVersion() + ", "
-                + apkMeta.getTargetSdkVersion() + ", " + apkMeta.getMinSdkVersion());
+        System.out.println(getManifestXml(file, null));
     }
 }
