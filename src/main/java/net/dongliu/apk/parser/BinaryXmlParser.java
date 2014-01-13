@@ -27,6 +27,8 @@ public class BinaryXmlParser {
      */
     private ByteOrder byteOrder = ByteOrder.LITTLE;
     private StringPool stringPool;
+    private String[] resourceMap;
+    private XmlNamespaceStartTag namespace;
     private TellableInputStream in;
     private String xml;
 
@@ -57,18 +59,22 @@ public class BinaryXmlParser {
 
         // read on chunk, check if it was an optional XMLResourceMap chunk
         chunkHeader = readChunkHeader();
-        Map<Long, String> xmlResourceMap = new HashMap<Long, String>();
         if (chunkHeader.chunkType == ChunkType.XML_RESOURCE_MAP) {
-            xmlResourceMap = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
+            long[] resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
+            resourceMap = new String[resourceIds.length];
+            for (int i = 0; i < resourceIds.length; i++) {
+                resourceMap[i] = Attribute.AttrIds.getString(resourceIds[i]);
+            }
             chunkHeader = readChunkHeader();
         }
+
 
         // should be StartNamespace chunk
         SU.checkChunkType(ChunkType.XML_START_NAMESPACE, chunkHeader.chunkType);
 
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-        XmlNamespaceStartTag namespace = readXmlNamespaceStartTag();
+        namespace = readXmlNamespaceStartTag();
 
         BinaryXmlEnv env = new BinaryXmlEnv();
         env.stringPool = stringPool;
@@ -177,7 +183,16 @@ public class BinaryXmlParser {
         if (nsRef > 0) {
             attribute.namespace = stringPool.get(nsRef);
         }
+
         attribute.name = stringPool.get(nameRef);
+        if (attribute.name.isEmpty() && resourceMap != null && nameRef < resourceMap.length) {
+            // some processed apk file make the string pool value empty, if it is a xmlmap attr.
+            attribute.name = resourceMap[nameRef];
+            if (namespace.uri != null && !namespace.uri.isEmpty()) {
+                attribute.namespace = namespace.uri;
+            }
+        }
+
         int rawValueRef = in.readInt();
         if (rawValueRef > 0) {
             attribute.rawValue = stringPool.get(rawValueRef);
@@ -212,16 +227,14 @@ public class BinaryXmlParser {
         return nameSpace;
     }
 
-    private Map<Long, String> readXmlResourceMap(XmlResourceMapHeader chunkHeader)
+    private long[] readXmlResourceMap(XmlResourceMapHeader chunkHeader)
             throws IOException {
         int count = (int) ((chunkHeader.chunkSize - chunkHeader.headerSize) / 4);
-        Map<Long, String> map = new HashMap<Long, String>();
+        long[] resourceIds = new long[count];
         for (int i = 0; i < count; i++) {
-            long resourceId = in.readUInt();
-            String des = stringPool.get(i);
-            map.put(resourceId, des);
+            resourceIds[i] = in.readUInt();
         }
-        return map;
+        return resourceIds;
     }
 
 

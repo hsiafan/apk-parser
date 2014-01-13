@@ -5,6 +5,7 @@ import net.dongliu.apk.parser.io.SU;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
+import net.dongliu.apk.parser.struct.xml.Attribute;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -209,16 +210,17 @@ public class ResourceTableParser {
     private void parseAttrs(ResourceTableMap resourceTableMap) {
         switch ((int) resourceTableMap.nameRef) {
             case ResourceTableMap.MapAttr.TYPE:
-                String name = "attr";
-                String format;
-                int i = Integer.parseInt(resourceTableMap.resValue.data);
-                switch (i) {
-                    case ResourceTableMap.AttributeType.BOOLEAN:
-                        format = "bool";
-                }
-                break;
+//                String name = "attr";
+//                String format;
+//                int i = Integer.parseInt(resourceTableMap.resValue.data);
+//                switch (i) {
+//                    case ResourceTableMap.AttributeType.BOOLEAN:
+//                        format = "bool";
+//                }
+//                break;
             default:
                 //resourceTableMap.data = "attr:" + resourceTableMap.nameRef;
+
 
         }
     }
