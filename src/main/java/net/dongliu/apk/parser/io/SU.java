@@ -24,9 +24,9 @@ public class SU {
         if (encoding == StringEncoding.UTF8) {
             //  The lengths are encoded in the same way as for the 16-bit format
             // but using 8-bit rather than 16-bit integers.
-            int[] strLen = readLen(in);
-            int[] bytesLen = readLen(in);
-            byte[] bytes = in.readBytes(bytesLen[1]);
+            int strLen = readLen(in);
+            int bytesLen = readLen(in);
+            byte[] bytes = in.readBytes(bytesLen);
             String str = new String(bytes, "UTF-8");
             // zero
             int trailling = in.readUByte();
@@ -34,8 +34,8 @@ public class SU {
 
         } else {
             // The length is encoded as either one or two 16-bit integers as per the commentRef...
-            int[] strLen = readLen16(in);
-            String str = in.readStringUTF16(strLen[1]);
+            int strLen = readLen16(in);
+            String str = in.readStringUTF16(strLen);
             // zero
             int trailling = in.readUShort();
             return str;
@@ -62,44 +62,44 @@ public class SU {
     }
 
     /**
-     * read len encoding using varints.
+     * read encoding len.
+     * see Stringpool.cpp ENCODE_LENGTH
      *
      * @param in
      * @return
      * @throws IOException
      */
-    private static int[] readLen(TellableInputStream in) throws IOException {
+    private static int readLen(TellableInputStream in) throws IOException {
         int len = 0;
-        int byteCount = 0;
-        int i;
-        do {
-            i = in.read();
-            if (i == -1) {
-                throw new IOException("unexpected EOF");
-            }
-            len ^= (i & 0x7f) << (byteCount * 7);
-            byteCount++;
-        } while ((i & 0x80) != 0);
-        return new int[]{byteCount, len};
+        int i = in.read();
+        if ((i & 0x80) != 0) {
+            //read one more byte.
+            len |= (i & 0x7f) << 7;
+            len += in.read();
+        } else {
+            len = i;
+        }
+        return len;
     }
 
     /**
-     * read len encoding using varints.
+     * read encoding len.
+     * see Stringpool.cpp ENCODE_LENGTH
      *
      * @param in
      * @return
      * @throws IOException
      */
-    private static int[] readLen16(TellableInputStream in) throws IOException {
+    private static int readLen16(TellableInputStream in) throws IOException {
         int len = 0;
-        int byteCount = 0;
-        int i;
-        do {
-            i = in.readUShort();
-            len ^= (i & 0x7fff) << (byteCount * 15);
-            byteCount++;
-        } while ((i & 0x8000) != 0);
-        return new int[]{byteCount, len};
+        int i = in.readUShort();
+        if ((i & 0x8000) != 0) {
+            len |= (i & 0x7fff) << 15;
+            len += in.readUByte();
+        } else {
+            len = i;
+        }
+        return len;
     }
 
 
