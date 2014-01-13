@@ -20,7 +20,7 @@ public class ApkParserUtils {
     /**
      * Decode binary XML files
      */
-    public static String getManifestXml(String apkFile) throws IOException {
+    public static String getManifestXml(String apkFile, String local) throws IOException {
         ZipFile zf = null;
         try {
             zf = new ZipFile(apkFile);
@@ -47,11 +47,13 @@ public class ApkParserUtils {
 
             BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
                     resourceTable);
+            binaryXmlParser.setPreferredLocal(local);
             binaryXmlParser.parse();
             return binaryXmlParser.getXml();
         } finally {
             ZipFile.closeQuietly(zf);
         }
+
     }
 
 
@@ -59,7 +61,7 @@ public class ApkParserUtils {
         String file = args[0];
 
         // Parse Binary XML
-        System.out.println(getManifestXml(file));
+        System.out.println(getManifestXml(file, null));
 
     }
 }

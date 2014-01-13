@@ -186,7 +186,7 @@ public class SU {
      * @throws IOException
      */
     public static ResValue readResValue(TellableInputStream in, StringPool stringPool,
-                                        ResourceTable resourceTable)
+                                        ResourceTable resourceTable, String local)
             throws IOException {
         ResValue resValue = new ResValue();
         resValue.size = in.readUShort();
@@ -205,7 +205,7 @@ public class SU {
                 break;
             case ResValue.ResType.REFERENCE:
                 long resourceId = in.readUInt();
-                resValue.data = getResourceByid(resourceId, resourceTable);
+                resValue.data = getResourceByid(resourceId, resourceTable, local);
                 break;
             case ResValue.ResType.INT_BOOLEAN:
                 resValue.data = String.valueOf(in.readInt() != 0);
@@ -291,7 +291,8 @@ public class SU {
         }
     }
 
-    public static String getResourceByid(long resourceId, ResourceTable resourceTable) {
+    public static String getResourceByid(long resourceId, ResourceTable resourceTable,
+                                         String local) {
 //        An Android Resource id is a 32-bit integer. It comprises
 //        an 8-bit Package id [bits 24-31]
 //        an 8-bit Type id [bits 16-23]
@@ -301,7 +302,6 @@ public class SU {
             return str;
         }
 
-        String ref = "@";
         short packageId = (short) (resourceId >> 24 & 0xff);
         short typeId = (short) ((resourceId >> 16) & 0xff);
         int entryIndex = (int) (resourceId & 0xffff);
@@ -317,20 +317,40 @@ public class SU {
         if (!typeSpec.exists(entryIndex)) {
             return str;
         }
-        ref += typeSpec.name;
 
         // read from type resource
         String result = null;
+        String wideResult = null;
+        String ref = null;
+        String wideRef = null;
+
         for (Type type : types) {
+            String tlocal = type.header.config.country + "_" + type.header.config.language;
             ResourceEntry resource = type.getResourceEntry(entryIndex);
             if (resource == null) {
                 continue;
             }
-            ref += "/" + resource.key;
-            result = resource.toString();
+            if (local != null && local.equals(tlocal)) {
+                ref = resource.key;
+                result = resource.toString();
+                break;
+            } else if (wideResult == null) {
+                wideRef = resource.key;
+                wideResult = resource.toString();
+                if (local == null) {
+                    break;
+                }
+            }
         }
         if (result == null) {
-            result = ref;
+            result = wideResult;
+        }
+        if (result == null) {
+            if (ref != null) {
+                result = "@" + typeSpec.name + "/" + ref;
+            } else {
+                result = "@" + typeSpec.name + "/" + wideRef;
+            }
         }
         return result;
     }

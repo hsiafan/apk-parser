@@ -33,6 +33,7 @@ public class BinaryXmlParser {
     private String xml;
 
     private ResourceTable resourceTable;
+    private String preferredLocal;
 
     public BinaryXmlParser(InputStream in, ResourceTable resourceTable) {
         this.in = new TellableInputStream(in, byteOrder);
@@ -127,7 +128,7 @@ public class BinaryXmlParser {
         if (dataRef > 0) {
             xmlCData.data = stringPool.get(dataRef);
         }
-        xmlCData.typedData = SU.readResValue(in, stringPool, resourceTable);
+        xmlCData.typedData = SU.readResValue(in, stringPool, resourceTable, preferredLocal);
         return xmlCData;
     }
 
@@ -197,7 +198,7 @@ public class BinaryXmlParser {
         if (rawValueRef > 0) {
             attribute.rawValue = stringPool.get(rawValueRef);
         }
-        attribute.typedValue = SU.readResValue(in, stringPool, resourceTable);
+        attribute.typedValue = SU.readResValue(in, stringPool, resourceTable, preferredLocal);
         return attribute;
     }
 
@@ -274,5 +275,13 @@ public class BinaryXmlParser {
 
     public String getXml() {
         return this.xml;
+    }
+
+    public void setPreferredLocal(String preferredLocal) {
+        this.preferredLocal = preferredLocal;
+    }
+
+    public String getPreferredLocal() {
+        return preferredLocal;
     }
 }

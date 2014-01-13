@@ -179,7 +179,7 @@ public class ResourceTableParser {
             return resourceMapEntry;
         } else {
             in.advanceIfNotRearch(beginPos + resourceEntry.size);
-            resourceEntry.value = SU.readResValue(in, stringPool, null);
+            resourceEntry.value = SU.readResValue(in, stringPool, null, null);
             return resourceEntry;
         }
     }
@@ -188,7 +188,7 @@ public class ResourceTableParser {
         //TODO: to be implemented.
         ResourceTableMap resourceTableMap = new ResourceTableMap();
         resourceTableMap.nameRef = in.readUInt();
-        resourceTableMap.resValue = SU.readResValue(in, stringPool, null);
+        resourceTableMap.resValue = SU.readResValue(in, stringPool, null, null);
 
         if ((resourceTableMap.nameRef & 0x02000000) != 0) {
             //read arrays
