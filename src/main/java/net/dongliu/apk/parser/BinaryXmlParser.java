@@ -1,5 +1,6 @@
 package net.dongliu.apk.parser;
 
+import net.dongliu.apk.parser.bean.ApkMeta;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.io.SU;
 import net.dongliu.apk.parser.io.TellableInputStream;
@@ -28,9 +29,11 @@ public class BinaryXmlParser {
     private ByteOrder byteOrder = ByteOrder.LITTLE;
     private StringPool stringPool;
     private String[] resourceMap;
+    private long[] resourceIds;
     private XmlNamespaceStartTag namespace;
     private TellableInputStream in;
     private String xml;
+    private ApkMeta apkMeta;
 
     private ResourceTable resourceTable;
     private String preferredLocal;
@@ -61,7 +64,7 @@ public class BinaryXmlParser {
         // read on chunk, check if it was an optional XMLResourceMap chunk
         chunkHeader = readChunkHeader();
         if (chunkHeader.chunkType == ChunkType.XML_RESOURCE_MAP) {
-            long[] resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
+            resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
             resourceMap = new String[resourceIds.length];
             for (int i = 0; i < resourceIds.length; i++) {
                 resourceMap[i] = Attribute.AttrIds.getString(resourceIds[i]);
@@ -69,10 +72,10 @@ public class BinaryXmlParser {
             chunkHeader = readChunkHeader();
         }
 
-
         // should be StartNamespace chunk
         SU.checkChunkType(ChunkType.XML_START_NAMESPACE, chunkHeader.chunkType);
 
+        apkMeta = new ApkMeta();
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
         namespace = readXmlNamespaceStartTag();
@@ -199,6 +202,36 @@ public class BinaryXmlParser {
             attribute.rawValue = stringPool.get(rawValueRef);
         }
         attribute.typedValue = SU.readResValue(in, stringPool, resourceTable, preferredLocal);
+
+
+        // get basic apk metas
+        if (resourceIds != null && nameRef < resourceIds.length) {
+            long id = resourceIds[nameRef];
+            switch ((int) id) {
+                case Attribute.AttrIds.VERSION_NAME:
+                    apkMeta.setVersionName(attribute.typedValue.toString());
+                    break;
+                case Attribute.AttrIds.VERSION_CODE:
+                    apkMeta.setVersionCode(attribute.typedValue.toString());
+                    break;
+                case Attribute.AttrIds.LABEL:
+                    apkMeta.setName(attribute.typedValue.toString());
+                    break;
+                case Attribute.AttrIds.MAX_SDK_VERSION:
+                    apkMeta.setMaxSdkVersion(attribute.typedValue.toString());
+                    break;
+                case Attribute.AttrIds.MIN_SDK_VERSION:
+                    apkMeta.setMinSdkVersion(attribute.typedValue.toString());
+                    break;
+                case Attribute.AttrIds.TARGET_SDK_VERSION:
+                    apkMeta.setTargetSdkVersion(attribute.typedValue.toString());
+                    break;
+                default:
+            }
+        }
+        if (attribute.name.equals("package")) {
+            apkMeta.setPackageName(attribute.typedValue.toString());
+        }
         return attribute;
     }
 
@@ -283,5 +316,9 @@ public class BinaryXmlParser {
 
     public String getPreferredLocal() {
         return preferredLocal;
+    }
+
+    public ApkMeta getApkMeta() {
+        return apkMeta;
     }
 }
