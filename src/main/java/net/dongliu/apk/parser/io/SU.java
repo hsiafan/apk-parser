@@ -148,21 +148,6 @@ public class SU {
     }
 
     /**
-     * read bytes as c++ chars.
-     *
-     * @param in
-     * @param len
-     * @return
-     */
-    public static String readChars(TellableInputStream in, int len) throws IOException {
-        char[] chars = new char[len];
-        for (int i = 0; i < len; i++) {
-            chars[i] = (char) in.readUByte();
-        }
-        return new String(chars);
-    }
-
-    /**
      * method to read resource value RGB/ARGB type.
      *
      * @return

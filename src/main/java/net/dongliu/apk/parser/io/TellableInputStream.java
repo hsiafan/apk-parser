@@ -2,6 +2,7 @@ package net.dongliu.apk.parser.io;
 
 import net.dongliu.apk.parser.struct.ByteOrder;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -16,7 +17,11 @@ public class TellableInputStream {
     private long pos;
 
     public TellableInputStream(InputStream in, ByteOrder byteOrder) {
-        this.in = in;
+        if (in instanceof BufferedInputStream) {
+            this.in = in;
+        } else {
+            this.in = new BufferedInputStream(in);
+        }
         this.byteOrder = byteOrder;
     }
 
@@ -44,7 +49,7 @@ public class TellableInputStream {
         return ret;
     }
 
-    private long skip(long n) throws IOException {
+    private long _skip(long n) throws IOException {
         long ret = this.in.skip(n);
         if (ret != -1) {
             pos += ret;
@@ -72,7 +77,7 @@ public class TellableInputStream {
      */
     public void advanceIfNotRearch(long pos) throws IOException {
         if (this.pos < pos) {
-            skip(pos - this.pos);
+            skip((int) (pos - this.pos));
         } else if (this.pos > pos) {
             throw new IOException("target pos less the current");
         }
@@ -176,6 +181,20 @@ public class TellableInputStream {
         byte temp = bytes[i];
         bytes[i] = bytes[j];
         bytes[j] = temp;
+    }
+
+    /**
+     * read bytes as ascii chars.
+     *
+     * @param len
+     * @return
+     */
+    public String readChars(int len) throws IOException {
+        char[] chars = new char[len];
+        for (int i = 0; i < len; i++) {
+            chars[i] = (char) readUByte();
+        }
+        return new String(chars);
     }
 
     /**

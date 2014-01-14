@@ -4,6 +4,7 @@ import net.dongliu.apk.parser.bean.ApkMeta;
 import net.dongliu.apk.parser.bean.CertificateMeta;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.struct.AndroidFiles;
+import net.dongliu.apk.parser.struct.dex.DexClass;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -11,7 +12,9 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * convenient methods for apk parser
@@ -136,10 +139,56 @@ public class ApkParserUtils {
 
     }
 
+    /**
+     * get all package name in dex file.
+     *
+     *
+     * @param apkPath
+     * @return null or empty if no cetificate in apk, otherwise the cetificate list.
+     * @throws IOException
+     */
+    public static Set<String> listPackages(String apkPath) throws IOException {
+
+        ZipArchiveEntry entry;
+        ZipFile zf = null;
+        try {
+            zf = new ZipFile(apkPath);
+            Enumeration<ZipArchiveEntry> enu = zf.getEntries();
+            while (enu.hasMoreElements()) {
+                entry = enu.nextElement();
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                if (entry.getName().equals(AndroidFiles.DEX)) {
+                    Dexparser parser = new Dexparser(zf.getInputStream(entry));
+                    parser.parse();
+                    DexClass[] dexClasses = parser.getDexClasses();
+                    Set<String> packageNameSet = new HashSet<String>();
+                    for (DexClass dexClass : dexClasses) {
+                        //remove first 'L' and chars after the last '/'
+                        String type = dexClass.classType;
+                        int idx = type.lastIndexOf('/');
+                        if (idx == -1) {
+                            idx = type.length();
+                        }
+                        type = dexClass.classType.substring(1, idx).replace('/', '.');
+                        packageNameSet.add(type);
+                    }
+                    return packageNameSet;
+                }
+            }
+            return null;
+        } finally {
+            ZipFile.closeQuietly(zf);
+        }
+
+    }
+
     public static void main(String args[]) throws IOException {
         String file = args[0];
 
         // Parse Binary XML
-        System.out.println(getManifestXml(file, null));
+//        System.out.println(getManifestXml(file, null));
+        System.out.println(listPackages(file));
     }
 }
