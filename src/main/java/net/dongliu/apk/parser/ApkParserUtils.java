@@ -91,8 +91,11 @@ public class ApkParserUtils {
             BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
                     resourceTable);
             binaryXmlParser.setPreferredLocal(local);
+            ApkMetaParserReader apkMetaParserReader = new ApkMetaParserReader();
+            binaryXmlParser.setXmlStreamReader(apkMetaParserReader);
             binaryXmlParser.parse();
-            return binaryXmlParser.getApkMeta();
+            System.out.println(binaryXmlParser.getXml());
+            return apkMetaParserReader.getApkMeta();
         } finally {
             ZipFile.closeQuietly(zf);
         }
@@ -186,6 +189,6 @@ public class ApkParserUtils {
         String file = args[0];
 
         // Parse Binary XML
-        System.out.println(getManifestXml(file, null));
+        System.out.println(getApkMeta(file, null));
     }
 }

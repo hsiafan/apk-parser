@@ -5,7 +5,7 @@ package net.dongliu.apk.parser.bean;
  *
  * @author dongliu
  */
-public class UsePermission {
+public class UseFeature implements Feature {
     private String name;
     private boolean required = true;
 
@@ -17,10 +17,12 @@ public class UsePermission {
         this.name = name;
     }
 
+    @Override
     public boolean isRequired() {
         return required;
     }
 
+    @Override
     public void setRequired(boolean required) {
         this.required = required;
     }

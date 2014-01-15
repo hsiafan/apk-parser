@@ -36,7 +36,7 @@ public class ApkMeta {
 
     private List<String> permissions = new ArrayList<String>();
 
-    private List<UsePermission> usePermissions = new ArrayList<UsePermission>();
+    private List<UseFeature> useFeatures = new ArrayList<UseFeature>();
 
     public String getPackageName() {
         return packageName;
@@ -165,15 +165,15 @@ public class ApkMeta {
         this.glEsVersion = glEsVersion;
     }
 
-    public List<UsePermission> getUsePermissions() {
-        return usePermissions;
+    public List<UseFeature> getUseFeatures() {
+        return useFeatures;
     }
 
-    public void setUsePermissions(List<UsePermission> usePermissions) {
-        this.usePermissions = usePermissions;
+    public void setUseFeatures(List<UseFeature> useFeatures) {
+        this.useFeatures = useFeatures;
     }
 
-    public void addUsePermission(UsePermission usePermission) {
-        this.usePermissions.add(usePermission);
+    public void addUsePermission(UseFeature useFeature) {
+        this.useFeatures.add(useFeature);
     }
 }

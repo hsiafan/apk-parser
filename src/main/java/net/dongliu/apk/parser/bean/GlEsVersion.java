@@ -5,10 +5,10 @@ package net.dongliu.apk.parser.bean;
  *
  * @author dongliu
  */
-public class GlEsVersion {
+public class GlEsVersion implements Feature {
     private int major;
     private int minor;
-    private boolean required;
+    private boolean required = true;
 
     public int getMajor() {
         return major;
@@ -26,10 +26,12 @@ public class GlEsVersion {
         this.minor = minor;
     }
 
+    @Override
     public boolean isRequired() {
         return required;
     }
 
+    @Override
     public void setRequired(boolean required) {
         this.required = required;
     }

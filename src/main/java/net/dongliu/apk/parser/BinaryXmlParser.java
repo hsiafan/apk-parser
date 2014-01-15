@@ -1,8 +1,6 @@
 package net.dongliu.apk.parser;
 
 import net.dongliu.apk.parser.bean.ApkMeta;
-import net.dongliu.apk.parser.bean.GlEsVersion;
-import net.dongliu.apk.parser.bean.UsePermission;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.io.SU;
 import net.dongliu.apk.parser.io.TellableInputStream;
@@ -33,8 +31,7 @@ public class BinaryXmlParser {
     private XmlNamespaceStartTag namespace;
     private TellableInputStream in;
     private String xml;
-    private ApkMeta apkMeta;
-
+    private XmlStreamReader xmlStreamReader;
     private ResourceTable resourceTable;
     private String preferredLocal;
 
@@ -76,7 +73,6 @@ public class BinaryXmlParser {
             // should be StartNamespace chunk
             SU.checkChunkType(ChunkType.XML_START_NAMESPACE, chunkHeader.chunkType);
 
-            apkMeta = new ApkMeta();
             StringBuilder sb = new StringBuilder();
             sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
             namespace = readXmlNamespaceStartTag();
@@ -154,6 +150,9 @@ public class BinaryXmlParser {
             xmlNodeEndTag.namespace = stringPool.get(nsRef);
         }
         xmlNodeEndTag.name = stringPool.get(nameRef);
+        if (xmlStreamReader != null) {
+            xmlStreamReader.onEndTag(xmlNodeEndTag.name);
+        }
         return xmlNodeEndTag;
     }
 
@@ -165,6 +164,10 @@ public class BinaryXmlParser {
             xmlNodeStartTag.namespace = stringPool.get(nsRef);
         }
         xmlNodeStartTag.name = stringPool.get(nameRef);
+
+        if (xmlStreamReader != null) {
+            xmlStreamReader.onStartTagStart(xmlNodeStartTag.name);
+        }
 
         // read attribute infos.
         // attributeStart and attributeSize are always 20 (0x14)
@@ -178,14 +181,20 @@ public class BinaryXmlParser {
         xmlNodeStartTag.attributeList = new ArrayList<Attribute>(attributeCount);
         // read attributes
         for (int count = 0; count < attributeCount; count++) {
-            Attribute attribute = readAttribute(xmlNodeStartTag.name);
+            Attribute attribute = readAttribute();
             xmlNodeStartTag.attributeList.add(attribute);
+            if (xmlStreamReader != null) {
+                xmlStreamReader.onAttribute(attribute.name, attribute.getValue());
+            }
         }
 
+        if (xmlStreamReader != null) {
+            xmlStreamReader.onStartTagEnd(xmlNodeStartTag.name);
+        }
         return xmlNodeStartTag;
     }
 
-    private Attribute readAttribute(String tagName) throws IOException {
+    private Attribute readAttribute() throws IOException {
         int nsRef = in.readInt();
         int nameRef = in.readInt();
         Attribute attribute = new Attribute();
@@ -208,57 +217,6 @@ public class BinaryXmlParser {
         }
         attribute.typedValue = SU.readResValue(in, stringPool, resourceTable, preferredLocal);
 
-        // get basic apk metas
-        if (tagName.equals("manifest")) {
-            if (attribute.name.equals("package")) {
-                apkMeta.setPackageName(attribute.typedValue.toString());
-            } else if (attribute.name.equals("versionCode")) {
-                apkMeta.setVersionCode(Long.parseLong(attribute.typedValue.toString()));
-            } else if (attribute.name.equals("versionName")) {
-                apkMeta.setVersionName(attribute.typedValue.toString());
-            }
-        } else if (tagName.equals("application")) {
-            if (attribute.name.equals("label")) {
-                apkMeta.setLabel(attribute.typedValue.toString());
-            } else if (attribute.name.equals("icon")) {
-                apkMeta.setIcon(attribute.typedValue.toString());
-            }
-        } else if (tagName.equals("uses-sdk")) {
-            if (attribute.name.equals("minSdkVersion")) {
-                apkMeta.setMinSdkVersion(Integer.parseInt(attribute.typedValue.toString()));
-            } else if (attribute.name.equals("maxSdkVersion")) {
-                apkMeta.setMaxSdkVersion(Integer.parseInt(attribute.typedValue.toString()));
-            } else if (attribute.name.equals("targetSdkVersion")) {
-                apkMeta.setTargetSdkVersion(Integer.parseInt(attribute.typedValue.toString()));
-            }
-        } else if (tagName.equals("uses-permission")) {
-            if (attribute.name.equals("name")) {
-                apkMeta.addPermission(attribute.typedValue.toString());
-            }
-        } else if (tagName.equals("supports-screens")) {
-            if (attribute.name.equals("anyDensity")) {
-                apkMeta.setAnyDensity(Boolean.parseBoolean(attribute.typedValue.toString()));
-            } else if (attribute.name.equals("smallScreens")) {
-                apkMeta.setSmallScreens(Boolean.parseBoolean(attribute.typedValue.toString()));
-            } else if (attribute.name.equals("normalScreens")) {
-                apkMeta.setNormalScreens(Boolean.parseBoolean(attribute.typedValue.toString()));
-            } else if (attribute.name.equals("largeScreens")) {
-                apkMeta.setLargeScreens(Boolean.parseBoolean(attribute.typedValue.toString()));
-            }
-        } else if (tagName.equals("uses-feature")) {
-            if (attribute.name.equals("glEsVersion")) {
-                int v = Integer.parseInt(attribute.typedValue.toString());
-                GlEsVersion glEsVersion = new GlEsVersion();
-                glEsVersion.setMajor(v >> 16);
-                glEsVersion.setMinor(v & 0xffff);
-                apkMeta.setGlEsVersion(glEsVersion);
-            } else if (attribute.name.equals("name")) {
-                UsePermission usePermission = new UsePermission();
-                usePermission.setName(attribute.typedValue.toString());
-            } else if (attribute.name.equals("required")) {
-                //TODO: we need to set usePermission/glesversion required to false.
-            }
-        }
         return attribute;
     }
 
@@ -345,7 +303,11 @@ public class BinaryXmlParser {
         return preferredLocal;
     }
 
-    public ApkMeta getApkMeta() {
-        return apkMeta;
+    public XmlStreamReader getXmlStreamReader() {
+        return xmlStreamReader;
+    }
+
+    public void setXmlStreamReader(XmlStreamReader xmlStreamReader) {
+        this.xmlStreamReader = xmlStreamReader;
     }
 }

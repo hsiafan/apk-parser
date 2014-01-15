@@ -15,6 +15,14 @@ public class Attribute {
     // Processesd typed value of this 
     public ResValue typedValue;
 
+    public String getValue() {
+        if (rawValue != null) {
+            return rawValue;
+        } else {
+            return typedValue.toString();
+        }
+    }
+
     public String toString(BinaryXmlEnv env) {
         StringBuilder sb = new StringBuilder();
         if (namespace != null) {
@@ -28,13 +36,8 @@ public class Attribute {
                 }
             }
         }
-        sb.append(name).append('=').append('"');
-        if (rawValue != null) {
-            sb.append(rawValue);
-        } else {
-            sb.append(typedValue.toString());
-        }
-        sb.append('"');
+        sb.append(name).append('=').append('"')
+                .append(getValue().replace("\"", "\\\"")).append('"');
         return sb.toString();
     }
 
