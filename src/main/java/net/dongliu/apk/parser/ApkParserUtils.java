@@ -186,7 +186,6 @@ public class ApkParserUtils {
         String file = args[0];
 
         // Parse Binary XML
-//        System.out.println(getManifestXml(file, null));
-        System.out.println(listPackages(file));
+        System.out.println(getManifestXml(file, null));
     }
 }

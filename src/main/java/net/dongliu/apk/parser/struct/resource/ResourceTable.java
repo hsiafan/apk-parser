@@ -13,7 +13,7 @@ public class ResourceTable {
     public StringPool stringPool;
 
     public void addPackage(ResourcePackage resourcePackage) {
-        this.packageMap.put((short) resourcePackage.header.id, resourcePackage);
+        this.packageMap.put(resourcePackage.id, resourcePackage);
     }
 
     public ResourcePackage getPackage(short id) {

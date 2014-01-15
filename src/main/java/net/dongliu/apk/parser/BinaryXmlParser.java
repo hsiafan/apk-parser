@@ -1,6 +1,8 @@
 package net.dongliu.apk.parser;
 
 import net.dongliu.apk.parser.bean.ApkMeta;
+import net.dongliu.apk.parser.bean.GlEsVersion;
+import net.dongliu.apk.parser.bean.UsePermission;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.io.SU;
 import net.dongliu.apk.parser.io.TellableInputStream;
@@ -11,8 +13,6 @@ import net.dongliu.apk.parser.struct.xml.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Android Binary XML format
@@ -49,83 +49,88 @@ public class BinaryXmlParser {
      * @throws java.io.IOException
      */
     public void parse() throws IOException {
-        ChunkHeader chunkHeader = readChunkHeader();
-        if (chunkHeader == null || chunkHeader.chunkType != ChunkType.XML) {
-            //TODO: may be a plain xml file.
-            return;
-        }
-        XmlHeader xmlHeader = (XmlHeader) chunkHeader;
-
-        // read string pool chunk
-        chunkHeader = readChunkHeader();
-        SU.checkChunkType(ChunkType.STRING_POOL, chunkHeader.chunkType);
-        stringPool = SU.readStringPool(in, (StringPoolHeader) chunkHeader);
-
-        // read on chunk, check if it was an optional XMLResourceMap chunk
-        chunkHeader = readChunkHeader();
-        if (chunkHeader.chunkType == ChunkType.XML_RESOURCE_MAP) {
-            resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
-            resourceMap = new String[resourceIds.length];
-            for (int i = 0; i < resourceIds.length; i++) {
-                resourceMap[i] = Attribute.AttrIds.getString(resourceIds[i]);
+        try {
+            ChunkHeader chunkHeader = readChunkHeader();
+            if (chunkHeader == null || chunkHeader.chunkType != ChunkType.XML) {
+                //TODO: may be a plain xml file.
+                return;
             }
+            XmlHeader xmlHeader = (XmlHeader) chunkHeader;
+
+            // read string pool chunk
             chunkHeader = readChunkHeader();
-        }
+            SU.checkChunkType(ChunkType.STRING_POOL, chunkHeader.chunkType);
+            stringPool = SU.readStringPool(in, (StringPoolHeader) chunkHeader);
 
-        // should be StartNamespace chunk
-        SU.checkChunkType(ChunkType.XML_START_NAMESPACE, chunkHeader.chunkType);
-
-        apkMeta = new ApkMeta();
-        StringBuilder sb = new StringBuilder();
-        sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-        namespace = readXmlNamespaceStartTag();
-
-        BinaryXmlEnv env = new BinaryXmlEnv();
-        env.stringPool = stringPool;
-        env.namespace = namespace;
-
-        int shift = 0;
-        do {
-            // root startElement chunk
+            // read on chunk, check if it was an optional XMLResourceMap chunk
             chunkHeader = readChunkHeader();
-            if (chunkHeader.chunkType == ChunkType.XML_END_NAMESPACE) {
-                break;
-            }
-            switch (chunkHeader.chunkType) {
-                case ChunkType.XML_START_ELEMENT:
-                    XmlNodeStartTag xmlNodeStartTag = readXmlNodeStartTag();
-                    appendShift(sb, shift);
-                    sb.append(xmlNodeStartTag.toString(env, shift == 0)).append('\n');
-                    shift++;
-                    break;
-                case ChunkType.XML_END_ELEMENT:
-                    XmlNodeEndTag xmlNodeEndTag = readXmlNodeEndTag();
-                    shift--;
-                    appendShift(sb, shift);
-                    sb.append(xmlNodeEndTag.toString(env)).append('\n');
-                    break;
-                case ChunkType.XML_CDATA:
-                    XmlCData xmlCData = readXxmlCData();
-                    appendShift(sb, shift + 1);
-                    sb.append(xmlCData.toString(env)).append('\n');
-                    break;
-                case ChunkType.XML_FIRST_CHUNK:
-                case ChunkType.XML_LAST_CHUNK:
-                    //TODO: what is this for
-                    in.skip((int) (chunkHeader.chunkSize - chunkHeader.headerSize));
-                    break;
-                default:
-                    throw new ParserException("Unexpected chunk type:" + chunkHeader.chunkType);
+            if (chunkHeader.chunkType == ChunkType.XML_RESOURCE_MAP) {
+                resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
+                resourceMap = new String[resourceIds.length];
+                for (int i = 0; i < resourceIds.length; i++) {
+                    resourceMap[i] = Attribute.AttrIds.getString(resourceIds[i]);
+                }
+                chunkHeader = readChunkHeader();
             }
 
-        } while (true);
+            // should be StartNamespace chunk
+            SU.checkChunkType(ChunkType.XML_START_NAMESPACE, chunkHeader.chunkType);
 
-        XmlNamespaceEndTag xmlNamespaceEndTag = readXmlNamespaceEndTag();
-        this.xml = sb.toString();
-        this.in.close();
+            apkMeta = new ApkMeta();
+            StringBuilder sb = new StringBuilder();
+            sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+            namespace = readXmlNamespaceStartTag();
+
+            BinaryXmlEnv env = new BinaryXmlEnv();
+            env.stringPool = stringPool;
+            env.namespace = namespace;
+
+            int shift = 0;
+            do {
+                // root startElement chunk
+                chunkHeader = readChunkHeader();
+                if (chunkHeader.chunkType == ChunkType.XML_END_NAMESPACE) {
+                    break;
+                }
+                long beginPos = in.tell();
+                switch (chunkHeader.chunkType) {
+                    case ChunkType.XML_START_ELEMENT:
+                        XmlNodeStartTag xmlNodeStartTag = readXmlNodeStartTag();
+                        appendShift(sb, shift);
+                        sb.append(xmlNodeStartTag.toString(env, shift == 0)).append('\n');
+                        shift++;
+                        break;
+                    case ChunkType.XML_END_ELEMENT:
+                        XmlNodeEndTag xmlNodeEndTag = readXmlNodeEndTag();
+                        shift--;
+                        appendShift(sb, shift);
+                        sb.append(xmlNodeEndTag.toString(env)).append('\n');
+                        break;
+                    case ChunkType.XML_CDATA:
+                        XmlCData xmlCData = readXmlCData();
+                        appendShift(sb, shift + 1);
+                        sb.append(xmlCData.toString(env)).append('\n');
+                        break;
+                    case ChunkType.XML_FIRST_CHUNK:
+                    case ChunkType.XML_LAST_CHUNK:
+                        //TODO: what is this for
+                        in.skip((int) (chunkHeader.chunkSize - chunkHeader.headerSize));
+                        break;
+                    default:
+                        throw new ParserException("Unexpected chunk type:" + chunkHeader.chunkType);
+                }
+                in.advanceIfNotRearch(beginPos + chunkHeader.chunkSize - chunkHeader.headerSize);
+
+            } while (true);
+
+            XmlNamespaceEndTag xmlNamespaceEndTag = readXmlNamespaceEndTag();
+            this.xml = sb.toString();
+        } finally {
+            this.in.close();
+        }
     }
 
-    private XmlCData readXxmlCData() throws IOException {
+    private XmlCData readXmlCData() throws IOException {
         XmlCData xmlCData = new XmlCData();
         int dataRef = in.readInt();
         if (dataRef > 0) {
@@ -173,14 +178,14 @@ public class BinaryXmlParser {
         xmlNodeStartTag.attributeList = new ArrayList<Attribute>(attributeCount);
         // read attributes
         for (int count = 0; count < attributeCount; count++) {
-            Attribute attribute = readAttribute();
+            Attribute attribute = readAttribute(xmlNodeStartTag.name);
             xmlNodeStartTag.attributeList.add(attribute);
         }
 
         return xmlNodeStartTag;
     }
 
-    private Attribute readAttribute() throws IOException {
+    private Attribute readAttribute(String tagName) throws IOException {
         int nsRef = in.readInt();
         int nameRef = in.readInt();
         Attribute attribute = new Attribute();
@@ -203,34 +208,56 @@ public class BinaryXmlParser {
         }
         attribute.typedValue = SU.readResValue(in, stringPool, resourceTable, preferredLocal);
 
-
         // get basic apk metas
-        if (resourceIds != null && nameRef < resourceIds.length) {
-            long id = resourceIds[nameRef];
-            switch ((int) id) {
-                case Attribute.AttrIds.VERSION_NAME:
-                    apkMeta.setVersionName(attribute.typedValue.toString());
-                    break;
-                case Attribute.AttrIds.VERSION_CODE:
-                    apkMeta.setVersionCode(attribute.typedValue.toString());
-                    break;
-                case Attribute.AttrIds.LABEL:
-                    apkMeta.setName(attribute.typedValue.toString());
-                    break;
-                case Attribute.AttrIds.MAX_SDK_VERSION:
-                    apkMeta.setMaxSdkVersion(attribute.typedValue.toString());
-                    break;
-                case Attribute.AttrIds.MIN_SDK_VERSION:
-                    apkMeta.setMinSdkVersion(attribute.typedValue.toString());
-                    break;
-                case Attribute.AttrIds.TARGET_SDK_VERSION:
-                    apkMeta.setTargetSdkVersion(attribute.typedValue.toString());
-                    break;
-                default:
+        if (tagName.equals("manifest")) {
+            if (attribute.name.equals("package")) {
+                apkMeta.setPackageName(attribute.typedValue.toString());
+            } else if (attribute.name.equals("versionCode")) {
+                apkMeta.setVersionCode(Long.parseLong(attribute.typedValue.toString()));
+            } else if (attribute.name.equals("versionName")) {
+                apkMeta.setVersionName(attribute.typedValue.toString());
             }
-        }
-        if (attribute.name.equals("package")) {
-            apkMeta.setPackageName(attribute.typedValue.toString());
+        } else if (tagName.equals("application")) {
+            if (attribute.name.equals("label")) {
+                apkMeta.setLabel(attribute.typedValue.toString());
+            } else if (attribute.name.equals("icon")) {
+                apkMeta.setIcon(attribute.typedValue.toString());
+            }
+        } else if (tagName.equals("uses-sdk")) {
+            if (attribute.name.equals("minSdkVersion")) {
+                apkMeta.setMinSdkVersion(Integer.parseInt(attribute.typedValue.toString()));
+            } else if (attribute.name.equals("maxSdkVersion")) {
+                apkMeta.setMaxSdkVersion(Integer.parseInt(attribute.typedValue.toString()));
+            } else if (attribute.name.equals("targetSdkVersion")) {
+                apkMeta.setTargetSdkVersion(Integer.parseInt(attribute.typedValue.toString()));
+            }
+        } else if (tagName.equals("uses-permission")) {
+            if (attribute.name.equals("name")) {
+                apkMeta.addPermission(attribute.typedValue.toString());
+            }
+        } else if (tagName.equals("supports-screens")) {
+            if (attribute.name.equals("anyDensity")) {
+                apkMeta.setAnyDensity(Boolean.parseBoolean(attribute.typedValue.toString()));
+            } else if (attribute.name.equals("smallScreens")) {
+                apkMeta.setSmallScreens(Boolean.parseBoolean(attribute.typedValue.toString()));
+            } else if (attribute.name.equals("normalScreens")) {
+                apkMeta.setNormalScreens(Boolean.parseBoolean(attribute.typedValue.toString()));
+            } else if (attribute.name.equals("largeScreens")) {
+                apkMeta.setLargeScreens(Boolean.parseBoolean(attribute.typedValue.toString()));
+            }
+        } else if (tagName.equals("uses-feature")) {
+            if (attribute.name.equals("glEsVersion")) {
+                int v = Integer.parseInt(attribute.typedValue.toString());
+                GlEsVersion glEsVersion = new GlEsVersion();
+                glEsVersion.setMajor(v >> 16);
+                glEsVersion.setMinor(v & 0xffff);
+                apkMeta.setGlEsVersion(glEsVersion);
+            } else if (attribute.name.equals("name")) {
+                UsePermission usePermission = new UsePermission();
+                usePermission.setName(attribute.typedValue.toString());
+            } else if (attribute.name.equals("required")) {
+                //TODO: we need to set usePermission/glesversion required to false.
+            }
         }
         return attribute;
     }
@@ -261,8 +288,7 @@ public class BinaryXmlParser {
         return nameSpace;
     }
 
-    private long[] readXmlResourceMap(XmlResourceMapHeader chunkHeader)
-            throws IOException {
+    private long[] readXmlResourceMap(XmlResourceMapHeader chunkHeader) throws IOException {
         int count = (int) ((chunkHeader.chunkSize - chunkHeader.headerSize) / 4);
         long[] resourceIds = new long[count];
         for (int i = 0; i < count; i++) {
@@ -295,6 +321,7 @@ public class BinaryXmlParser {
             case ChunkType.XML_END_NAMESPACE:
             case ChunkType.XML_START_ELEMENT:
             case ChunkType.XML_END_ELEMENT:
+            case ChunkType.XML_CDATA:
                 XmlNodeHeader header = new XmlNodeHeader(chunkType, headSize, chunkSize);
                 header.lineNum = (int) in.readUInt();
                 header.commentRef = (int) in.readUInt();

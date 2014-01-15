@@ -13,12 +13,18 @@ import java.util.Map;
  * @author dongliu
  */
 public class ResourcePackage {
-    public PackageHeader header;
+    // the packageName
+    public String name;
+    public short id;
     // contains the names of the types of the Resources defined in the ResourcePackage
     public StringPool typeStringPool;
     //  contains the names (keys) of the Resources defined in the ResourcePackage.
     public StringPool keyStringPool;
 
+    public ResourcePackage(PackageHeader header) {
+        this.name = header.name;
+        this.id = (short) header.id;
+    }
 
     private Map<Short, TypeSpec> typeSpecMap = new HashMap<Short, TypeSpec>();
 

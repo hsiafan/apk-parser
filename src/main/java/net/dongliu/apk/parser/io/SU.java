@@ -180,6 +180,7 @@ public class SU {
 
         switch (resValue.dataType) {
             case ResValue.ResType.INT_DEC:
+                case ResValue.ResType.INT_HEX:
                 resValue.data = String.valueOf(in.readUInt());
                 break;
             case ResValue.ResType.STRING:
@@ -194,9 +195,6 @@ public class SU {
                 break;
             case ResValue.ResType.INT_BOOLEAN:
                 resValue.data = String.valueOf(in.readInt() != 0);
-                break;
-            case ResValue.ResType.INT_HEX:
-                resValue.data = "0x" + Long.toHexString(in.readUInt());
                 break;
             case ResValue.ResType.NULL:
                 resValue.data = "";

@@ -52,7 +52,10 @@ public class ResourceTableParser {
             resourceTable.stringPool = stringPool;
 
             for (int i = 0; i < resourceTableHeader.packageCount; i++) {
-                resourceTable.addPackage(readPackage());
+                ResourcePackage resourcePackage = readPackage();
+                if (resourcePackage != null) {
+                    resourceTable.addPackage(resourcePackage);
+                }
             }
         } finally {
             in.close();
@@ -65,11 +68,13 @@ public class ResourceTableParser {
         //read packageHeader
         ChunkHeader chunkHeader;
         chunkHeader = readChunkHeader();
-        SU.checkChunkType(ChunkType.TABLE_PACKAGE, chunkHeader.chunkType);
+        if (chunkHeader.chunkType != ChunkType.TABLE_PACKAGE) {
+            return null;
+        }
+//        SU.checkChunkType(ChunkType.TABLE_PACKAGE, chunkHeader.chunkType);
 
         PackageHeader packageHeader = (PackageHeader) chunkHeader;
-        ResourcePackage resourcePackage = new ResourcePackage();
-        resourcePackage.header = packageHeader;
+        ResourcePackage resourcePackage = new ResourcePackage(packageHeader);
 
         long beginPos = in.tell();
         // read type string pool
