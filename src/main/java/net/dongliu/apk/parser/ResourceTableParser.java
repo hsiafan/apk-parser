@@ -25,6 +25,7 @@ public class ResourceTableParser {
     private StringPool stringPool;
     private TellableInputStream in;
     private ResourceTable resourceTable;
+    private ChunkHeader chunkHeader;
 
     public ResourceTableParser(InputStream in) {
         this.in = new TellableInputStream(in, byteOrder);
@@ -38,7 +39,6 @@ public class ResourceTableParser {
     public void parse() throws IOException {
         try {
             // read resource file header.
-            ChunkHeader chunkHeader;
             chunkHeader = readChunkHeader();
             SU.checkChunkType(ChunkType.TABLE, chunkHeader.chunkType);
             ResourceTableHeader resourceTableHeader = (ResourceTableHeader) chunkHeader;
@@ -51,11 +51,10 @@ public class ResourceTableParser {
             resourceTable = new ResourceTable();
             resourceTable.stringPool = stringPool;
 
+            chunkHeader = readChunkHeader();
             for (int i = 0; i < resourceTableHeader.packageCount; i++) {
-                ResourcePackage resourcePackage = readPackage();
-                if (resourcePackage != null) {
-                    resourceTable.addPackage(resourcePackage);
-                }
+                ResourcePackage resourcePackage = readPackage((PackageHeader) chunkHeader);
+                resourceTable.addPackage(resourcePackage);
             }
         } finally {
             in.close();
@@ -64,16 +63,8 @@ public class ResourceTableParser {
     }
 
     // read one package
-    private ResourcePackage readPackage() throws IOException {
+    private ResourcePackage readPackage(PackageHeader packageHeader) throws IOException {
         //read packageHeader
-        ChunkHeader chunkHeader;
-        chunkHeader = readChunkHeader();
-        if (chunkHeader.chunkType != ChunkType.TABLE_PACKAGE) {
-            return null;
-        }
-//        SU.checkChunkType(ChunkType.TABLE_PACKAGE, chunkHeader.chunkType);
-
-        PackageHeader packageHeader = (PackageHeader) chunkHeader;
         ResourcePackage resourcePackage = new ResourcePackage(packageHeader);
 
         long beginPos = in.tell();
@@ -147,6 +138,8 @@ public class ResourceTableParser {
                     resourcePackage.addType(type);
                     in.advanceIfNotRearch(typeChunkBegin + typeHeader.chunkSize - typeHeader.headerSize);
                     break;
+                case ChunkType.TABLE_PACKAGE:
+
                 default:
                     flag = false;
             }

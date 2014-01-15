@@ -1,10 +1,7 @@
 package net.dongliu.apk.parser.io;
 
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.struct.ResValue;
-import net.dongliu.apk.parser.struct.StringEncoding;
-import net.dongliu.apk.parser.struct.StringPool;
-import net.dongliu.apk.parser.struct.StringPoolHeader;
+import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
 
 import java.io.IOException;
@@ -280,6 +277,9 @@ public class SU {
 //        an 8-bit Package id [bits 24-31]
 //        an 8-bit Type id [bits 16-23]
 //        a 16-bit Entry index [bits 0-15]
+        if (resourceId == 0x7f09084c) {
+            int i = 0;
+        }
         String str = "invalid resource:0x" + Long.toHexString(resourceId);
         if (resourceTable == null) {
             return str;
