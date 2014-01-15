@@ -11,10 +11,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * convenient methods for apk parser
@@ -141,7 +138,6 @@ public class ApkParserUtils {
 
     /**
      * get all package name in dex file.
-     *
      *
      * @param apkPath
      * @return null or empty if no cetificate in apk, otherwise the cetificate list.

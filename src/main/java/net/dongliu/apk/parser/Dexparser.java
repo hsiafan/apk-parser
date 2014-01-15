@@ -1,7 +1,6 @@
 package net.dongliu.apk.parser;
 
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.io.SU;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.struct.ByteOrder;
 import net.dongliu.apk.parser.struct.dex.DexClass;
@@ -40,7 +39,7 @@ public class Dexparser {
         header.version = Integer.parseInt(version);
 
         if (header.version < 35) {
-            return;
+            //TODO: deal with old version
         }
 
         readDexHeader();
@@ -58,7 +57,7 @@ public class Dexparser {
 
         String[] types = new String[typeIds.length];
         for (int i = 0; i < typeIds.length; i++) {
-            types[i] = stringpool[typeIds[i] - 1];
+            types[i] = stringpool[typeIds[i]];
         }
 
         for (DexClass dexClass : dexClasses) {
