@@ -7,10 +7,10 @@ public class TypeSpec {
 
     public long[] entryFlags;
     public String name;
-    public TypeSpecHeader header;
+    public Short id;
 
     public TypeSpec(TypeSpecHeader header) {
-        this.header = header;
+        this.id = header.id;
     }
 
     public boolean exists(int id) {

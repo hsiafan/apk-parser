@@ -1,5 +1,7 @@
 package net.dongliu.apk.parser.struct.resource;
 
+import net.dongliu.apk.parser.bean.Locale;
+
 /**
  * @author dongliu
  */
@@ -7,10 +9,13 @@ public class Type {
 
     public String name;
     public ResourceEntry[] resourceEntries;
-    public TypeHeader header;
+    public Short id;
+
+    public Locale locale;
 
     public Type(TypeHeader header) {
-        this.header = header;
+        this.id = header.id;
+        locale = new Locale(header.config.country, header.config.language);
     }
 
     public ResourceEntry getResourceEntry(int id) {

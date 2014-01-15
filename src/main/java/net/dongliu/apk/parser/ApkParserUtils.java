@@ -2,6 +2,7 @@ package net.dongliu.apk.parser;
 
 import net.dongliu.apk.parser.bean.ApkMeta;
 import net.dongliu.apk.parser.bean.CertificateMeta;
+import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.struct.AndroidFiles;
 import net.dongliu.apk.parser.struct.dex.DexClass;
@@ -11,7 +12,10 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * convenient methods for apk parser
@@ -23,7 +27,7 @@ public class ApkParserUtils {
     /**
      * Decode binary XML files
      */
-    public static String getManifestXml(String apkFile, String local) throws IOException {
+    public static String getManifestXml(String apkFile, Locale locale) throws IOException {
         ZipFile zf = null;
         try {
             zf = new ZipFile(apkFile);
@@ -50,7 +54,7 @@ public class ApkParserUtils {
 
             BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
                     resourceTable);
-            binaryXmlParser.setPreferredLocal(local);
+            binaryXmlParser.setLocale(locale);
             binaryXmlParser.parse();
             return binaryXmlParser.getXml();
         } finally {
@@ -63,7 +67,7 @@ public class ApkParserUtils {
     /**
      * Decode binary XML files
      */
-    public static ApkMeta getApkMeta(String apkFile, String local) throws IOException {
+    public static ApkMeta getApkMeta(String apkFile, Locale locale) throws IOException {
         ZipFile zf = null;
         try {
             zf = new ZipFile(apkFile);
@@ -90,7 +94,7 @@ public class ApkParserUtils {
 
             BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
                     resourceTable);
-            binaryXmlParser.setPreferredLocal(local);
+            binaryXmlParser.setLocale(locale);
             ApkMetaParserReader apkMetaParserReader = new ApkMetaParserReader();
             binaryXmlParser.setXmlStreamReader(apkMetaParserReader);
             binaryXmlParser.parse();
@@ -188,6 +192,6 @@ public class ApkParserUtils {
         String file = args[0];
 
         // Parse Binary XML
-        System.out.println(getApkMeta(file, null));
+        System.out.println(getApkMeta(file, Locale.zh_CN));
     }
 }

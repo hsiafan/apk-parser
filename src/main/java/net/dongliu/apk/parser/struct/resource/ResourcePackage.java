@@ -31,7 +31,7 @@ public class ResourcePackage {
     private Map<Short, List<Type>> typesMap = new HashMap<Short, List<Type>>();
 
     public void addTypeSpec(TypeSpec typeSpec) {
-        this.typeSpecMap.put(typeSpec.header.id, typeSpec);
+        this.typeSpecMap.put(typeSpec.id, typeSpec);
     }
 
     public TypeSpec getTypeSpec(Short id) {
@@ -39,10 +39,10 @@ public class ResourcePackage {
     }
 
     public void addType(Type type) {
-        List<Type> types = this.typesMap.get(type.header.id);
+        List<Type> types = this.typesMap.get(type.id);
         if (types == null) {
             types = new ArrayList<Type>();
-            this.typesMap.put(type.header.id, types);
+            this.typesMap.put(type.id, types);
         }
         types.add(type);
     }

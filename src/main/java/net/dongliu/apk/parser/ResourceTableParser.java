@@ -282,8 +282,8 @@ public class ResourceTableParser {
         long size = in.readUInt();
         in.skip(4);
         //read locale
-        config.country = in.readChars(2);
         config.language = in.readChars(2);
+        config.country = in.readChars(2);
 
         long endPos = in.tell();
         in.skip((int) (size - (endPos - beginPos)));

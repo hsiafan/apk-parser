@@ -1,7 +1,11 @@
 package net.dongliu.apk.parser.io;
 
+import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.struct.*;
+import net.dongliu.apk.parser.struct.ResValue;
+import net.dongliu.apk.parser.struct.StringEncoding;
+import net.dongliu.apk.parser.struct.StringPool;
+import net.dongliu.apk.parser.struct.StringPoolHeader;
 import net.dongliu.apk.parser.struct.resource.*;
 
 import java.io.IOException;
@@ -168,7 +172,7 @@ public class SU {
      * @throws IOException
      */
     public static ResValue readResValue(TellableInputStream in, StringPool stringPool,
-                                        ResourceTable resourceTable, String local)
+                                        ResourceTable resourceTable, Locale locale)
             throws IOException {
         ResValue resValue = new ResValue();
         resValue.size = in.readUShort();
@@ -177,7 +181,7 @@ public class SU {
 
         switch (resValue.dataType) {
             case ResValue.ResType.INT_DEC:
-                case ResValue.ResType.INT_HEX:
+            case ResValue.ResType.INT_HEX:
                 resValue.data = String.valueOf(in.readUInt());
                 break;
             case ResValue.ResType.STRING:
@@ -188,7 +192,7 @@ public class SU {
                 break;
             case ResValue.ResType.REFERENCE:
                 long resourceId = in.readUInt();
-                resValue.data = getResourceByid(resourceId, resourceTable, local);
+                resValue.data = getResourceByid(resourceId, resourceTable, locale);
                 break;
             case ResValue.ResType.INT_BOOLEAN:
                 resValue.data = String.valueOf(in.readInt() != 0);
@@ -272,14 +276,11 @@ public class SU {
     }
 
     public static String getResourceByid(long resourceId, ResourceTable resourceTable,
-                                         String local) {
+                                         Locale locale) {
 //        An Android Resource id is a 32-bit integer. It comprises
 //        an 8-bit Package id [bits 24-31]
 //        an 8-bit Type id [bits 16-23]
 //        a 16-bit Entry index [bits 0-15]
-        if (resourceId == 0x7f09084c) {
-            int i = 0;
-        }
         String str = "invalid resource:0x" + Long.toHexString(resourceId);
         if (resourceTable == null) {
             return str;
@@ -303,37 +304,25 @@ public class SU {
 
         // read from type resource
         String result = null;
-        String wideResult = null;
         String ref = null;
-        String wideRef = null;
-
+        int currentLevel = -1;
         for (Type type : types) {
-            String tlocal = type.header.config.country + "_" + type.header.config.language;
             ResourceEntry resource = type.getResourceEntry(entryIndex);
             if (resource == null) {
                 continue;
             }
-            if (local != null && local.equals(tlocal)) {
+            int level = locale.match(type.locale);
+            if (level == 2) {
                 ref = resource.key;
                 result = resource.toString();
                 break;
-            } else if (wideResult == null) {
-                wideRef = resource.key;
-                wideResult = resource.toString();
-                if (local == null) {
-                    break;
-                }
+            } else if (level > currentLevel) {
+                ref = resource.key;
+                result = resource.toString();
             }
         }
         if (result == null) {
-            result = wideResult;
-        }
-        if (result == null) {
-            if (ref != null) {
-                result = "@" + typeSpec.name + "/" + ref;
-            } else {
-                result = "@" + typeSpec.name + "/" + wideRef;
-            }
+            result = "@" + typeSpec.name + "/" + ref;
         }
         return result;
     }

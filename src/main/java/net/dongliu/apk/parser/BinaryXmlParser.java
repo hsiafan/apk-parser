@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser;
 
-import net.dongliu.apk.parser.bean.ApkMeta;
+import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.io.SU;
 import net.dongliu.apk.parser.io.TellableInputStream;
@@ -33,7 +33,7 @@ public class BinaryXmlParser {
     private String xml;
     private XmlStreamReader xmlStreamReader;
     private ResourceTable resourceTable;
-    private String preferredLocal;
+    private Locale locale = Locale.any;
 
     public BinaryXmlParser(InputStream in, ResourceTable resourceTable) {
         this.in = new TellableInputStream(in, byteOrder);
@@ -132,7 +132,7 @@ public class BinaryXmlParser {
         if (dataRef > 0) {
             xmlCData.data = stringPool.get(dataRef);
         }
-        xmlCData.typedData = SU.readResValue(in, stringPool, resourceTable, preferredLocal);
+        xmlCData.typedData = SU.readResValue(in, stringPool, resourceTable, locale);
         return xmlCData;
     }
 
@@ -215,7 +215,7 @@ public class BinaryXmlParser {
         if (rawValueRef > 0) {
             attribute.rawValue = stringPool.get(rawValueRef);
         }
-        attribute.typedValue = SU.readResValue(in, stringPool, resourceTable, preferredLocal);
+        attribute.typedValue = SU.readResValue(in, stringPool, resourceTable, locale);
 
         return attribute;
     }
@@ -295,12 +295,14 @@ public class BinaryXmlParser {
         return this.xml;
     }
 
-    public void setPreferredLocal(String preferredLocal) {
-        this.preferredLocal = preferredLocal;
+    public void setLocale(Locale locale) {
+        if (locale != null) {
+            this.locale = locale;
+        }
     }
 
-    public String getPreferredLocal() {
-        return preferredLocal;
+    public Locale getLocale() {
+        return locale;
     }
 
     public XmlStreamReader getXmlStreamReader() {
