@@ -94,7 +94,6 @@ public class ApkParserUtils {
             ApkMetaParserReader apkMetaParserReader = new ApkMetaParserReader();
             binaryXmlParser.setXmlStreamReader(apkMetaParserReader);
             binaryXmlParser.parse();
-            System.out.println(binaryXmlParser.getXml());
             return apkMetaParserReader.getApkMeta();
         } finally {
             ZipFile.closeQuietly(zf);
