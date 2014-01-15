@@ -3,6 +3,7 @@ package net.dongliu.apk.parser.io;
 import net.dongliu.apk.parser.struct.ByteOrder;
 
 import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -93,7 +94,7 @@ public class TellableInputStream {
         while (readed < len) {
             int read = read(bytes, readed, len - readed);
             if (read == -1) {
-                throw new IOException("UnExpected EOF");
+                throw new EOFException("UnExpected EOF");
             }
             readed += read;
         }
@@ -109,7 +110,7 @@ public class TellableInputStream {
     public short readUByte() throws IOException {
         int ret = read();
         if (ret == -1) {
-            throw new IOException("UnExpected EOF");
+            throw new EOFException("UnExpected EOF");
         }
         return (short) ret;
     }

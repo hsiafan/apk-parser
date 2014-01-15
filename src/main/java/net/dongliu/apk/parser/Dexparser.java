@@ -9,6 +9,7 @@ import net.dongliu.apk.parser.struct.dex.DexHeader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UTFDataFormatException;
 
 /**
  * parse dex file.
@@ -104,6 +105,7 @@ public class Dexparser {
         }
         return stringpool;
     }
+
     /*
      * read string identifiers list.
      */
@@ -123,41 +125,51 @@ public class Dexparser {
     private String readString() throws IOException {
         // the length is char len, not byte len
         int strLen = readVarInts();
-        return readString(strLen);
+        try {
+            return readString(strLen);
+        } catch (UTFDataFormatException e) {
+            return "";
+        }
     }
 
     /**
      * read Modified UTF-8 encoding str.
+     *
      * @param strLen the java-utf16-char len, not strLen nor bytes len.
      */
     private String readString(int strLen) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        char[] chars = new char[strLen];
         for (int i = 0; i < strLen; i++) {
-            short s = in.readUByte();
-            baos.write(s);
-            if ((s & 0x80) == 0) {
+            short a = in.readUByte();
+            if ((a & 0x80) == 0) {
                 // ascii char
-            } else if ((s | 0xc0) == 0xc0) {
+                chars[i] = (char) a;
+            } else if ((a & 0xe0) == 0xc0) {
                 // read one more
-                baos.write(in.readUByte());
-            } else if ((s | 0xe0) == 0xe0) {
-                baos.write(in.readBytes(2));
-            } else if ((s | 0xf0) == 0xf0) {
-                baos.write(in.readBytes(3));
+                short b = in.readUByte();
+                chars[i] = (char) (((a & 0x1F) << 6) | (b & 0x3F));
+            } else if ((a & 0xf0) == 0xe0) {
+                short b = in.readUByte();
+                short c = in.readUByte();
+                chars[i] = (char) (((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F));
+            } else if ((a & 0xf0) == 0xf0) {
+                throw new UTFDataFormatException();
             } else {
-                // should not happen
+                throw new UTFDataFormatException();
+            }
+            if (chars[i] == 0) {
+                // the end of string.
             }
         }
 
         //TODO:should be m-utf-8
-        String str = baos.toString("UTF-8");
-        baos.close();
-        return str;
+        return new String(chars);
     }
 
 
     /**
      * read varints.
+     *
      * @return
      * @throws IOException
      */
@@ -172,7 +184,7 @@ public class Dexparser {
             s = in.readUByte();
             i |= (s & 0x7f) << (count * 7);
             count++;
-        } while((s & 0x80) != 0);
+        } while ((s & 0x80) != 0);
 
         return i;
     }

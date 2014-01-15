@@ -163,12 +163,14 @@ public class ApkParserUtils {
                     for (DexClass dexClass : dexClasses) {
                         //remove first 'L' and chars after the last '/'
                         String type = dexClass.classType;
-                        int idx = type.lastIndexOf('/');
-                        if (idx == -1) {
-                            idx = type.length();
+                        if (type != null && !type.isEmpty()) {
+                            int idx = type.lastIndexOf('/');
+                            if (idx == -1) {
+                                idx = type.length();
+                            }
+                            type = dexClass.classType.substring(1, idx).replace('/', '.');
+                            packageNameSet.add(type);
                         }
-                        type = dexClass.classType.substring(1, idx).replace('/', '.');
-                        packageNameSet.add(type);
                     }
                     return packageNameSet;
                 }
