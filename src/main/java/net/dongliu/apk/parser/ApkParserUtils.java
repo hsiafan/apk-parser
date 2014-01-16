@@ -162,7 +162,7 @@ public class ApkParserUtils {
                     continue;
                 }
                 if (entry.getName().equals(AndroidFiles.DEX)) {
-                    Dexparser parser = new Dexparser(zf.getInputStream(entry));
+                    DexParser parser = new DexParser(zf.getInputStream(entry));
                     parser.parse();
                     DexClass[] dexClasses = parser.getDexClasses();
                     Set<String> packageNameSet = new HashSet<String>();
