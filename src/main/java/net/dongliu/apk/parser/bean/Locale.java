@@ -1,6 +1,8 @@
 package net.dongliu.apk.parser.bean;
 
 /**
+ * The java use ISO-639 and ISO-3166 to represent a local, with language lower case and country upper case.
+ *
  * @author dongliu
  */
 public class Locale {
@@ -9,11 +11,37 @@ public class Locale {
 
     private String language;
 
+    // the most widely used locales
+
     public static final Locale any = new Locale("", "");
+    public static final Locale en_US = new Locale("US", "en");
     public static final Locale zh_CN = new Locale("CN", "zh");
     public static final Locale zh_TW = new Locale("TW", "zh");
-    public static final Locale en_US = new Locale("US", "en");
-    public static final Locale es_US = new Locale("US", "es");
+    /**
+     * Japanese
+     */
+    public static final Locale ja = new Locale("ja", "");
+    /**
+     * German
+     */
+    public static final Locale de = new Locale("ja", "");
+    public static final Locale en = new Locale("en", "");
+    /**
+     * Korean
+     */
+    public static final Locale ko = new Locale("ko", "");
+    /**
+     * French
+     */
+    public static final Locale fr = new Locale("fr", "");
+    /**
+     * Spanish; Castilian
+     */
+    public static final Locale es = new Locale("es", "");
+    /**
+     * Russian
+     */
+    public static final Locale ru = new Locale("ru", "");
 
     public Locale(String country, String language) {
         setCountry(country);
@@ -49,8 +77,8 @@ public class Locale {
     }
 
     public int match(Locale locale) {
-        if (this.language.isEmpty() || this.language.equals(locale.language)) {
-            if (this.language.isEmpty() || this.country.equals(locale.country)) {
+        if (this.language.equals(locale.language)) {
+            if (this.country.isEmpty() || this.country.equals(locale.country)) {
                 return 2;
             } else {
                 return 1;
