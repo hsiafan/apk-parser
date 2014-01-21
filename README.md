@@ -12,4 +12,5 @@ the easiest way is to use the ApkParserUtils class, which contains convenient st
 Also there is a cmd interface for direct using, just use dist/apk-parser-all.jar:
 * java -jar apk-parser-all.jar -t manifest [apkfile]
 * java -jar apk-parser-all.jar -t info [apkfile]
+
 use java -jar apk-parser-all.jar -h to see more options.
