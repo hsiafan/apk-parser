@@ -188,10 +188,4 @@ public class ApkParserUtils {
 
     }
 
-    public static void main(String args[]) throws IOException {
-        String file = args[0];
-
-        // Parse Binary XML
-        System.out.println(getApkMeta(file, Locale.zh_CN));
-    }
 }
