@@ -1,4 +1,4 @@
-package net.dongliu.apk.parser;
+package net.dongliu.apk.parser.parser;
 
 /**
  * interface for parser xmlfile.

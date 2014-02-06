@@ -1,4 +1,4 @@
-package net.dongliu.apk.parser;
+package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.io.SU;
