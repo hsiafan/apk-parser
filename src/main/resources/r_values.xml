@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- https://android.googlesource.com/platform/frameworks/base/+/master/core/res/res/values/public.xml -->
+<!-- we get this file from
+    https://android.googlesource.com/platform/frameworks/base/+/master/core/res/res/values/public.xml
+-->
 <resources>
 
     <!-- ===============================================================

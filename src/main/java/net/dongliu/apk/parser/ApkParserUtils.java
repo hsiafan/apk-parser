@@ -5,7 +5,7 @@ import net.dongliu.apk.parser.bean.CertificateMeta;
 import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
-import net.dongliu.apk.parser.struct.AndroidFiles;
+import net.dongliu.apk.parser.struct.AndroidConstants;
 import net.dongliu.apk.parser.struct.dex.DexClass;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -40,10 +40,10 @@ public class ApkParserUtils {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                if (entry.getName().equals(AndroidFiles.RESOURCE)) {
+                if (entry.getName().equals(AndroidConstants.RESOURCE)) {
                     resourceEntry = entry;
                 }
-                if (entry.getName().equals(AndroidFiles.MANIFEST)) {
+                if (entry.getName().equals(AndroidConstants.MANIFEST)) {
                     manifestEntry = entry;
                 }
 
@@ -82,10 +82,10 @@ public class ApkParserUtils {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                if (entry.getName().equals(AndroidFiles.RESOURCE)) {
+                if (entry.getName().equals(AndroidConstants.RESOURCE)) {
                     resourceEntry = entry;
                 }
-                if (entry.getName().equals(AndroidFiles.MANIFEST)) {
+                if (entry.getName().equals(AndroidConstants.MANIFEST)) {
                     manifestEntry = entry;
                 }
 
@@ -164,7 +164,7 @@ public class ApkParserUtils {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                if (entry.getName().equals(AndroidFiles.DEX)) {
+                if (entry.getName().equals(AndroidConstants.DEX)) {
                     DexParser parser = new DexParser(zf.getInputStream(entry));
                     parser.parse();
                     DexClass[] dexClasses = parser.getDexClasses();

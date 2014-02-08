@@ -2,10 +2,7 @@ package net.dongliu.apk.parser.io;
 
 import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.struct.ResValue;
-import net.dongliu.apk.parser.struct.StringEncoding;
-import net.dongliu.apk.parser.struct.StringPool;
-import net.dongliu.apk.parser.struct.StringPoolHeader;
+import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
 
 import java.io.IOException;
@@ -275,13 +272,26 @@ public class SU {
         }
     }
 
+    /**
+     * get resource value by string-format via resourceId.
+     *
+     * @param resourceId
+     * @param resourceTable
+     * @param locale
+     * @return
+     */
     public static String getResourceByid(long resourceId, ResourceTable resourceTable,
                                          Locale locale) {
 //        An Android Resource id is a 32-bit integer. It comprises
 //        an 8-bit Package id [bits 24-31]
 //        an 8-bit Type id [bits 16-23]
 //        a 16-bit Entry index [bits 0-15]
-        String str = "invalid resource:0x" + Long.toHexString(resourceId);
+
+        if ((resourceId & AndroidConstants.STYLE_ID_START) == AndroidConstants.STYLE_ID_START) {
+            return "@android:style/" + ResourceTable.styleMap.get((int) resourceId);
+        }
+
+        String str = "resourceId:0x" + Long.toHexString(resourceId);
         if (resourceTable == null) {
             return str;
         }

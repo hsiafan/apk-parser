@@ -5,7 +5,7 @@ package net.dongliu.apk.parser.struct;
  *
  * @author dongiu
  */
-public class AndroidFiles {
+public class AndroidConstants {
 
     public static final String RESOURCE = "resources.arsc";
 
@@ -20,4 +20,14 @@ public class AndroidFiles {
     public static final String LIB_PreFIX = "lib/";
 
     public static final String META_PREFIX = "META-INF/";
+
+    /**
+     * the binary xml file used system attr id.
+     */
+    public static final int ATTR_ID_START = 0x01010000;
+
+    /**
+     * the system style resouce ids.
+     */
+    public static final int STYLE_ID_START = 0x01030000;
 }

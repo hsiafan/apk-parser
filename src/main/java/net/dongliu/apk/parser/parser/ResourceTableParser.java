@@ -90,6 +90,7 @@ public class ResourceTableParser {
             try {
                 chunkHeader = readChunkHeader();
             } catch (IOException e) {
+                //TODO: better way to detect eof
                 break;
             }
             switch (chunkHeader.chunkType) {
@@ -139,9 +140,10 @@ public class ResourceTableParser {
                     in.advanceIfNotRearch(typeChunkBegin + typeHeader.chunkSize - typeHeader.headerSize);
                     break;
                 case ChunkType.TABLE_PACKAGE:
-
-                default:
                     flag = false;
+                    break;
+                default:
+                    throw new ParserException("unexpected chunk type:" + chunkHeader.chunkType);
             }
         } while (flag);
 
