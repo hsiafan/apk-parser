@@ -3,6 +3,8 @@ package net.dongliu.apk.parser.parser;
 import net.dongliu.apk.parser.struct.ActivityInfo;
 import net.dongliu.apk.parser.struct.xml.*;
 
+import java.util.List;
+
 /**
  * trans to xml text when parse binary xml file.
  *
@@ -64,13 +66,9 @@ public class XmlTranslator implements XmlStreamer {
         String namespace = attribute.namespace;
         if (namespace != null) {
             if (namespace.equals(xmlNamespace.uri)) {
-                if (xmlNamespace.prefix != null && xmlNamespace.prefix.isEmpty()) {
-                    sb.append(xmlNamespace.prefix).append(':');
-                }
-            } else {
-                if (!namespace.isEmpty()) {
-                    sb.append(namespace).append(':');
-                }
+                sb.append(xmlNamespace.prefix).append(':');
+            } else if (!namespace.isEmpty()) {
+                sb.append(namespace).append(':');
             }
         }
 
@@ -80,6 +78,17 @@ public class XmlTranslator implements XmlStreamer {
                     ActivityInfo.ScreenOrienTation.valueOf(Integer.parseInt(value));
             if (screenOrienTation != null) {
                 value = screenOrienTation.toString();
+            }
+        } else if (attribute.name.equals("configChanges")) {
+            List<ActivityInfo.ConfigChanges> configChangesList =
+                    ActivityInfo.ConfigChanges.valuesOf(Integer.parseInt(value));
+            if (configChangesList != null) {
+                StringBuilder sb = new StringBuilder();
+                for (ActivityInfo.ConfigChanges c : configChangesList) {
+                    sb.append(c.toString()).append('|');
+                }
+                sb.deleteCharAt(sb.length() - 1);
+                value = sb.toString();
             }
         }
         sb.append(attribute.name).append('=').append('"')

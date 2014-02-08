@@ -1,5 +1,8 @@
 package net.dongliu.apk.parser.struct;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Activity constants.
  * see
@@ -40,6 +43,44 @@ public class ActivityInfo {
                 }
             }
             return null;
+        }
+    }
+
+    public static enum ConfigChanges {
+        density(0x00001000),
+        fontScale(0x40000000),
+        keyboard(0x00000010),
+        keyboardHidden(0x00000020),
+        direction(0x00002000),
+        locale(0x00000004),
+        mcc(0x00000001),
+        mnc(0x00000002),
+        navigation(0x00000040),
+        orientation(0x00000080),
+        screenLayout(0x00000100),
+        screenSize(0x00000400),
+        smallestScreenSize(0x00000800),
+        touchscreen(0x00000008),
+        uiMode(0x00000200);
+
+        private int value;
+
+        private ConfigChanges(int value) {
+            this.value = value;
+        }
+
+        public static List<ConfigChanges> valuesOf(int value) {
+            List<ConfigChanges> list = new ArrayList<ConfigChanges>();
+            for (ConfigChanges c : ConfigChanges.values()) {
+                if ((c.value & value) != 0) {
+                    list.add(c);
+                }
+            }
+            if (list.isEmpty()) {
+                return null;
+            } else {
+                return list;
+            }
         }
     }
 }
