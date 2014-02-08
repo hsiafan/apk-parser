@@ -1,7 +1,5 @@
 package net.dongliu.apk.parser.struct.xml;
 
-import java.util.List;
-
 /**
  * @author dongliu
  */
