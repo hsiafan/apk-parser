@@ -1,6 +1,5 @@
 package net.dongliu.apk.parser.utils;
 
-import net.dongliu.apk.parser.struct.xml.Attribute;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;

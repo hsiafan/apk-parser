@@ -6,7 +6,6 @@ import net.dongliu.apk.parser.struct.ByteOrder;
 import net.dongliu.apk.parser.struct.dex.DexClass;
 import net.dongliu.apk.parser.struct.dex.DexHeader;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UTFDataFormatException;

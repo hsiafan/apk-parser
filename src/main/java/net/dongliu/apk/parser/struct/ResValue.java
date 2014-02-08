@@ -1,8 +1,5 @@
 package net.dongliu.apk.parser.struct;
 
-import net.dongliu.apk.parser.io.SU;
-import net.dongliu.apk.parser.struct.xml.BinaryXmlEnv;
-
 /**
  * @author dongliu
  */

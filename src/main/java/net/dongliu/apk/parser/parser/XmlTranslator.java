@@ -1,5 +1,6 @@
 package net.dongliu.apk.parser.parser;
 
+import net.dongliu.apk.parser.struct.ActivityInfo;
 import net.dongliu.apk.parser.struct.xml.*;
 
 /**
@@ -72,8 +73,17 @@ public class XmlTranslator implements XmlStreamer {
                 }
             }
         }
+
+        String value = attribute.getValue();
+        if (attribute.name.equals("screenOrientation")) {
+            ActivityInfo.ScreenOrienTation screenOrienTation =
+                    ActivityInfo.ScreenOrienTation.valueOf(Integer.parseInt(value));
+            if (screenOrienTation != null) {
+                value = screenOrienTation.toString();
+            }
+        }
         sb.append(attribute.name).append('=').append('"')
-                .append(attribute.getValue().replace("\"", "\\\"")).append('"');
+                .append(value.replace("\"", "\\\"")).append('"');
     }
 
     @Override

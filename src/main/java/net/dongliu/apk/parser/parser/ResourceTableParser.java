@@ -5,7 +5,6 @@ import net.dongliu.apk.parser.io.SU;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
-import net.dongliu.apk.parser.struct.xml.Attribute;
 
 import java.io.IOException;
 import java.io.InputStream;
