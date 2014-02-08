@@ -30,9 +30,11 @@ public class BinaryXmlParser {
     private long[] resourceIds;
     private XmlNamespaceStartTag namespace;
     private TellableInputStream in;
-    private String xml;
-    private XmlStreamReader xmlStreamReader;
+    private XmlStreamer xmlStreamer;
     private ResourceTable resourceTable;
+    /**
+     * default locale.
+     */
     private Locale locale = Locale.any;
 
     public BinaryXmlParser(InputStream in, ResourceTable resourceTable) {
@@ -73,13 +75,13 @@ public class BinaryXmlParser {
             // should be StartNamespace chunk
             SU.checkChunkType(ChunkType.XML_START_NAMESPACE, chunkHeader.chunkType);
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
             namespace = readXmlNamespaceStartTag();
 
             BinaryXmlEnv env = new BinaryXmlEnv();
             env.stringPool = stringPool;
             env.namespace = namespace;
+
+            xmlStreamer.onNamespace(namespace);
 
             int shift = 0;
             do {
@@ -92,20 +94,14 @@ public class BinaryXmlParser {
                 switch (chunkHeader.chunkType) {
                     case ChunkType.XML_START_ELEMENT:
                         XmlNodeStartTag xmlNodeStartTag = readXmlNodeStartTag();
-                        appendShift(sb, shift);
-                        sb.append(xmlNodeStartTag.toString(env, shift == 0)).append('\n');
                         shift++;
                         break;
                     case ChunkType.XML_END_ELEMENT:
                         XmlNodeEndTag xmlNodeEndTag = readXmlNodeEndTag();
                         shift--;
-                        appendShift(sb, shift);
-                        sb.append(xmlNodeEndTag.toString(env)).append('\n');
                         break;
                     case ChunkType.XML_CDATA:
                         XmlCData xmlCData = readXmlCData();
-                        appendShift(sb, shift + 1);
-                        sb.append(xmlCData.toString(env)).append('\n');
                         break;
                     case ChunkType.XML_FIRST_CHUNK:
                     case ChunkType.XML_LAST_CHUNK:
@@ -120,7 +116,6 @@ public class BinaryXmlParser {
             } while (true);
 
             XmlNamespaceEndTag xmlNamespaceEndTag = readXmlNamespaceEndTag();
-            this.xml = sb.toString();
         } finally {
             this.in.close();
         }
@@ -133,13 +128,10 @@ public class BinaryXmlParser {
             xmlCData.data = stringPool.get(dataRef);
         }
         xmlCData.typedData = SU.readResValue(in, stringPool, resourceTable, locale);
-        return xmlCData;
-    }
-
-    private void appendShift(StringBuilder sb, int shift) {
-        for (int i = 0; i < shift; i++) {
-            sb.append("\t");
+        if (xmlStreamer != null) {
+            xmlStreamer.onCData(xmlCData);
         }
+        return xmlCData;
     }
 
     private XmlNodeEndTag readXmlNodeEndTag() throws IOException {
@@ -150,8 +142,8 @@ public class BinaryXmlParser {
             xmlNodeEndTag.namespace = stringPool.get(nsRef);
         }
         xmlNodeEndTag.name = stringPool.get(nameRef);
-        if (xmlStreamReader != null) {
-            xmlStreamReader.onEndTag(xmlNodeEndTag.name);
+        if (xmlStreamer != null) {
+            xmlStreamer.onEndTag(xmlNodeEndTag);
         }
         return xmlNodeEndTag;
     }
@@ -165,8 +157,8 @@ public class BinaryXmlParser {
         }
         xmlNodeStartTag.name = stringPool.get(nameRef);
 
-        if (xmlStreamReader != null) {
-            xmlStreamReader.onStartTagStart(xmlNodeStartTag.name);
+        if (xmlStreamer != null) {
+            xmlStreamer.onStartTag(xmlNodeStartTag);
         }
 
         // read attribute infos.
@@ -178,19 +170,14 @@ public class BinaryXmlParser {
         int classIndex = in.readUShort();
         int styleIndex = in.readUShort();
 
-        xmlNodeStartTag.attributeList = new ArrayList<Attribute>(attributeCount);
         // read attributes
         for (int count = 0; count < attributeCount; count++) {
             Attribute attribute = readAttribute();
-            xmlNodeStartTag.attributeList.add(attribute);
-            if (xmlStreamReader != null) {
-                xmlStreamReader.onAttribute(attribute.name, attribute.getValue());
+            if (xmlStreamer != null) {
+                xmlStreamer.onAttribute(attribute);
             }
         }
 
-        if (xmlStreamReader != null) {
-            xmlStreamReader.onStartTagEnd(xmlNodeStartTag.name);
-        }
         return xmlNodeStartTag;
     }
 
@@ -291,10 +278,6 @@ public class BinaryXmlParser {
         }
     }
 
-    public String getXml() {
-        return this.xml;
-    }
-
     public void setLocale(Locale locale) {
         if (locale != null) {
             this.locale = locale;
@@ -305,11 +288,11 @@ public class BinaryXmlParser {
         return locale;
     }
 
-    public XmlStreamReader getXmlStreamReader() {
-        return xmlStreamReader;
+    public XmlStreamer getXmlStreamer() {
+        return xmlStreamer;
     }
 
-    public void setXmlStreamReader(XmlStreamReader xmlStreamReader) {
-        this.xmlStreamReader = xmlStreamReader;
+    public void setXmlStreamer(XmlStreamer xmlStreamer) {
+        this.xmlStreamer = xmlStreamer;
     }
 }

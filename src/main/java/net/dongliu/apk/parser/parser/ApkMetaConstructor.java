@@ -4,13 +4,14 @@ import net.dongliu.apk.parser.bean.ApkMeta;
 import net.dongliu.apk.parser.bean.Feature;
 import net.dongliu.apk.parser.bean.GlEsVersion;
 import net.dongliu.apk.parser.bean.UseFeature;
+import net.dongliu.apk.parser.struct.xml.*;
 
 /**
- * get apk meta infos when parse AndroidManifest.xml
+ * construct apk meta infos when parse AndroidManifest.xml
  *
  * @author dongliu
  */
-public class ApkMetaParserReader implements XmlStreamReader {
+public class ApkMetaConstructor implements XmlStreamer {
 
     private String currentTag;
 
@@ -18,29 +19,24 @@ public class ApkMetaParserReader implements XmlStreamReader {
 
     private Feature currentFeature;
 
-    public ApkMetaParserReader() {
+    public ApkMetaConstructor() {
         apkMeta = new ApkMeta();
     }
 
     @Override
-    public void onStartTagStart(String name) {
-        currentTag = name;
+    public void onStartTag(XmlNodeStartTag xmlNodeStartTag) {
+        currentTag = xmlNodeStartTag.name;
     }
 
     @Override
-    public void onStartTagEnd(String name) {
-        if ("uses-feature".equals(currentTag)) {
-            currentFeature = null;
-        }
-        currentTag = null;
+    public void onEndTag(XmlNodeEndTag xmlNodeEndTag) {
+        currentFeature = null;
     }
 
     @Override
-    public void onEndTag(String name) {
-    }
-
-    @Override
-    public void onAttribute(String name, String value) {
+    public void onAttribute(Attribute attribute) {
+        String name = attribute.name;
+        String value = attribute.getValue();
         // get basic apk metas
         if (currentTag.equals("manifest")) {
             if (name.equals("package")) {
@@ -97,6 +93,16 @@ public class ApkMetaParserReader implements XmlStreamReader {
                 }
             }
         }
+    }
+
+    @Override
+    public void onCData(XmlCData xmlCData) {
+
+    }
+
+    @Override
+    public void onNamespace(XmlNamespaceStartTag namespace) {
+
     }
 
     public ApkMeta getApkMeta() {

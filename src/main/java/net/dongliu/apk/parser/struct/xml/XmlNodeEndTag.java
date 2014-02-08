@@ -7,7 +7,7 @@ public class XmlNodeEndTag {
     public String namespace;
     public String name;
 
-    public String toString(BinaryXmlEnv env) {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("</");
         if (namespace != null) {

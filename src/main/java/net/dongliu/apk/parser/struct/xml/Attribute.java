@@ -23,22 +23,9 @@ public class Attribute {
         }
     }
 
-    public String toString(BinaryXmlEnv env) {
-        StringBuilder sb = new StringBuilder();
-        if (namespace != null) {
-            if (namespace.equals(env.namespace.uri)) {
-                if (env.namespace.prefix != null && !env.namespace.prefix.isEmpty()) {
-                    sb.append(env.namespace.prefix).append(':');
-                }
-            } else {
-                if (!namespace.isEmpty()) {
-                    sb.append(namespace).append(':');
-                }
-            }
-        }
-        sb.append(name).append('=').append('"')
-                .append(getValue().replace("\"", "\\\"")).append('"');
-        return sb.toString();
+    @Override
+    public String toString() {
+        return name + '=' + '"' + getValue().replace("\"", "\\\"") + '"';
     }
 
     /**

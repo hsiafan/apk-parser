@@ -21,23 +21,13 @@ public class XmlNodeStartTag {
     // Index (1-based) of the "style" attribute. 0 if none. uint16
     //public short styleIndex;
 
-    public List<Attribute> attributeList;
-
-    public String toString(BinaryXmlEnv env, boolean isRoot) {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('<');
         if (namespace != null) {
             sb.append(namespace).append(":");
         }
         sb.append(name);
-        if (isRoot && env.namespace != null && env.namespace.uri != null) {
-            sb.append(" xmlns:").append(env.namespace.prefix).append("=\"")
-                    .append(env.namespace.uri)
-                    .append("\"");
-        }
-        for (Attribute attribute : this.attributeList) {
-            sb.append(' ').append(attribute.toString(env));
-        }
         sb.append('>');
         return sb.toString();
     }

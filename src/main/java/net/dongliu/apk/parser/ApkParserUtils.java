@@ -56,8 +56,10 @@ public class ApkParserUtils {
             BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
                     resourceTable);
             binaryXmlParser.setLocale(locale);
+            XmlTranslator xmlTranslator = new XmlTranslator();
+            binaryXmlParser.setXmlStreamer(xmlTranslator);
             binaryXmlParser.parse();
-            return binaryXmlParser.getXml();
+            return xmlTranslator.getXml();
         } finally {
             ZipFile.closeQuietly(zf);
         }
@@ -96,10 +98,10 @@ public class ApkParserUtils {
             BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
                     resourceTable);
             binaryXmlParser.setLocale(locale);
-            ApkMetaParserReader apkMetaParserReader = new ApkMetaParserReader();
-            binaryXmlParser.setXmlStreamReader(apkMetaParserReader);
+            ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor();
+            binaryXmlParser.setXmlStreamer(apkMetaConstructor);
             binaryXmlParser.parse();
-            return apkMetaParserReader.getApkMeta();
+            return apkMetaConstructor.getApkMeta();
         } finally {
             ZipFile.closeQuietly(zf);
         }
