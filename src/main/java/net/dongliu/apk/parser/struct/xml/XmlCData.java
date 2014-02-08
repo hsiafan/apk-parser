@@ -16,7 +16,8 @@ public class XmlCData {
     // The typed value of the character data if this is a CDATA node.
     public ResValue typedData;
 
-    public String toString(BinaryXmlEnv env) {
+    @Override
+    public String toString() {
         if (data != null) {
             return CDATA_START + data + CDATA_END;
         } else {

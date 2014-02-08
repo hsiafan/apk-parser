@@ -10,7 +10,6 @@ import net.dongliu.apk.parser.struct.xml.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 /**
  * Android Binary XML format
@@ -76,10 +75,6 @@ public class BinaryXmlParser {
             SU.checkChunkType(ChunkType.XML_START_NAMESPACE, chunkHeader.chunkType);
 
             namespace = readXmlNamespaceStartTag();
-
-            BinaryXmlEnv env = new BinaryXmlEnv();
-            env.stringPool = stringPool;
-            env.namespace = namespace;
 
             xmlStreamer.onNamespace(namespace);
 
