@@ -82,13 +82,30 @@ public class XmlTranslator implements XmlStreamer {
         } else if (attribute.name.equals("configChanges")) {
             List<ActivityInfo.ConfigChanges> configChangesList =
                     ActivityInfo.ConfigChanges.valuesOf(Integer.parseInt(value));
-            if (configChangesList != null) {
+            if (!configChangesList.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
                 for (ActivityInfo.ConfigChanges c : configChangesList) {
                     sb.append(c.toString()).append('|');
                 }
                 sb.deleteCharAt(sb.length() - 1);
                 value = sb.toString();
+            }
+        } else if (attribute.name.equals("windowSoftInputMode")) {
+            List<ActivityInfo.WindowSoftInputMode> windowSoftInputModeList =
+                    ActivityInfo.WindowSoftInputMode.valuesOf(Integer.parseInt(value));
+            if (!windowSoftInputModeList.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                for (ActivityInfo.WindowSoftInputMode w : windowSoftInputModeList) {
+                    sb.append(w.toString()).append('|');
+                }
+                sb.deleteCharAt(sb.length() - 1);
+                value = sb.toString();
+            }
+        } else if (attribute.name.equals("launchMode")) {
+            ActivityInfo.LaunchMode launchMode =
+                    ActivityInfo.LaunchMode.valueOf(Integer.parseInt(value));
+            if (launchMode != null) {
+                value = launchMode.toString();
             }
         }
         sb.append(attribute.name).append('=').append('"')

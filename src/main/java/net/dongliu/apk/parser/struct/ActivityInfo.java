@@ -46,6 +46,28 @@ public class ActivityInfo {
         }
     }
 
+    public static enum LaunchMode {
+        standard(0x00000000),
+        singleTop(0x00000001),
+        singleTask(0x00000002),
+        singleInstance(0x00000003);
+
+        private int value;
+
+        private LaunchMode(int value) {
+            this.value = value;
+        }
+
+        public static LaunchMode valueOf(int value) {
+            for (LaunchMode s : LaunchMode.values()) {
+                if (s.value == value) {
+                    return s;
+                }
+            }
+            return null;
+        }
+    }
+
     public static enum ConfigChanges {
         density(0x00001000),
         fontScale(0x40000000),
@@ -76,11 +98,45 @@ public class ActivityInfo {
                     list.add(c);
                 }
             }
-            if (list.isEmpty()) {
-                return null;
-            } else {
-                return list;
+            return list;
+        }
+    }
+
+    public static enum WindowSoftInputMode {
+
+        adjustNothing(0x00000030),
+        adjustPan(0x00000020),
+        adjustResize(0x00000010),
+        adjustUnspecified(0x00000000),
+        //isForwardNavigation(0x00000100),
+        //mode_changed(0x00000200),
+        stateAlwaysHidden(0x00000003),
+        stateAlwaysVisible(0x00000005),
+        stateHidden(0x00000002),
+        stateUnchanged(0x00000001),
+        stateUnspecified(0x00000000),
+        stateVisible(0x00000004);
+
+        private static int mask_adjust = 0x000000f0;
+        private static int mask_state = 0x0000000f;
+
+        private int value;
+
+        private WindowSoftInputMode(int value) {
+            this.value = value;
+        }
+
+        public static List<WindowSoftInputMode> valuesOf(int value) {
+            List<WindowSoftInputMode> list = new ArrayList<WindowSoftInputMode>(2);
+            for (WindowSoftInputMode w : WindowSoftInputMode.values()) {
+                if (w.value == (value & mask_adjust) && w.toString().startsWith("adjust")) {
+                    list.add(w);
+                }
+                if (w.value == (value & mask_state) && w.toString().startsWith("state")) {
+                    list.add(w);
+                }
             }
+            return list;
         }
     }
 }
