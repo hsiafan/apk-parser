@@ -34,7 +34,22 @@ to your pom file.
 Else you need to copy and add jars to your classpath.
 
 The easiest way is to use the ApkParser class, which contains convenient mehods to get AndroidManifest.xml, apk meta infos, etc.
+```
+ApkParser apkParser = new ApkParser(new File(filePath));
+if (locale != null) {
+    apkParser.setPreferredLocale(locale);
+}
 
+String xml = apkParser.getManifestXml();
+System.out.println(xml);
+ApkMeta apkMeta = apkParser.getApkMeta();
+System.out.println(apkMeta);
+Set<Locale> locales = apkParser.getLocales();
+for (Locale l : locales) {
+    System.out.println(l);
+}
+apkParser.close();
+```
 
 ### Command-line use
 Also there is a cmd interface for direct using, just use dist/apk-parser-all.jar:
