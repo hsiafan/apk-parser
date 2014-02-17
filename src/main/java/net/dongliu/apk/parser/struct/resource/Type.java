@@ -15,7 +15,7 @@ public class Type {
 
     public Type(TypeHeader header) {
         this.id = header.id;
-        locale = new Locale(header.config.country, header.config.language);
+        locale = new Locale(header.config.language, header.config.country);
     }
 
     public ResourceEntry getResourceEntry(int id) {

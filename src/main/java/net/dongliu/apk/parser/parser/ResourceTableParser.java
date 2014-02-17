@@ -1,5 +1,6 @@
 package net.dongliu.apk.parser.parser;
 
+import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.io.SU;
 import net.dongliu.apk.parser.io.TellableInputStream;
@@ -8,6 +9,8 @@ import net.dongliu.apk.parser.struct.resource.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * parse android resource table file.
@@ -26,8 +29,11 @@ public class ResourceTableParser {
     private ResourceTable resourceTable;
     private ChunkHeader chunkHeader;
 
+    private Set<Locale> locales;
+
     public ResourceTableParser(InputStream in) {
         this.in = new TellableInputStream(in, byteOrder);
+        this.locales = new HashSet<Locale>();
     }
 
     /**
@@ -136,6 +142,7 @@ public class ResourceTableParser {
                     type.name = resourcePackage.typeStringPool.get(typeHeader.id - 1);
                     type.resourceEntries = resourceEntries;
                     resourcePackage.addType(type);
+                    locales.add(type.locale);
                     in.advanceIfNotRearch(typeChunkBegin + typeHeader.chunkSize - typeHeader.headerSize);
                     break;
                 case ChunkType.TABLE_PACKAGE:
@@ -293,5 +300,9 @@ public class ResourceTableParser {
 
     public ResourceTable getResourceTable() {
         return resourceTable;
+    }
+
+    public Set<Locale> getLocales() {
+        return this.locales;
     }
 }

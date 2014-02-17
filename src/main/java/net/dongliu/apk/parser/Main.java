@@ -4,7 +4,9 @@ import net.dongliu.apk.parser.bean.ApkMeta;
 import net.dongliu.apk.parser.bean.Locale;
 import org.apache.commons.cli.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * for command line.
@@ -15,7 +17,7 @@ public class Main {
 
     public static void main(String args[]) throws IOException {
         Options opt = new Options();
-        opt.addOption("t", "type", true, "type, which couble be: manifest | info");
+        opt.addOption("t", "type", true, "type, which couble be: manifest | info | locale");
         opt.addOption("l", "locale", true, "locale, the language and country, as en_US, en, etc.");
         opt.addOption("h", "help", false, "show helps.");
 
@@ -72,19 +74,29 @@ public class Main {
                 System.out.println("Incorrect locale:" + localeStr);
                 return;
             }
-            locale = new Locale(country, language);
+            locale = new Locale(language, country);
+        }
+
+        ApkParser apkParser = new ApkParser(new File(filePath));
+        if (locale != null) {
+            apkParser.setPreferredLocale(locale);
         }
 
         if (type.equals("manifest")) {
-            String xml = ApkParserUtils.getManifestXml(filePath, locale);
+            String xml = apkParser.getManifestXml();
             System.out.println(xml);
         } else if (type.equals("info")) {
-            ApkMeta apkMeta = ApkParserUtils.getApkMeta(filePath, locale);
+            ApkMeta apkMeta = apkParser.getApkMeta();
             System.out.println(apkMeta);
+        } else if (type.equals("locale")) {
+            Set<Locale> locales = apkParser.getLocales();
+            for (Locale l : locales) {
+                System.out.println(l);
+            }
         } else {
             System.out.println("Unknow type:" + type);
             helpFormatter.printHelp(cmdLineSyntax, opt);
         }
-
+        apkParser.close();
     }
 }
