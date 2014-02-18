@@ -14,12 +14,11 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * ApkParser and result holder.
+ * This class is not thread-safe.
  *
  * @author dongliu
  */
@@ -27,18 +26,19 @@ public class ApkParser implements Closeable {
 
     private ResourceTable resourceTable;
 
-    private String manifestXml;
-    private ApkMeta apkMeta;
+    private Map<Locale, String> manifestXmlMap;
+    private Map<Locale, ApkMeta> apkMetaMap;
     private Set<Locale> locales;
-    private final File apkFile;
     private List<CertificateMeta> certificateMetas;
     private final ZipFile zf;
 
     private Locale preferredLocale;
 
     public ApkParser(File apkFile) throws IOException {
-        this.apkFile = apkFile;
         this.zf = new ZipFile(apkFile);
+        this.preferredLocale = Locale.any;
+        this.manifestXmlMap = new HashMap<Locale, String>();
+        this.apkMetaMap = new HashMap<Locale, ApkMeta>();
     }
 
     /**
@@ -47,10 +47,10 @@ public class ApkParser implements Closeable {
      * @return
      */
     public String getManifestXml() throws IOException {
-        if (this.manifestXml == null) {
+        if (!manifestXmlMap.containsKey(preferredLocale)) {
             parseManifestXml();
         }
-        return this.manifestXml;
+        return manifestXmlMap.get(preferredLocale);
     }
 
     /**
@@ -59,10 +59,10 @@ public class ApkParser implements Closeable {
      * @return
      */
     public ApkMeta getApkMeta() throws IOException {
-        if (this.apkMeta == null) {
+        if (!apkMetaMap.containsKey(preferredLocale)) {
             parseManifestXml();
         }
-        return this.apkMeta;
+        return apkMetaMap.get(preferredLocale);
     }
 
     /**
@@ -148,8 +148,8 @@ public class ApkParser implements Closeable {
                 apkMetaConstructor);
         binaryXmlParser.setXmlStreamer(xmlStreamer);
         binaryXmlParser.parse();
-        this.manifestXml = xmlTranslator.getXml();
-        this.apkMeta = apkMetaConstructor.getApkMeta();
+        manifestXmlMap.put(preferredLocale, xmlTranslator.getXml());
+        apkMetaMap.put(preferredLocale, apkMetaConstructor.getApkMeta());
     }
 
     /**
@@ -180,7 +180,8 @@ public class ApkParser implements Closeable {
     @Override
     public void close() throws IOException {
         this.certificateMetas = null;
-        this.apkMeta = null;
+        this.apkMetaMap = null;
+        this.manifestXmlMap = null;
         this.resourceTable = null;
         this.certificateMetas = null;
         zf.close();
@@ -190,6 +191,12 @@ public class ApkParser implements Closeable {
         return preferredLocale;
     }
 
+    /**
+     * The locale prefrerred.
+     * Will cause getManifestXml / getApkMeta to return diffrent values.
+     *
+     * @param preferredLocale
+     */
     public void setPreferredLocale(Locale preferredLocale) {
         this.preferredLocale = preferredLocale;
     }
