@@ -26,11 +26,11 @@ public class BinaryXmlParser {
     private ByteOrder byteOrder = ByteOrder.LITTLE;
     private StringPool stringPool;
     private String[] resourceMap;
-    private long[] resourceIds;
     private XmlNamespaceStartTag namespace;
     private TellableInputStream in;
     private XmlStreamer xmlStreamer;
     private ResourceTable resourceTable;
+
     /**
      * default locale.
      */
@@ -63,7 +63,7 @@ public class BinaryXmlParser {
             // read on chunk, check if it was an optional XMLResourceMap chunk
             chunkHeader = readChunkHeader();
             if (chunkHeader.chunkType == ChunkType.XML_RESOURCE_MAP) {
-                resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
+                long[] resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
                 resourceMap = new String[resourceIds.length];
                 for (int i = 0; i < resourceIds.length; i++) {
                     resourceMap[i] = Attribute.AttrIds.getString(resourceIds[i]);
@@ -78,7 +78,6 @@ public class BinaryXmlParser {
 
             xmlStreamer.onNamespace(namespace);
 
-            int shift = 0;
             do {
                 // root startElement chunk
                 chunkHeader = readChunkHeader();
@@ -89,11 +88,9 @@ public class BinaryXmlParser {
                 switch (chunkHeader.chunkType) {
                     case ChunkType.XML_START_ELEMENT:
                         XmlNodeStartTag xmlNodeStartTag = readXmlNodeStartTag();
-                        shift++;
                         break;
                     case ChunkType.XML_END_ELEMENT:
                         XmlNodeEndTag xmlNodeEndTag = readXmlNodeEndTag();
-                        shift--;
                         break;
                     case ChunkType.XML_CDATA:
                         XmlCData xmlCData = readXmlCData();
@@ -122,7 +119,7 @@ public class BinaryXmlParser {
         if (dataRef > 0) {
             xmlCData.data = stringPool.get(dataRef);
         }
-        xmlCData.typedData = SU.readResValue(in, stringPool, resourceTable, locale);
+        xmlCData.typedData = SU.readResValue(in, stringPool, resourceTable, false, locale);
         if (xmlStreamer != null) {
             xmlStreamer.onCData(xmlCData);
         }
@@ -156,7 +153,7 @@ public class BinaryXmlParser {
             xmlStreamer.onStartTag(xmlNodeStartTag);
         }
 
-        // read attribute infos.
+        // read attributes.
         // attributeStart and attributeSize are always 20 (0x14)
         int attributeStart = in.readUShort();
         int attributeSize = in.readUShort();
@@ -197,7 +194,8 @@ public class BinaryXmlParser {
         if (rawValueRef > 0) {
             attribute.rawValue = stringPool.get(rawValueRef);
         }
-        attribute.typedValue = SU.readResValue(in, stringPool, resourceTable, locale);
+        attribute.typedValue = SU.readResValue(in, stringPool, resourceTable,
+                "style".equals(attribute.name) || "theme".equals(attribute.name), locale);
 
         return attribute;
     }

@@ -169,7 +169,7 @@ public class SU {
      * @throws IOException
      */
     public static ResValue readResValue(TellableInputStream in, StringPool stringPool,
-                                        ResourceTable resourceTable, Locale locale)
+                                        ResourceTable resourceTable, boolean isStyle, Locale locale)
             throws IOException {
         ResValue resValue = new ResValue();
         resValue.size = in.readUShort();
@@ -189,7 +189,7 @@ public class SU {
                 break;
             case ResValue.ResType.REFERENCE:
                 long resourceId = in.readUInt();
-                resValue.data = getResourceByid(resourceId, resourceTable, locale);
+                resValue.data = getResourceByid(resourceId, isStyle, resourceTable, locale);
                 break;
             case ResValue.ResType.INT_BOOLEAN:
                 resValue.data = String.valueOf(in.readInt() != 0);
@@ -280,14 +280,15 @@ public class SU {
      * @param locale
      * @return
      */
-    public static String getResourceByid(long resourceId, ResourceTable resourceTable,
+    public static String getResourceByid(long resourceId, boolean isStyle, ResourceTable resourceTable,
                                          Locale locale) {
 //        An Android Resource id is a 32-bit integer. It comprises
 //        an 8-bit Package id [bits 24-31]
 //        an 8-bit Type id [bits 16-23]
 //        a 16-bit Entry index [bits 0-15]
 
-        if ((resourceId & AndroidConstants.STYLE_ID_START) == AndroidConstants.STYLE_ID_START) {
+        // android system styles.
+        if (isStyle && (resourceId & AndroidConstants.STYLE_ID_START) == AndroidConstants.STYLE_ID_START) {
             return "@android:style/" + ResourceTable.styleMap.get((int) resourceId);
         }
 
@@ -337,4 +338,14 @@ public class SU {
         return result;
     }
 
+    /**
+     * read res value. for resource table parser
+     * @param in
+     * @param stringPool
+     * @return
+     */
+    public static ResValue readResValue(TellableInputStream in, StringPool stringPool)
+            throws IOException {
+        return readResValue(in, stringPool, null, false, null);
+    }
 }
