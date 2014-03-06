@@ -22,6 +22,9 @@ public class ResValue {
      *     an index into the Table chunk’s StringPool
      *     a composite value
      */
+    /**
+     * the real data repesented by string
+     */
     public String data;
 
     @Override

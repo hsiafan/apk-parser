@@ -6,6 +6,8 @@ package net.dongliu.apk.parser.struct.dex;
 public class DexClass {
     /* index into typeIds for this class. u4 */
     public int classIdx;
+
+    /** the class name */
     public String classType;
 
     // u4

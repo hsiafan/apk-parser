@@ -6,6 +6,7 @@ import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
+import net.dongliu.apk.parser.struct.dex.DexClass;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -24,6 +25,7 @@ import java.util.*;
  */
 public class ApkParser implements Closeable {
 
+    private DexClass[] dexClasses;
     private ResourceTable resourceTable;
 
     private Map<Locale, String> manifestXmlMap;
@@ -175,6 +177,38 @@ public class ApkParser implements Closeable {
         resourceTableParser.parse();
         this.resourceTable = resourceTableParser.getResourceTable();
         this.locales = resourceTableParser.getLocales();
+    }
+
+    /**
+     * get class infos form dex file. currrent only class name
+     *
+     * @return
+     */
+    public DexClass[] getDexClasses() throws IOException {
+        if (this.dexClasses == null) {
+            parseDexFile();
+        }
+        return this.dexClasses;
+    }
+
+    private void parseDexFile() throws IOException {
+        ZipArchiveEntry resourceEntry = null;
+        Enumeration<ZipArchiveEntry> enu = zf.getEntries();
+        while (enu.hasMoreElements()) {
+            ZipArchiveEntry entry = enu.nextElement();
+            if (entry.isDirectory()) {
+                continue;
+            }
+            if (entry.getName().equals(AndroidConstants.DEX)) {
+                resourceEntry = entry;
+            }
+        }
+        if (resourceEntry == null) {
+            throw new ParserException("resource table not found");
+        }
+        DexParser dexParser = new DexParser(zf.getInputStream(resourceEntry));
+        dexParser.parse();
+        this.dexClasses = dexParser.getDexClasses();
     }
 
     @Override

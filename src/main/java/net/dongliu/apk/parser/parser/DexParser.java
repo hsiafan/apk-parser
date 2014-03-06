@@ -9,6 +9,8 @@ import net.dongliu.apk.parser.struct.dex.DexHeader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UTFDataFormatException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * parse dex file.
@@ -21,7 +23,6 @@ public class DexParser {
 
     private TellableInputStream in;
     private ByteOrder byteOrder = ByteOrder.LITTLE;
-    private DexHeader header;
 
     private DexClass[] dexClasses;
 
@@ -30,28 +31,28 @@ public class DexParser {
     }
 
     public void parse() throws IOException {
+        // read magic
         String magic = in.readChars(8);
         if (!magic.startsWith("dex\n")) {
             return;
         }
-        String version = magic.substring(4, 7);
-        header = new DexHeader();
-        header.version = Integer.parseInt(version);
-
-        if (header.version < 35) {
+        int version = Integer.parseInt(magic.substring(4, 7));
+        if (version < 35) {
             //TODO: deal with old version
         }
 
-        readDexHeader();
+        // read header
+        DexHeader header = readDexHeader();
+        header.version = version;
 
         // read string pool
-        long[] stringOffsets = readStringPool();
+        long[] stringOffsets = readStringPool(header.stringIdsOff, header.stringIdsSize);
 
         // read types
-        int[] typeIds = readTypes();
+        int[] typeIds = readTypes(header.typeIdsOff, header.typeIdsSize);
 
         // read classes
-        dexClasses = readClass();
+        dexClasses = readClass(header.classDefsOff, (int) header.classDefsSize);
 
         String[] stringpool = readStrings(stringOffsets);
 
@@ -68,11 +69,11 @@ public class DexParser {
     /**
      * read class info.
      */
-    private DexClass[] readClass() throws IOException {
-        in.advanceIfNotRearch(header.classDefsOff);
+    private DexClass[] readClass(long classDefsOff, int classDefsSize) throws IOException {
+        in.advanceIfNotRearch(classDefsOff);
 
-        DexClass[] dexClasses = new DexClass[(int) header.classDefsSize];
-        for (int i = 0; i < header.classDefsSize; i++) {
+        DexClass[] dexClasses = new DexClass[classDefsSize];
+        for (int i = 0; i < classDefsSize; i++) {
             DexClass dexClass = new DexClass();
             dexClass.classIdx = (int) in.readUInt();
             //now we just skip the other fields.
@@ -86,10 +87,10 @@ public class DexParser {
     /**
      * read types.
      */
-    private int[] readTypes() throws IOException {
-        in.advanceIfNotRearch(header.typeIdsOff);
-        int[] typeIds = new int[header.typeIdsSize];
-        for (int i = 0; i < header.typeIdsSize; i++) {
+    private int[] readTypes(long typeIdsOff, int typeIdsSize) throws IOException {
+        in.advanceIfNotRearch(typeIdsOff);
+        int[] typeIds = new int[typeIdsSize];
+        for (int i = 0; i < typeIdsSize; i++) {
             typeIds[i] = (int) in.readUInt();
         }
         return typeIds;
@@ -97,10 +98,23 @@ public class DexParser {
 
     private String[] readStrings(long[] offsets) throws IOException {
         // read strings.
-        String[] stringpool = new String[header.stringIdsSize];
+        // in some apk, the strings' offsets may not well ordered. we sort it first
+
+        StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
         for (int i = 0; i < offsets.length; i++) {
-            in.advanceIfNotRearch(offsets[i]);
-            stringpool[i] = readString();
+            entries[i] = new StringPoolEntry(i, offsets[i]);
+        }
+        Arrays.sort(entries, new Comparator<StringPoolEntry>() {
+            @Override
+            public int compare(StringPoolEntry o1, StringPoolEntry o2) {
+                return (int) (o1.getOffset() - o2.getOffset());
+            }
+        });
+
+        String[] stringpool = new String[offsets.length];
+        for (StringPoolEntry entry : entries) {
+            in.advanceIfNotRearch(entry.getOffset());
+            stringpool[entry.getIdx()] = readString();
         }
         return stringpool;
     }
@@ -108,10 +122,10 @@ public class DexParser {
     /*
      * read string identifiers list.
      */
-    private long[] readStringPool() throws IOException {
-        in.advanceIfNotRearch(header.stringIdsOff);
-        long offsets[] = new long[header.stringIdsSize];
-        for (int i = 0; i < header.stringIdsSize; i++) {
+    private long[] readStringPool(long stringIdsOff, int stringIdsSize) throws IOException {
+        in.advanceIfNotRearch(stringIdsOff);
+        long offsets[] = new long[stringIdsSize];
+        for (int i = 0; i < stringIdsSize; i++) {
             offsets[i] = in.readUInt();
         }
 
@@ -196,6 +210,7 @@ public class DexParser {
         // signature skip
         in.readBytes(DexHeader.kSHA1DigestLen);
 
+        DexHeader header = new DexHeader();
         header.fileSize = in.readUInt();
         header.headerSize = in.readUInt();
 
@@ -237,5 +252,32 @@ public class DexParser {
 
     public DexClass[] getDexClasses() {
         return dexClasses;
+    }
+
+}
+
+class StringPoolEntry {
+    private int idx;
+    private long offset;
+
+    StringPoolEntry(int idx, long offset) {
+        this.idx = idx;
+        this.offset = offset;
+    }
+
+    public int getIdx() {
+        return idx;
+    }
+
+    public void setIdx(int idx) {
+        this.idx = idx;
+    }
+
+    public long getOffset() {
+        return offset;
+    }
+
+    public void setOffset(long offset) {
+        this.offset = offset;
     }
 }
