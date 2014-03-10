@@ -1,6 +1,7 @@
 package net.dongliu.apk.parser;
 
 import net.dongliu.apk.parser.bean.ApkMeta;
+import net.dongliu.apk.parser.bean.DexClass;
 import net.dongliu.apk.parser.bean.Locale;
 import org.apache.commons.cli.*;
 
@@ -17,7 +18,7 @@ public class Main {
 
     public static void main(String args[]) throws IOException {
         Options opt = new Options();
-        opt.addOption("t", "type", true, "type, which couble be: manifest | info | locale");
+        opt.addOption("t", "type", true, "type, which couble be: manifest | info | locale | dex");
         opt.addOption("l", "locale", true, "locale, the language and country, as en_US, en, etc.");
         opt.addOption("h", "help", false, "show helps.");
 
@@ -92,6 +93,11 @@ public class Main {
             Set<Locale> locales = apkParser.getLocales();
             for (Locale l : locales) {
                 System.out.println(l);
+            }
+        } else if (type.equals("dex")) {
+            DexClass[] dexClasses = apkParser.getDexClasses();
+            for (DexClass dexClass : dexClasses) {
+                System.out.println(dexClass);
             }
         } else {
             System.out.println("Unknow type:" + type);

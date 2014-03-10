@@ -6,12 +6,16 @@ import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * @author dongliu
  */
-public class SU {
+public class StreamUtils {
 
 
     /**
@@ -131,7 +135,7 @@ public class SU {
         StringPool stringPool = new StringPool((int) stringPoolHeader.stringCount);
         for (int idx = 0; idx < offsets.length; idx++) {
             in.advanceIfNotRearch(stringPos + offsets[idx]);
-            String str = SU.readString(in, stringEncoding);
+            String str = StreamUtils.readString(in, stringEncoding);
             stringPool.set(idx, str);
         }
 

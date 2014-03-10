@@ -2,7 +2,7 @@ package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.io.SU;
+import net.dongliu.apk.parser.io.StreamUtils;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
@@ -57,8 +57,8 @@ public class BinaryXmlParser {
 
             // read string pool chunk
             chunkHeader = readChunkHeader();
-            SU.checkChunkType(ChunkType.STRING_POOL, chunkHeader.chunkType);
-            stringPool = SU.readStringPool(in, (StringPoolHeader) chunkHeader);
+            StreamUtils.checkChunkType(ChunkType.STRING_POOL, chunkHeader.chunkType);
+            stringPool = StreamUtils.readStringPool(in, (StringPoolHeader) chunkHeader);
 
             // read on chunk, check if it was an optional XMLResourceMap chunk
             chunkHeader = readChunkHeader();
@@ -72,7 +72,7 @@ public class BinaryXmlParser {
             }
 
             // should be StartNamespace chunk
-            SU.checkChunkType(ChunkType.XML_START_NAMESPACE, chunkHeader.chunkType);
+            StreamUtils.checkChunkType(ChunkType.XML_START_NAMESPACE, chunkHeader.chunkType);
 
             namespace = readXmlNamespaceStartTag();
 
@@ -119,7 +119,7 @@ public class BinaryXmlParser {
         if (dataRef > 0) {
             xmlCData.data = stringPool.get(dataRef);
         }
-        xmlCData.typedData = SU.readResValue(in, stringPool, resourceTable, false, locale);
+        xmlCData.typedData = StreamUtils.readResValue(in, stringPool, resourceTable, false, locale);
         if (xmlStreamer != null) {
             xmlStreamer.onCData(xmlCData);
         }
@@ -194,7 +194,7 @@ public class BinaryXmlParser {
         if (rawValueRef > 0) {
             attribute.rawValue = stringPool.get(rawValueRef);
         }
-        attribute.typedValue = SU.readResValue(in, stringPool, resourceTable,
+        attribute.typedValue = StreamUtils.readResValue(in, stringPool, resourceTable,
                 "style".equals(attribute.name) || "theme".equals(attribute.name), locale);
 
         return attribute;

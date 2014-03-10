@@ -1,9 +1,10 @@
 package net.dongliu.apk.parser.parser;
 
+import net.dongliu.apk.parser.bean.DexClass;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.struct.ByteOrder;
-import net.dongliu.apk.parser.struct.dex.DexClass;
+import net.dongliu.apk.parser.struct.dex.DexClassStruct;
 import net.dongliu.apk.parser.struct.dex.DexHeader;
 
 import java.io.IOException;
@@ -15,7 +16,9 @@ import java.util.Comparator;
 /**
  * parse dex file.
  * current we only get the class name.
- * see http://dexandroid.googlecode.com/svn/trunk/dalvik/libdex/DexFile.h
+ * see:
+ * http://source.android.com/devices/tech/dalvik/dex-format.html
+ * http://dexandroid.googlecode.com/svn/trunk/dalvik/libdex/DexFile.h
  *
  * @author dongliu
  */
@@ -23,6 +26,8 @@ public class DexParser {
 
     private TellableInputStream in;
     private ByteOrder byteOrder = ByteOrder.LITTLE;
+
+    private static final int NO_INDEX = 0xffffffff;
 
     private DexClass[] dexClasses;
 
@@ -37,8 +42,11 @@ public class DexParser {
             return;
         }
         int version = Integer.parseInt(magic.substring(4, 7));
+        // now the version is 035
         if (version < 35) {
-            //TODO: deal with old version
+            // version 009 was used for the M3 releases of the Android platform (November–December 2007),
+            // and version 013 was used for the M5 releases of the Android platform (February–March 2008)
+            throw new ParserException("Dex file version: " + version + " is not supported");
         }
 
         // read header
@@ -52,7 +60,7 @@ public class DexParser {
         int[] typeIds = readTypes(header.typeIdsOff, header.typeIdsSize);
 
         // read classes
-        dexClasses = readClass(header.classDefsOff, (int) header.classDefsSize);
+        DexClassStruct[] dexClasseStructs = readClass(header.classDefsOff, header.classDefsSize);
 
         String[] stringpool = readStrings(stringOffsets);
 
@@ -61,27 +69,44 @@ public class DexParser {
             types[i] = stringpool[typeIds[i]];
         }
 
-        for (DexClass dexClass : dexClasses) {
-            dexClass.classType = types[dexClass.classIdx];
+        dexClasses = new DexClass[dexClasseStructs.length];
+        for (int i = 0; i < dexClasses.length; i++) {
+            dexClasses[i] = new DexClass();
+        }
+        for (int i = 0; i < dexClasseStructs.length; i++) {
+            DexClassStruct dexClassStruct = dexClasseStructs[i];
+            DexClass dexClasse = dexClasses[i];
+            dexClasse.setClassType(types[dexClassStruct.classIdx]);
+            if (dexClassStruct.superclassIdx != NO_INDEX) {
+                dexClasse.setSuperClass(types[dexClassStruct.superclassIdx]);
+            }
+            dexClasse.setAccessFlags(dexClassStruct.accessFlags);
         }
     }
 
     /**
      * read class info.
      */
-    private DexClass[] readClass(long classDefsOff, int classDefsSize) throws IOException {
+    private DexClassStruct[] readClass(long classDefsOff, int classDefsSize) throws IOException {
         in.advanceIfNotRearch(classDefsOff);
 
-        DexClass[] dexClasses = new DexClass[classDefsSize];
+        DexClassStruct[] dexClassStructs = new DexClassStruct[classDefsSize];
         for (int i = 0; i < classDefsSize; i++) {
-            DexClass dexClass = new DexClass();
-            dexClass.classIdx = (int) in.readUInt();
-            //now we just skip the other fields.
-            in.skip(28);
-            dexClasses[i] = dexClass;
+            DexClassStruct dexClassStruct = new DexClassStruct();
+            dexClassStruct.classIdx = in.readInt();
+
+            dexClassStruct.accessFlags = in.readInt();
+            dexClassStruct.superclassIdx = in.readInt();
+
+            dexClassStruct.interfacesOff = in.readUInt();
+            dexClassStruct.sourceFileIdx = in.readInt();
+            dexClassStruct.annotationsOff = in.readUInt();
+            dexClassStruct.classDataOff = in.readUInt();
+            dexClassStruct.staticValuesOff = in.readUInt();
+            dexClassStructs[i] = dexClassStruct;
         }
 
-        return dexClasses;
+        return dexClassStructs;
     }
 
     /**
@@ -175,7 +200,6 @@ public class DexParser {
             }
         }
 
-        //TODO:should be m-utf-8
         return new String(chars);
     }
 
@@ -224,25 +248,25 @@ public class DexParser {
         // the map data is just the same as dex header.
         header.mapOff = in.readUInt();
 
-        header.stringIdsSize = (int) in.readUInt();
+        header.stringIdsSize = in.readInt();
         header.stringIdsOff = in.readUInt();
 
-        header.typeIdsSize = (int) in.readUInt();
+        header.typeIdsSize = in.readInt();
         header.typeIdsOff = in.readUInt();
 
-        header.protoIdsSize = in.readUInt();
+        header.protoIdsSize = in.readInt();
         header.protoIdsOff = in.readUInt();
 
-        header.fieldIdsSize = in.readUInt();
+        header.fieldIdsSize = in.readInt();
         header.fieldIdsOff = in.readUInt();
 
-        header.methodIdsSize = in.readUInt();
+        header.methodIdsSize = in.readInt();
         header.methodIdsOff = in.readUInt();
 
-        header.classDefsSize = in.readUInt();
+        header.classDefsSize = in.readInt();
         header.classDefsOff = in.readUInt();
 
-        header.dataSize = in.readUInt();
+        header.dataSize = in.readInt();
         header.dataOff = in.readUInt();
 
         in.advanceIfNotRearch(header.headerSize);
@@ -256,6 +280,9 @@ public class DexParser {
 
 }
 
+/**
+ * class for sort string pool indexes
+ */
 class StringPoolEntry {
     private int idx;
     private long offset;
