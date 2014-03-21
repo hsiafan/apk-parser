@@ -5,7 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.dongliu.apk</groupId>
+    <groupId>net.dongliu.apk-parser</groupId>
     <artifactId>apk-parser</artifactId>
     <name>apk-parser</name>
 

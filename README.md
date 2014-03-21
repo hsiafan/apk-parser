@@ -24,7 +24,7 @@ to add jars to your locale maven repo,
 then add:
 ```
 <dependency>
-    <groupId>net.dongliu.apk</groupId>
+    <groupId>net.dongliu.apk-parser</groupId>
     <artifactId>apk-parser</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
