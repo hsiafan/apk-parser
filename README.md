@@ -16,22 +16,15 @@ mvn assembly:assembly       # build with-dependency and excuteable jar
 ```
 
 ### Dev
-If maven is used, run
+If maven is used, you can add dependency:
 ```
-mvn install
-```
-to add jars to your locale maven repo, 
-then add:
-```
-<dependency>
-    <groupId>net.dongliu.apk-parser</groupId>
-    <artifactId>apk-parser</artifactId>
-    <version>1.0-SNAPSHOT</version>
-</dependency>
+        <dependency>
+            <groupId>net.dongliu.apk-parser</groupId>
+            <artifactId>apk-parser</artifactId>
+            <version>1.0</version>
+        </dependency>
 ```
 to your pom file.
-
-Else you need to copy and add jars to your classpath.
 
 The easiest way is to use the ApkParser class, which contains convenient mehods to get AndroidManifest.xml, apk meta infos, etc.
 ```
