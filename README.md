@@ -7,14 +7,6 @@ For now, the following is (partially) supported:
 * dex file by DexParser
 * certificate by CetificateParser
 
-
-### Build
-This project use maven as build tool.
-```
-mvn package                 # build jar
-mvn assembly:assembly       # build with-dependency and excuteable jar
-```
-
 ### Dev
 If maven is used, you can add dependency:
 ```
@@ -45,8 +37,15 @@ apkParser.close();
 ```
 
 ### Command-line use
-Also there is a cmd interface for direct using, just use dist/apk-parser-all.jar:
-* java -jar apk-parser-all.jar -t manifest [apkfile]
-* java -jar apk-parser-all.jar -t info [apkfile]
+Run
+```
+mvn assembly:assembly
+```
+to get all-in-one excuteable jar.
 
+Usages:
+```
+java -jar apk-parser-all.jar -t manifest [apkfile]     # get apk manifest file as text xml
+java -jar apk-parser-all.jar -t info [apkfile]         # get apk basic infos
+```
 Use java -jar apk-parser-all.jar -h to see more options.
