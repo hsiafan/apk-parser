@@ -13,7 +13,7 @@
     <artifactId>apk-parser</artifactId>
     <name>apk-parser</name>
     <packaging>jar</packaging>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <url>https://github.com/xiaxiaocao/apk-parser</url>
     <developers>
         <developer>
@@ -35,7 +35,7 @@
         <connection>scm:git:git@github.com:xiaxiaocao/apk-parser.git</connection>
         <url>https://github.com/xiaxiaocao/apk-parser</url>
         <developerConnection>scm:git:git@github.com:xiaxiaocao/apk-parser.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>apk-parser-1.0.1</tag>
     </scm>
 
     <dependencies>
