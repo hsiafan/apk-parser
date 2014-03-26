@@ -6,10 +6,6 @@ import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -97,7 +93,7 @@ public class StreamUtils {
         int i = in.readUShort();
         if ((i & 0x8000) != 0) {
             len |= (i & 0x7fff) << 15;
-            len += in.readUByte();
+            len += in.readUShort();
         } else {
             len = i;
         }
@@ -183,7 +179,7 @@ public class StreamUtils {
         switch (resValue.dataType) {
             case ResValue.ResType.INT_DEC:
             case ResValue.ResType.INT_HEX:
-                resValue.data = String.valueOf(in.readUInt());
+                resValue.data = String.valueOf(in.readInt());
                 break;
             case ResValue.ResType.STRING:
                 int strRef = in.readInt();
