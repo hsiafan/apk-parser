@@ -33,10 +33,10 @@
 
     <scm>
         <connection>scm:git:git@github.com:xiaxiaocao/apk-parser.git</connection>
-        <url>scm:git:git@github.com:xiaxiaocao/git-demo.git</url>
+        <url>https://github.com/xiaxiaocao/apk-parser</url>
         <developerConnection>scm:git:git@github.com:xiaxiaocao/apk-parser.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <dependency>
