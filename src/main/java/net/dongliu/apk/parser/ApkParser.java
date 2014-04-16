@@ -46,7 +46,7 @@ public class ApkParser implements Closeable {
     /**
      * return decoded AndroidManifest.xml
      *
-     * @return
+     * @return decoded AndroidManifest.xml
      */
     public String getManifestXml() throws IOException {
         if (!manifestXmlMap.containsKey(preferredLocale)) {
@@ -58,7 +58,7 @@ public class ApkParser implements Closeable {
     /**
      * return decoded AndroidManifest.xml
      *
-     * @return
+     * @return decoded AndroidManifest.xml
      */
     public ApkMeta getApkMeta() throws IOException {
         if (!apkMetaMap.containsKey(preferredLocale)) {
@@ -70,7 +70,7 @@ public class ApkParser implements Closeable {
     /**
      * get locales supported from resource file
      *
-     * @return
+     * @return decoded AndroidManifest.xml
      * @throws IOException
      */
     public Set<Locale> getLocales() throws IOException {
@@ -82,8 +82,6 @@ public class ApkParser implements Closeable {
 
     /**
      * get the apk's certificates.
-     *
-     * @return
      */
     public List<CertificateMeta> getCertificateMetas() throws IOException,
             CertificateEncodingException {
@@ -182,8 +180,6 @@ public class ApkParser implements Closeable {
 
     /**
      * get class infos form dex file. currrent only class name
-     *
-     * @return
      */
     public DexClass[] getDexClasses() throws IOException {
         if (this.dexClasses == null) {
@@ -229,8 +225,6 @@ public class ApkParser implements Closeable {
     /**
      * The locale prefrerred.
      * Will cause getManifestXml / getApkMeta to return diffrent values.
-     *
-     * @param preferredLocale
      */
     public void setPreferredLocale(Locale preferredLocale) {
         this.preferredLocale = preferredLocale;

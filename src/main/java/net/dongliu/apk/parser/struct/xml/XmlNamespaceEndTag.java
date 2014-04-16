@@ -1,7 +1,7 @@
 package net.dongliu.apk.parser.struct.xml;
 
 /**
- * @author
+ * @author dongliu
  */
 public class XmlNamespaceEndTag {
     public String prefix;
