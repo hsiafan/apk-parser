@@ -42,9 +42,16 @@ public class CompositeXmlStreamer implements XmlStreamer {
     }
 
     @Override
-    public void onNamespace(XmlNamespaceStartTag namespace) {
+    public void onNamespaceStart(XmlNamespaceStartTag tag) {
         for (XmlStreamer xmlStreamer : xmlStreamers) {
-            xmlStreamer.onNamespace(namespace);
+            xmlStreamer.onNamespaceStart(tag);
+        }
+    }
+
+    @Override
+    public void onNamespaceEnd(XmlNamespaceEndTag tag) {
+        for (XmlStreamer xmlStreamer : xmlStreamers) {
+            xmlStreamer.onNamespaceEnd(tag);
         }
     }
 }

@@ -2,6 +2,7 @@ package net.dongliu.apk.parser.struct.resource;
 
 /**
  * used by resource Type.
+ *
  * @author dongliu
  */
 public class ResTableConfig {

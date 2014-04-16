@@ -17,5 +17,7 @@ public interface XmlStreamer {
 
     void onCData(XmlCData xmlCData);
 
-    void onNamespace(XmlNamespaceStartTag namespace);
+    void onNamespaceStart(XmlNamespaceStartTag tag);
+
+    void onNamespaceEnd(XmlNamespaceEndTag tag);
 }

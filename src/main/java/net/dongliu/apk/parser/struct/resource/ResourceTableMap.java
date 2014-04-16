@@ -46,6 +46,7 @@ public class ResourceTableMap {
         }
 
     }
+
     public static class AttributeType {
         // No type has been defined for this attribute; use generic
         // type handling.  The low 16 bits are for types that can be

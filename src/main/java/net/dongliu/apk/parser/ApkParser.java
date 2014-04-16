@@ -7,7 +7,6 @@ import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
-import net.dongliu.apk.parser.struct.dex.DexClassStruct;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -143,6 +142,7 @@ public class ApkParser implements Closeable {
         }
 
         BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
+                manifestEntry.getSize(),
                 resourceTable);
         binaryXmlParser.setLocale(preferredLocale);
         XmlTranslator xmlTranslator = new XmlTranslator();

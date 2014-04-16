@@ -4,6 +4,7 @@ import net.dongliu.apk.parser.struct.ChunkHeader;
 
 /**
  * resource file header
+ *
  * @author dongliu
  */
 public class ResourceTableHeader extends ChunkHeader {

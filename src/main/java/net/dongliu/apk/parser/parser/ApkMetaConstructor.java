@@ -101,7 +101,12 @@ public class ApkMetaConstructor implements XmlStreamer {
     }
 
     @Override
-    public void onNamespace(XmlNamespaceStartTag namespace) {
+    public void onNamespaceStart(XmlNamespaceStartTag tag) {
+
+    }
+
+    @Override
+    public void onNamespaceEnd(XmlNamespaceEndTag tag) {
 
     }
 

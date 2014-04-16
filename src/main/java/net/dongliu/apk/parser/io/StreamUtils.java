@@ -340,6 +340,7 @@ public class StreamUtils {
 
     /**
      * read res value. for resource table parser
+     *
      * @param in
      * @param stringPool
      * @return

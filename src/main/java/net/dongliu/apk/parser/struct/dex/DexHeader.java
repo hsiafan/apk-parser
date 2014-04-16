@@ -2,8 +2,9 @@ package net.dongliu.apk.parser.struct.dex;
 
 /**
  * dex file header.
- *
+ * <p/>
  * see http://dexandroid.googlecode.com/svn/trunk/dalvik/libdex/DexFile.h
+ *
  * @author dongliu
  */
 public class DexHeader {

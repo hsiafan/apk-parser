@@ -13,14 +13,13 @@ import java.util.List;
 public class XmlTranslator implements XmlStreamer {
     private StringBuilder sb;
     private int shift = 0;
-    private boolean isRoot;
-    private XmlNamespaceStartTag xmlNamespace;
+    private XmlNamespaces namespaces;
     private boolean isLastStartTag;
 
     public XmlTranslator() {
         sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-        isRoot = true;
+        this.namespaces = new XmlNamespaces();
     }
 
     @Override
@@ -34,11 +33,14 @@ public class XmlTranslator implements XmlStreamer {
             sb.append(xmlNodeStartTag.namespace).append(":");
         }
         sb.append(xmlNodeStartTag.name);
-        if (isRoot && xmlNamespace != null && xmlNamespace.uri != null) {
-            sb.append(" xmlns:").append(xmlNamespace.prefix).append("=\"")
-                    .append(xmlNamespace.uri)
-                    .append("\"");
-            isRoot = false;
+
+        List<XmlNamespaces.XmlNamespace> nps = namespaces.consumeNameSpaces();
+        if (!nps.isEmpty()) {
+            for (XmlNamespaces.XmlNamespace np : nps) {
+                sb.append(" xmlns:").append(np.getPrefix()).append("=\"")
+                        .append(np.getUri())
+                        .append("\"");
+            }
         }
         isLastStartTag = true;
     }
@@ -63,13 +65,12 @@ public class XmlTranslator implements XmlStreamer {
     @Override
     public void onAttribute(Attribute attribute) {
         sb.append(" ");
-        String namespace = attribute.namespace;
-        if (namespace != null) {
-            if (namespace.equals(xmlNamespace.uri)) {
-                sb.append(xmlNamespace.prefix).append(':');
-            } else if (!namespace.isEmpty()) {
-                sb.append(namespace).append(':');
-            }
+        String namespace = this.namespaces.getPrefixViaUri(attribute.namespace);
+        if (namespace == null) {
+            namespace = attribute.namespace;
+        }
+        if (namespace != null && !namespace.isEmpty()) {
+            sb.append(namespace).append(':');
         }
 
         String value = attribute.getValue();
@@ -120,8 +121,13 @@ public class XmlTranslator implements XmlStreamer {
     }
 
     @Override
-    public void onNamespace(XmlNamespaceStartTag namespace) {
-        this.xmlNamespace = namespace;
+    public void onNamespaceStart(XmlNamespaceStartTag tag) {
+        this.namespaces.addNamespace(tag);
+    }
+
+    @Override
+    public void onNamespaceEnd(XmlNamespaceEndTag tag) {
+        this.namespaces.removeNamespace(tag);
     }
 
     private void appendShift(int shift) {

@@ -1,7 +1,6 @@
 package net.dongliu.apk.parser.struct.xml;
 
 /**
- *
  * @author
  */
 public class XmlNamespaceStartTag {

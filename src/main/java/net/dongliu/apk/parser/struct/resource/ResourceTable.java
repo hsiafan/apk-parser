@@ -14,6 +14,7 @@ public class ResourceTable {
     public StringPool stringPool;
 
     public static Map<Integer, String> styleMap = ResourceLoader.loadSystemStyles();
+
     public void addPackage(ResourcePackage resourcePackage) {
         this.packageMap.put(resourcePackage.id, resourcePackage);
     }
