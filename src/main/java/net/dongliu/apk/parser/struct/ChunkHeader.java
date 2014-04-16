@@ -2,13 +2,15 @@ package net.dongliu.apk.parser.struct;
 
 /**
  * A Chunk is just a piece of memory split into two parts, a header and a body.
- * The exact structure of the header and the body of a given Chunk is determined by its type. <br />
+ * The exact structure of the header and the body of a given Chunk is determined by its type.
+ * <pre>
  * chunk header struct.
  * struct ResChunk_header {
  * uint16_t type;
  * uint16_t headerSize;
  * uint32_t size;
  * }
+ * </pre>
  *
  * @author dongliu
  */
