@@ -1,0 +1,2 @@
+1.1.1
+* bug fix: string pool may be disorder
