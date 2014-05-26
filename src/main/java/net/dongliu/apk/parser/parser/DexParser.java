@@ -4,6 +4,7 @@ import net.dongliu.apk.parser.bean.DexClass;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.struct.ByteOrder;
+import net.dongliu.apk.parser.struct.StringPool;
 import net.dongliu.apk.parser.struct.dex.DexClassStruct;
 import net.dongliu.apk.parser.struct.dex.DexHeader;
 
@@ -61,11 +62,11 @@ public class DexParser {
         // read classes
         DexClassStruct[] dexClasseStructs = readClass(header.classDefsOff, header.classDefsSize);
 
-        String[] stringpool = readStrings(stringOffsets);
+        StringPool stringpool = readStrings(stringOffsets);
 
         String[] types = new String[typeIds.length];
         for (int i = 0; i < typeIds.length; i++) {
-            types[i] = stringpool[typeIds[i]];
+            types[i] = stringpool.get(typeIds[i]);
         }
 
         dexClasses = new DexClass[dexClasseStructs.length];
@@ -120,7 +121,15 @@ public class DexParser {
         return typeIds;
     }
 
-    private String[] readStrings(long[] offsets) throws IOException {
+    /**
+     * read string pool for dex file.
+     * dex file string pool diff a bit with binary xml file or resource table.
+     *
+     * @param offsets
+     * @return
+     * @throws IOException
+     */
+    private StringPool readStrings(long[] offsets) throws IOException {
         // read strings.
         // in some apk, the strings' offsets may not well ordered. we sort it first
 
@@ -130,10 +139,19 @@ public class DexParser {
         }
         Arrays.sort(entries);
 
-        String[] stringpool = new String[offsets.length];
+        String lastStr = null;
+        long lastOffset = -1;
+        StringPool stringpool = new StringPool(offsets.length);
         for (StringPoolEntry entry : entries) {
+            if (entry.getOffset() == lastOffset) {
+                stringpool.set(entry.getIdx(), lastStr);
+                continue;
+            }
             in.advanceIfNotRearch(entry.getOffset());
-            stringpool[entry.getIdx()] = readString();
+            lastOffset = entry.getOffset();
+            String str = readString();
+            lastStr = str;
+            stringpool.set(entry.getIdx(), str);
         }
         return stringpool;
     }

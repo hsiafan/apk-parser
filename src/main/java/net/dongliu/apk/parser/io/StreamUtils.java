@@ -104,7 +104,7 @@ public class StreamUtils {
 
 
     /**
-     * read String pool
+     * read String pool, for apk binary xml file and resource table.
      *
      * @param in
      * @param stringPoolHeader
