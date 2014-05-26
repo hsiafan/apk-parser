@@ -2,10 +2,12 @@ package net.dongliu.apk.parser.io;
 
 import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
+import net.dongliu.apk.parser.parser.StringPoolEntry;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -128,11 +130,27 @@ public class StreamUtils {
         // read strings. the head and metas have 28 bytes
         long stringPos = beginPos + stringPoolHeader.stringsStart - stringPoolHeader.headerSize;
         in.advanceIfNotRearch(stringPos);
+
+        StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
+        for (int i = 0; i < offsets.length; i++) {
+            entries[i] = new StringPoolEntry(i, stringPos + offsets[i]);
+        }
+        Arrays.sort(entries);
+
+        String lastStr = null;
+        long lastOffset = -1;
         StringPool stringPool = new StringPool((int) stringPoolHeader.stringCount);
-        for (int idx = 0; idx < offsets.length; idx++) {
-            in.advanceIfNotRearch(stringPos + offsets[idx]);
+        for (StringPoolEntry entry : entries) {
+            if (entry.getOffset() == lastOffset) {
+                stringPool.set(entry.getIdx(), lastStr);
+                continue;
+            }
+
+            in.advanceIfNotRearch(entry.getOffset());
+            lastOffset = entry.getOffset();
             String str = StreamUtils.readString(in, stringEncoding);
-            stringPool.set(idx, str);
+            lastStr = str;
+            stringPool.set(entry.getIdx(), str);
         }
 
         // read styles

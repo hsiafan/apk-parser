@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UTFDataFormatException;
 import java.util.Arrays;
-import java.util.Comparator;
 
 /**
  * parse dex file.
@@ -129,12 +128,7 @@ public class DexParser {
         for (int i = 0; i < offsets.length; i++) {
             entries[i] = new StringPoolEntry(i, offsets[i]);
         }
-        Arrays.sort(entries, new Comparator<StringPoolEntry>() {
-            @Override
-            public int compare(StringPoolEntry o1, StringPoolEntry o2) {
-                return (int) (o1.getOffset() - o2.getOffset());
-            }
-        });
+        Arrays.sort(entries);
 
         String[] stringpool = new String[offsets.length];
         for (StringPoolEntry entry : entries) {
@@ -280,31 +274,3 @@ public class DexParser {
 
 }
 
-/**
- * class for sort string pool indexes
- */
-class StringPoolEntry {
-    private int idx;
-    private long offset;
-
-    StringPoolEntry(int idx, long offset) {
-        this.idx = idx;
-        this.offset = offset;
-    }
-
-    public int getIdx() {
-        return idx;
-    }
-
-    public void setIdx(int idx) {
-        this.idx = idx;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public void setOffset(long offset) {
-        this.offset = offset;
-    }
-}
