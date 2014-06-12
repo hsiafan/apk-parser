@@ -2,8 +2,9 @@ package net.dongliu.apk.parser.bean;
 
 /**
  * The java use ISO-639 and ISO-3166 to represent a local, with language lower case and country upper case.
- * <p/>
+ * <p>
  * Note: we do not use java.util.Locale here.
+ * </p>
  *
  * @author dongliu
  */
