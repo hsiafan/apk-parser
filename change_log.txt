@@ -1,2 +1,7 @@
+1.2.0
+* add transBinaryXml method to ApkParser
+* default locale set to none. you need to set one locale your self if you want to get localize
+values
+
 1.1.1
 * bug fix: string pool may be disorder

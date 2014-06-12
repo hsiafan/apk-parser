@@ -13,7 +13,7 @@ If maven is used, you can add dependency:
         <dependency>
             <groupId>net.dongliu.apk-parser</groupId>
             <artifactId>apk-parser</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0</version>
         </dependency>
 ```
 to your pom file.
@@ -45,7 +45,7 @@ to get all-in-one excuteable jar.
 
 Usages:
 ```
-java -jar apk-parser-all.jar -t manifest [apkfile]     # get apk manifest file as text xml
-java -jar apk-parser-all.jar -t info [apkfile]         # get apk basic infos
+java -jar apk-parser-all.jar -l en_US -t manifest [apkfile]     # get apk manifest file as text xml
+java -jar apk-parser-all.jar -l en_US -t info [apkfile]         # get apk basic infos
 ```
 Use java -jar apk-parser-all.jar -h to see more options.

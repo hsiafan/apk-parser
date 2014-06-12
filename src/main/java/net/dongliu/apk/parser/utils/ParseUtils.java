@@ -1,7 +1,8 @@
-package net.dongliu.apk.parser.io;
+package net.dongliu.apk.parser.utils;
 
 import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
+import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.parser.StringPoolEntry;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * @author dongliu
  */
-public class StreamUtils {
+public class ParseUtils {
 
 
     /**
@@ -148,7 +149,7 @@ public class StreamUtils {
 
             in.advanceIfNotRearch(entry.getOffset());
             lastOffset = entry.getOffset();
-            String str = StreamUtils.readString(in, stringEncoding);
+            String str = ParseUtils.readString(in, stringEncoding);
             lastStr = str;
             stringPool.set(entry.getIdx(), str);
         }
@@ -298,8 +299,8 @@ public class StreamUtils {
      * @param locale
      * @return
      */
-    public static String getResourceByid(long resourceId, boolean isStyle, ResourceTable resourceTable,
-                                         Locale locale) {
+    public static String getResourceByid(long resourceId, boolean isStyle,
+                                         ResourceTable resourceTable, Locale locale) {
 //        An Android Resource id is a 32-bit integer. It comprises
 //        an 8-bit Package id [bits 24-31]
 //        an 8-bit Type id [bits 16-23]
@@ -350,7 +351,7 @@ public class StreamUtils {
                 result = resource.toString();
             }
         }
-        if (result == null) {
+        if (locale.equals(Locale.none) || result == null) {
             result = "@" + typeSpec.name + "/" + ref;
         }
         return result;

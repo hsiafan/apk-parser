@@ -7,11 +7,11 @@ package net.dongliu.apk.parser.struct;
  */
 public class AndroidConstants {
 
-    public static final String RESOURCE = "resources.arsc";
+    public static final String RESOURCE_FILE = "resources.arsc";
 
-    public static final String MANIFEST = "AndroidManifest.xml";
+    public static final String MANIFEST_FILE = "AndroidManifest.xml";
 
-    public static final String DEX = "classes.dex";
+    public static final String DEX_FILE = "classes.dex";
 
     public static final String RES_PREFIX = "res/";
 

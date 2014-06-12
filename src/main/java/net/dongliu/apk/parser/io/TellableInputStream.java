@@ -26,7 +26,7 @@ public class TellableInputStream {
         this.byteOrder = byteOrder;
     }
 
-    protected int read() throws IOException {
+    public int read() throws IOException {
         int ret = in.read();
         if (ret != -1) {
             pos++;

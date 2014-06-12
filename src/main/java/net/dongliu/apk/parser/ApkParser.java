@@ -38,7 +38,7 @@ public class ApkParser implements Closeable {
 
     public ApkParser(File apkFile) throws IOException {
         this.zf = new ZipFile(apkFile);
-        this.preferredLocale = Locale.any;
+        this.preferredLocale = Locale.none;
         this.manifestXmlMap = new HashMap<Locale, String>();
         this.apkMetaMap = new HashMap<Locale, ApkMeta>();
     }
@@ -118,19 +118,7 @@ public class ApkParser implements Closeable {
      * @throws IOException
      */
     private void parseManifestXml() throws IOException {
-        ZipArchiveEntry manifestEntry = null;
-        Enumeration<ZipArchiveEntry> enu = zf.getEntries();
-        while (enu.hasMoreElements()) {
-            ZipArchiveEntry entry = enu.nextElement();
-            if (entry.isDirectory()) {
-                continue;
-            }
-            if (entry.getName().equals(AndroidConstants.MANIFEST)) {
-                manifestEntry = entry;
-            }
-
-        }
-
+        ZipArchiveEntry manifestEntry = getEntry(AndroidConstants.MANIFEST_FILE);
         if (manifestEntry == null) {
             throw new ParserException("manifest xml file not found");
         }
@@ -140,8 +128,7 @@ public class ApkParser implements Closeable {
         }
 
         BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
-                manifestEntry.getSize(),
-                resourceTable);
+                manifestEntry.getSize(), resourceTable);
         binaryXmlParser.setLocale(preferredLocale);
         XmlTranslator xmlTranslator = new XmlTranslator();
         ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor();
@@ -154,20 +141,50 @@ public class ApkParser implements Closeable {
     }
 
     /**
-     * parse resource table.
+     * trans binary xml file to text xml file.
+     *
+     * @param path the xml file path in apk file
+     * @return the text. null if file not exists
+     * @throws IOException
      */
-    private void parseResourceTable() throws IOException {
-        ZipArchiveEntry resourceEntry = null;
+    public String transBinaryXml(String path) throws IOException {
+        ZipArchiveEntry entry = getEntry(path);
+        if (entry == null) {
+            return null;
+        }
+
+        BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(entry),
+                entry.getSize(), resourceTable);
+        binaryXmlParser.setLocale(preferredLocale);
+        XmlTranslator xmlTranslator = new XmlTranslator();
+        ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor();
+        CompositeXmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator,
+                apkMetaConstructor);
+        binaryXmlParser.setXmlStreamer(xmlStreamer);
+        binaryXmlParser.parse();
+        return xmlTranslator.getXml();
+    }
+
+    private ZipArchiveEntry getEntry(String path) {
         Enumeration<ZipArchiveEntry> enu = zf.getEntries();
         while (enu.hasMoreElements()) {
             ZipArchiveEntry entry = enu.nextElement();
             if (entry.isDirectory()) {
                 continue;
             }
-            if (entry.getName().equals(AndroidConstants.RESOURCE)) {
-                resourceEntry = entry;
+            if (entry.getName().equals(path)) {
+                return entry;
             }
+
         }
+        return null;
+    }
+
+    /**
+     * parse resource table.
+     */
+    private void parseResourceTable() throws IOException {
+        ZipArchiveEntry resourceEntry = getEntry(AndroidConstants.RESOURCE_FILE);
         if (resourceEntry == null) {
             throw new ParserException("resource table not found");
         }
@@ -189,17 +206,7 @@ public class ApkParser implements Closeable {
     }
 
     private void parseDexFile() throws IOException {
-        ZipArchiveEntry resourceEntry = null;
-        Enumeration<ZipArchiveEntry> enu = zf.getEntries();
-        while (enu.hasMoreElements()) {
-            ZipArchiveEntry entry = enu.nextElement();
-            if (entry.isDirectory()) {
-                continue;
-            }
-            if (entry.getName().equals(AndroidConstants.DEX)) {
-                resourceEntry = entry;
-            }
-        }
+        ZipArchiveEntry resourceEntry = getEntry(AndroidConstants.DEX_FILE);
         if (resourceEntry == null) {
             throw new ParserException("resource table not found");
         }
@@ -223,8 +230,9 @@ public class ApkParser implements Closeable {
     }
 
     /**
-     * The locale prefrerred.
-     * Will cause getManifestXml / getApkMeta to return diffrent values.
+     * The locale prefrerred. Will cause getManifestXml / getApkMeta to return diffrent values.
+     * The default value if Locale.none, which will not translate resource strings. you need to set
+     * one locale if wanted localized resources(app title, themes name, etc.)
      */
     public void setPreferredLocale(Locale preferredLocale) {
         this.preferredLocale = preferredLocale;

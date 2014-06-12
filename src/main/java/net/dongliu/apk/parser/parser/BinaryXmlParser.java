@@ -2,7 +2,7 @@ package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.io.StreamUtils;
+import net.dongliu.apk.parser.utils.ParseUtils;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
@@ -58,8 +58,8 @@ public class BinaryXmlParser {
 
             // read string pool chunk
             chunkHeader = readChunkHeader();
-            StreamUtils.checkChunkType(ChunkType.STRING_POOL, chunkHeader.chunkType);
-            stringPool = StreamUtils.readStringPool(in, (StringPoolHeader) chunkHeader);
+            ParseUtils.checkChunkType(ChunkType.STRING_POOL, chunkHeader.chunkType);
+            stringPool = ParseUtils.readStringPool(in, (StringPoolHeader) chunkHeader);
 
             // read on chunk, check if it was an optional XMLResourceMap chunk
             chunkHeader = readChunkHeader();
@@ -117,7 +117,7 @@ public class BinaryXmlParser {
         if (dataRef > 0) {
             xmlCData.data = stringPool.get(dataRef);
         }
-        xmlCData.typedData = StreamUtils.readResValue(in, stringPool, resourceTable, false, locale);
+        xmlCData.typedData = ParseUtils.readResValue(in, stringPool, resourceTable, false, locale);
         if (xmlStreamer != null) {
             xmlStreamer.onCData(xmlCData);
         }
@@ -190,7 +190,7 @@ public class BinaryXmlParser {
         if (rawValueRef > 0) {
             attribute.rawValue = stringPool.get(rawValueRef);
         }
-        attribute.typedValue = StreamUtils.readResValue(in, stringPool, resourceTable,
+        attribute.typedValue = ParseUtils.readResValue(in, stringPool, resourceTable,
                 "style".equals(attribute.name) || "theme".equals(attribute.name), locale);
 
         return attribute;
