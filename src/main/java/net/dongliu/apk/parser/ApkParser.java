@@ -186,13 +186,16 @@ public class ApkParser implements Closeable {
     private void parseResourceTable() throws IOException {
         ZipArchiveEntry resourceEntry = getEntry(AndroidConstants.RESOURCE_FILE);
         if (resourceEntry == null) {
-            throw new ParserException("resource table not found");
+            // if no resource entry has been found, we assume it is not needed by this APK
+            this.resourceTable = new ResourceTable();
+            this.locales = Collections.EMPTY_SET;
+        } else {
+            ResourceTableParser resourceTableParser = new ResourceTableParser(zf.getInputStream(
+                resourceEntry));
+            resourceTableParser.parse();
+            this.resourceTable = resourceTableParser.getResourceTable();
+            this.locales = resourceTableParser.getLocales();
         }
-        ResourceTableParser resourceTableParser = new ResourceTableParser(
-                zf.getInputStream(resourceEntry));
-        resourceTableParser.parse();
-        this.resourceTable = resourceTableParser.getResourceTable();
-        this.locales = resourceTableParser.getLocales();
     }
 
     /**
