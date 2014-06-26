@@ -1,3 +1,11 @@
+1.3.0
+* binaryXmlParser not depend on resource table, convert resource when needed
+* bug fix: cannot get resource value when resource table have a refrence to it's self's entry
+* use jdk Locale class
+
+1.2.1
+* deal with apk without one resource table
+
 1.2.0
 * add transBinaryXml method to ApkParser
 * default locale set to none. you need to set one locale your self if you want to get localize

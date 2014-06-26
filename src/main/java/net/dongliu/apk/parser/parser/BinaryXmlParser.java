@@ -1,15 +1,15 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.bean.Locale;
+import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.utils.ParseUtils;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.struct.*;
-import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.xml.*;
+import net.dongliu.apk.parser.utils.ParseUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 /**
  * Android Binary XML format
@@ -29,17 +29,15 @@ public class BinaryXmlParser {
     private TellableInputStream in;
     private long fileSize;
     private XmlStreamer xmlStreamer;
-    private ResourceTable resourceTable;
 
     /**
      * default locale.
      */
-    private Locale locale = Locale.any;
+    private Locale locale = Locales.any;
 
-    public BinaryXmlParser(InputStream in, long fileSize, ResourceTable resourceTable) {
+    public BinaryXmlParser(InputStream in, long fileSize) {
         this.in = new TellableInputStream(in, byteOrder);
         this.fileSize = fileSize;
-        this.resourceTable = resourceTable;
     }
 
     /**
@@ -117,7 +115,7 @@ public class BinaryXmlParser {
         if (dataRef > 0) {
             xmlCData.data = stringPool.get(dataRef);
         }
-        xmlCData.typedData = ParseUtils.readResValue(in, stringPool, resourceTable, false, locale);
+        xmlCData.typedData = ParseUtils.readResValue(in, stringPool);
         if (xmlStreamer != null) {
             xmlStreamer.onCData(xmlCData);
         }
@@ -190,8 +188,8 @@ public class BinaryXmlParser {
         if (rawValueRef > 0) {
             attribute.rawValue = stringPool.get(rawValueRef);
         }
-        attribute.typedValue = ParseUtils.readResValue(in, stringPool, resourceTable,
-                "style".equals(attribute.name) || "theme".equals(attribute.name), locale);
+        attribute.typedValue = ParseUtils.readResValue(in, stringPool,
+                "style".equals(attribute.name) || "theme".equals(attribute.name));
 
         return attribute;
     }

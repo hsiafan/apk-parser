@@ -1,8 +1,10 @@
 package net.dongliu.apk.parser.struct.xml;
 
-import net.dongliu.apk.parser.struct.ResValue;
+import net.dongliu.apk.parser.struct.ResourceEntity;
+import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.utils.ResourceLoader;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -16,21 +18,25 @@ public class Attribute {
     // The original raw string value of this 
     public String rawValue;
     // Processesd typed value of this 
-    public ResValue typedValue;
+    public ResourceEntity typedValue;
 
-    public String getValue() {
+    public String toStringValue(ResourceTable resourceTable, Locale locale) {
         if (rawValue != null) {
             return rawValue;
         } else {
-            return typedValue.toString();
+            return typedValue.toStringValue(resourceTable, locale);
         }
     }
 
     @Override
     public String toString() {
-        return name + '=' + '"' + getValue().replace("\"", "\\\"") + '"';
+        return "Attribute{" +
+                "namespace='" + namespace + '\'' +
+                ", name='" + name + '\'' +
+                ", rawValue='" + rawValue + '\'' +
+                ", typedValue=" + typedValue +
+                '}';
     }
-
 
     /**
      * These are attribute resource constants for the platform; as found in android.R.attr

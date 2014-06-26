@@ -1,9 +1,11 @@
 package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.struct.ActivityInfo;
+import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.xml.*;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * trans to xml text when parse binary xml file.
@@ -16,7 +18,12 @@ public class XmlTranslator implements XmlStreamer {
     private XmlNamespaces namespaces;
     private boolean isLastStartTag;
 
-    public XmlTranslator() {
+    private Locale locale;
+    private ResourceTable resourceTable;
+
+    public XmlTranslator(ResourceTable resourceTable, Locale locale) {
+        this.locale = locale;
+        this.resourceTable = resourceTable;
         sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
         this.namespaces = new XmlNamespaces();
@@ -73,7 +80,7 @@ public class XmlTranslator implements XmlStreamer {
             sb.append(namespace).append(':');
         }
 
-        String value = attribute.getValue();
+        String value = attribute.toStringValue(resourceTable, locale);
         if (attribute.name.equals("screenOrientation")) {
             ActivityInfo.ScreenOrienTation screenOrienTation =
                     ActivityInfo.ScreenOrienTation.valueOf(Integer.parseInt(value));
@@ -116,7 +123,7 @@ public class XmlTranslator implements XmlStreamer {
     @Override
     public void onCData(XmlCData xmlCData) {
         appendShift(shift);
-        sb.append(xmlCData.toString()).append('\n');
+        sb.append(xmlCData.toStringValue(resourceTable, locale)).append('\n');
         isLastStartTag = false;
     }
 

@@ -1,6 +1,8 @@
 package net.dongliu.apk.parser.struct.resource;
 
-import net.dongliu.apk.parser.struct.ResValue;
+import net.dongliu.apk.parser.struct.ResourceEntity;
+
+import java.util.Locale;
 
 /**
  * A Resource entry specifies the key (name) of the Resource.
@@ -27,10 +29,28 @@ public class ResourceEntry {
     public String key;
 
     // the resvalue following this resource entry.
-    public ResValue value;
+    public ResourceEntity value;
+
+    /**
+     * get value as string
+     *
+     * @return
+     */
+    public String toStringValue(ResourceTable resourceTable, Locale locale) {
+        if (value != null) {
+            return value.toStringValue(resourceTable, locale);
+        } else {
+            return "null";
+        }
+    }
 
     @Override
     public String toString() {
-        return value.toString();
+        return "ResourceEntry{" +
+                "size=" + size +
+                ", flags=" + flags +
+                ", key='" + key + '\'' +
+                ", value=" + value +
+                '}';
     }
 }

@@ -3,13 +3,13 @@ package net.dongliu.apk.parser;
 import net.dongliu.apk.parser.bean.ApkMeta;
 import net.dongliu.apk.parser.bean.CertificateMeta;
 import net.dongliu.apk.parser.bean.DexClass;
-import net.dongliu.apk.parser.bean.Locale;
 import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -96,7 +96,7 @@ public class Main {
             } else if (type.equals("locale")) {
                 Set<Locale> locales = apkParser.getLocales();
                 for (Locale l : locales) {
-                    System.out.println(l);
+                    System.out.println(l.toLanguageTag());
                 }
             } else if (type.equals("dex")) {
                 DexClass[] dexClasses = apkParser.getDexClasses();

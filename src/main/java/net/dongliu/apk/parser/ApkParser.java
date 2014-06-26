@@ -3,7 +3,6 @@ package net.dongliu.apk.parser;
 import net.dongliu.apk.parser.bean.ApkMeta;
 import net.dongliu.apk.parser.bean.CertificateMeta;
 import net.dongliu.apk.parser.bean.DexClass;
-import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
@@ -34,11 +33,13 @@ public class ApkParser implements Closeable {
     private List<CertificateMeta> certificateMetas;
     private final ZipFile zf;
 
+    /**
+     * default is null
+     */
     private Locale preferredLocale;
 
     public ApkParser(File apkFile) throws IOException {
         this.zf = new ZipFile(apkFile);
-        this.preferredLocale = Locale.none;
         this.manifestXmlMap = new HashMap<Locale, String>();
         this.apkMetaMap = new HashMap<Locale, ApkMeta>();
     }
@@ -128,10 +129,10 @@ public class ApkParser implements Closeable {
         }
 
         BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
-                manifestEntry.getSize(), resourceTable);
+                manifestEntry.getSize());
         binaryXmlParser.setLocale(preferredLocale);
-        XmlTranslator xmlTranslator = new XmlTranslator();
-        ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor();
+        XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
+        ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor(resourceTable, preferredLocale);
         CompositeXmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator,
                 apkMetaConstructor);
         binaryXmlParser.setXmlStreamer(xmlStreamer);
@@ -154,10 +155,11 @@ public class ApkParser implements Closeable {
         }
 
         BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(entry),
-                entry.getSize(), resourceTable);
+                entry.getSize());
         binaryXmlParser.setLocale(preferredLocale);
-        XmlTranslator xmlTranslator = new XmlTranslator();
-        ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor();
+        XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
+        ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor(resourceTable,
+                preferredLocale);
         CompositeXmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator,
                 apkMetaConstructor);
         binaryXmlParser.setXmlStreamer(xmlStreamer);
@@ -188,10 +190,10 @@ public class ApkParser implements Closeable {
         if (resourceEntry == null) {
             // if no resource entry has been found, we assume it is not needed by this APK
             this.resourceTable = new ResourceTable();
-            this.locales = Collections.EMPTY_SET;
+            this.locales = Collections.emptySet();
         } else {
             ResourceTableParser resourceTableParser = new ResourceTableParser(zf.getInputStream(
-                resourceEntry));
+                    resourceEntry));
             resourceTableParser.parse();
             this.resourceTable = resourceTableParser.getResourceTable();
             this.locales = resourceTableParser.getLocales();

@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.struct.resource;
 
-import net.dongliu.apk.parser.bean.Locale;
+import java.util.Locale;
 
 /**
  * @author dongliu

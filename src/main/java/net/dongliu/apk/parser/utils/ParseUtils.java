@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.utils;
 
-import net.dongliu.apk.parser.bean.Locale;
+import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.parser.StringPoolEntry;
@@ -10,6 +10,7 @@ import net.dongliu.apk.parser.struct.resource.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author dongliu
@@ -187,9 +188,8 @@ public class ParseUtils {
      * @return
      * @throws IOException
      */
-    public static ResValue readResValue(TellableInputStream in, StringPool stringPool,
-                                        ResourceTable resourceTable, boolean isStyle, Locale locale)
-            throws IOException {
+    public static ResourceEntity readResValue(TellableInputStream in, StringPool stringPool,
+                                              boolean isStyle) throws IOException {
         ResValue resValue = new ResValue();
         resValue.size = in.readUShort();
         resValue.res0 = in.readUByte();
@@ -198,42 +198,43 @@ public class ParseUtils {
         switch (resValue.dataType) {
             case ResValue.ResType.INT_DEC:
             case ResValue.ResType.INT_HEX:
-                resValue.data = String.valueOf(in.readInt());
+                resValue.data = new ResourceEntity(in.readInt());
                 break;
             case ResValue.ResType.STRING:
                 int strRef = in.readInt();
                 if (strRef > 0) {
-                    resValue.data = stringPool.get(strRef);
+                    resValue.data = new ResourceEntity(stringPool.get(strRef));
                 }
                 break;
             case ResValue.ResType.REFERENCE:
                 long resourceId = in.readUInt();
-                resValue.data = getResourceByid(resourceId, isStyle, resourceTable, locale);
+                resValue.data = new ResourceEntity(resourceId, isStyle);
                 break;
             case ResValue.ResType.INT_BOOLEAN:
-                resValue.data = String.valueOf(in.readInt() != 0);
+                resValue.data = new ResourceEntity(in.readInt() != 0);
                 break;
             case ResValue.ResType.NULL:
-                resValue.data = "";
+                resValue.data = new ResourceEntity("");
                 break;
             case ResValue.ResType.INT_COLOR_RGB8:
             case ResValue.ResType.INT_COLOR_RGB4:
-                resValue.data = readRGBs(in, 6);
+                resValue.data = new ResourceEntity(readRGBs(in, 6));
                 break;
             case ResValue.ResType.INT_COLOR_ARGB8:
             case ResValue.ResType.INT_COLOR_ARGB4:
-                resValue.data = readRGBs(in, 8);
+                resValue.data = new ResourceEntity(readRGBs(in, 8));
                 break;
             case ResValue.ResType.DIMENSION:
-                resValue.data = getDemension(in);
+                resValue.data = new ResourceEntity(getDemension(in));
                 break;
             case ResValue.ResType.FRACTION:
-                resValue.data = getFraction(in);
+                resValue.data = new ResourceEntity(getFraction(in));
                 break;
             default:
-                resValue.data = "{" + resValue.dataType + ":" + in.readUInt() + "}";
+                resValue.data = new ResourceEntity("{" + resValue.dataType + ":" + in.readUInt()
+                        + "}");
         }
-        return resValue;
+        return resValue.data;
     }
 
     private static String getDemension(TellableInputStream in) throws IOException {
@@ -341,17 +342,16 @@ public class ParseUtils {
             if (resource == null) {
                 continue;
             }
-            int level = locale.match(type.locale);
+            ref = resource.key;
+            int level = Locales.match(locale, type.locale);
             if (level == 2) {
-                ref = resource.key;
-                result = resource.toString();
+                result = resource.toStringValue(resourceTable, locale);
                 break;
             } else if (level > currentLevel) {
-                ref = resource.key;
-                result = resource.toString();
+                result = resource.toStringValue(resourceTable, locale);
             }
         }
-        if (locale.equals(Locale.none) || result == null) {
+        if (locale == null || result == null) {
             result = "@" + typeSpec.name + "/" + ref;
         }
         return result;
@@ -364,8 +364,8 @@ public class ParseUtils {
      * @param stringPool
      * @return
      */
-    public static ResValue readResValue(TellableInputStream in, StringPool stringPool)
+    public static ResourceEntity readResValue(TellableInputStream in, StringPool stringPool)
             throws IOException {
-        return readResValue(in, stringPool, null, false, null);
+        return readResValue(in, stringPool, false);
     }
 }

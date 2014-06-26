@@ -1,15 +1,15 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.bean.Locale;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.utils.ParseUtils;
 import net.dongliu.apk.parser.io.TellableInputStream;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
+import net.dongliu.apk.parser.utils.ParseUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 /**

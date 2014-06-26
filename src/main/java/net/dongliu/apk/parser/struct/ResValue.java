@@ -1,6 +1,8 @@
 package net.dongliu.apk.parser.struct;
 
 /**
+ * apk res value struct.
+ *
  * @author dongliu
  */
 public class ResValue {
@@ -25,11 +27,16 @@ public class ResValue {
     /**
      * the real data repesented by string
      */
-    public String data;
+    public ResourceEntity data;
 
     @Override
     public String toString() {
-        return this.data;
+        return "ResValue{" +
+                "size=" + size +
+                ", res0=" + res0 +
+                ", dataType=" + dataType +
+                ", data=" + data +
+                '}';
     }
 
     public static class ResType {
