@@ -22,6 +22,7 @@ The easiest way is to use the ApkParser class, which contains convenient mehods 
 ```
 ApkParser apkParser = new ApkParser(new File(filePath));
 if (locale != null) {
+    // set a locale to translate resource tag into specific strings in language the locale specified
     apkParser.setPreferredLocale(locale);
 }
 
@@ -35,6 +36,12 @@ for (Locale l : locales) {
 }
 apkParser.close();
 ```
+
+The apk-parser set locale to null and do not translate resource tag in default. If you want a specific resource string, for example, you want apk title 'WeChat' instead of '@string/app_name', just set the preferred Locale:
+```
+apkParser.setPreferredLocale(Locale.ENGLISH);
+```
+This paramerter work for getApkMeta, getManifestXml, and other binary xmls.Apk may contains multi languages, apk parser will find best match languages with locale you specified.
 
 ### Command-line use
 Run
