@@ -16,20 +16,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * parser Cetificater info.
+ * parser Certificater info.
  *
  * @author dongliu
  */
-public class CetificateParser {
+public class CertificateParser {
 
     private InputStream in;
 
     private List<CertificateMeta> certificateMetas;
 
-    public CetificateParser(InputStream in) {
+    public CertificateParser(InputStream in) {
         this.in = new BufferedInputStream(in);
     }
 
+    /**
+     * get certificater info
+     *
+     * @throws IOException
+     * @throws CertificateEncodingException
+     */
     public void parse() throws IOException, CertificateEncodingException {
 
         PKCS7 pkcs7 = new PKCS7(Utils.toByteArray(in));
@@ -47,6 +53,7 @@ public class CetificateParser {
             certificateMetas.add(certificateMeta);
         }
     }
+
 
     private String md5Digest(byte[] input) throws IOException {
         MessageDigest digest = getDigest("Md5");

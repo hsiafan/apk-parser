@@ -1,20 +1,22 @@
 package net.dongliu.apk.parser;
 
-import net.dongliu.apk.parser.bean.ApkMeta;
-import net.dongliu.apk.parser.bean.CertificateMeta;
-import net.dongliu.apk.parser.bean.DexClass;
+import net.dongliu.apk.parser.bean.*;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.cert.CertificateEncodingException;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * ApkParser and result holder.
@@ -32,6 +34,7 @@ public class ApkParser implements Closeable {
     private Set<Locale> locales;
     private List<CertificateMeta> certificateMetas;
     private final ZipFile zf;
+    private File apkFile;
 
     /**
      * default is null
@@ -39,6 +42,7 @@ public class ApkParser implements Closeable {
     private Locale preferredLocale;
 
     public ApkParser(File apkFile) throws IOException {
+        this.apkFile = apkFile;
         this.zf = new ZipFile(apkFile);
         this.manifestXmlMap = new HashMap<Locale, String>();
         this.apkMetaMap = new HashMap<Locale, ApkMeta>();
@@ -108,9 +112,14 @@ public class ApkParser implements Closeable {
         if (entry == null) {
             throw new ParserException("ApkParser certificate not found");
         }
-        CetificateParser parser = new CetificateParser(zf.getInputStream(entry));
-        parser.parse();
-        this.certificateMetas = parser.getCertificateMetas();
+        InputStream in = zf.getInputStream(entry);
+        try {
+            CertificateParser parser = new CertificateParser(in);
+            parser.parse();
+            this.certificateMetas = parser.getCertificateMetas();
+        } finally {
+            in.close();
+        }
     }
 
     /**
@@ -128,17 +137,23 @@ public class ApkParser implements Closeable {
             parseResourceTable();
         }
 
-        BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(manifestEntry),
-                manifestEntry.getSize());
-        binaryXmlParser.setLocale(preferredLocale);
-        XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
-        ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor(resourceTable, preferredLocale);
-        CompositeXmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator,
-                apkMetaConstructor);
-        binaryXmlParser.setXmlStreamer(xmlStreamer);
-        binaryXmlParser.parse();
-        manifestXmlMap.put(preferredLocale, xmlTranslator.getXml());
-        apkMetaMap.put(preferredLocale, apkMetaConstructor.getApkMeta());
+        InputStream in = zf.getInputStream(manifestEntry);
+
+        try {
+            BinaryXmlParser binaryXmlParser = new BinaryXmlParser(in, manifestEntry.getSize());
+            binaryXmlParser.setLocale(preferredLocale);
+            XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
+            ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor(resourceTable,
+                    preferredLocale);
+            CompositeXmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator,
+                    apkMetaConstructor);
+            binaryXmlParser.setXmlStreamer(xmlStreamer);
+            binaryXmlParser.parse();
+            manifestXmlMap.put(preferredLocale, xmlTranslator.getXml());
+            apkMetaMap.put(preferredLocale, apkMetaConstructor.getApkMeta());
+        } finally {
+            in.close();
+        }
     }
 
     /**
@@ -154,17 +169,118 @@ public class ApkParser implements Closeable {
             return null;
         }
 
-        BinaryXmlParser binaryXmlParser = new BinaryXmlParser(zf.getInputStream(entry),
-                entry.getSize());
-        binaryXmlParser.setLocale(preferredLocale);
-        XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
-        ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor(resourceTable,
-                preferredLocale);
-        CompositeXmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator,
-                apkMetaConstructor);
-        binaryXmlParser.setXmlStreamer(xmlStreamer);
-        binaryXmlParser.parse();
-        return xmlTranslator.getXml();
+        InputStream in = zf.getInputStream(entry);
+        try {
+            BinaryXmlParser binaryXmlParser = new BinaryXmlParser(in, entry.getSize());
+            binaryXmlParser.setLocale(preferredLocale);
+            XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
+            ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor(resourceTable,
+                    preferredLocale);
+            CompositeXmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator,
+                    apkMetaConstructor);
+            binaryXmlParser.setXmlStreamer(xmlStreamer);
+            binaryXmlParser.parse();
+            return xmlTranslator.getXml();
+        } finally {
+            in.close();
+        }
+    }
+
+
+    /**
+     * get class infos form dex file. currrent only class name
+     */
+    public DexClass[] getDexClasses() throws IOException {
+        if (this.dexClasses == null) {
+            parseDexFile();
+        }
+        return this.dexClasses;
+    }
+
+    private void parseDexFile() throws IOException {
+        ZipArchiveEntry resourceEntry = getEntry(AndroidConstants.DEX_FILE);
+        if (resourceEntry == null) {
+            throw new ParserException("resource table not found");
+        }
+        InputStream in = zf.getInputStream(resourceEntry);
+        try {
+            DexParser dexParser = new DexParser(in);
+            dexParser.parse();
+            this.dexClasses = dexParser.getDexClasses();
+        } finally {
+            in.close();
+        }
+    }
+
+    /**
+     * get app icon as binary data, the icon's file format should be png
+     *
+     * @return
+     */
+    public Icon getIcon() throws IOException {
+        ApkMeta apkMeta = getApkMeta();
+        String iconPath = apkMeta.getIcon();
+        ZipArchiveEntry entry = getEntry(iconPath);
+        if (entry == null) {
+            return null;
+        }
+
+        Icon icon = new Icon();
+        icon.setFormat(iconPath.substring(iconPath.indexOf(".") + 1));
+        int idx = iconPath.indexOf("dpi/");
+        if (idx > 0) {
+            icon.setDpiLevel(iconPath.substring(
+                    iconPath.lastIndexOf("-", idx) + 1,
+                    idx + "dpi".length()));
+        } else {
+            icon.setDpiLevel("");
+        }
+        InputStream inputStream = zf.getInputStream(entry);
+        try {
+            icon.setData(IOUtils.toByteArray(inputStream));
+            return icon;
+        } finally {
+            inputStream.close();
+        }
+    }
+
+    /**
+     * check apk sign
+     *
+     * @return
+     * @throws IOException
+     */
+    public ApkSignStatus checkSign() throws IOException {
+        ZipArchiveEntry entry = getEntry("META-INF/MANIFEST.MF");
+        if (entry == null) {
+            // apk is not signed;
+            return ApkSignStatus.notSigned;
+        }
+
+        JarFile jarFile = new JarFile(this.apkFile);
+        Enumeration<JarEntry> entries = jarFile.entries();
+        byte[] buffer = new byte[8192];
+
+        while (entries.hasMoreElements()) {
+            JarEntry e = entries.nextElement();
+            if (e.isDirectory()) {
+                continue;
+            }
+            InputStream in = jarFile.getInputStream(e);
+            try {
+                // Read in each jar entry. A security exception will be thrown
+                // if a signature/digest check fails.
+                int count;
+                while ((count = in.read(buffer, 0, buffer.length)) != -1) {
+                    // Don't care
+                }
+            } catch (SecurityException se) {
+                return ApkSignStatus.incorrect;
+            } finally {
+                in.close();
+            }
+        }
+        return ApkSignStatus.signed;
     }
 
     private ZipArchiveEntry getEntry(String path) {
@@ -192,32 +308,16 @@ public class ApkParser implements Closeable {
             this.resourceTable = new ResourceTable();
             this.locales = Collections.emptySet();
         } else {
-            ResourceTableParser resourceTableParser = new ResourceTableParser(zf.getInputStream(
-                    resourceEntry));
-            resourceTableParser.parse();
-            this.resourceTable = resourceTableParser.getResourceTable();
-            this.locales = resourceTableParser.getLocales();
+            InputStream in = zf.getInputStream(resourceEntry);
+            try {
+                ResourceTableParser resourceTableParser = new ResourceTableParser(in);
+                resourceTableParser.parse();
+                this.resourceTable = resourceTableParser.getResourceTable();
+                this.locales = resourceTableParser.getLocales();
+            } finally {
+                in.close();
+            }
         }
-    }
-
-    /**
-     * get class infos form dex file. currrent only class name
-     */
-    public DexClass[] getDexClasses() throws IOException {
-        if (this.dexClasses == null) {
-            parseDexFile();
-        }
-        return this.dexClasses;
-    }
-
-    private void parseDexFile() throws IOException {
-        ZipArchiveEntry resourceEntry = getEntry(AndroidConstants.DEX_FILE);
-        if (resourceEntry == null) {
-            throw new ParserException("resource table not found");
-        }
-        DexParser dexParser = new DexParser(zf.getInputStream(resourceEntry));
-        dexParser.parse();
-        this.dexClasses = dexParser.getDexClasses();
     }
 
     @Override
