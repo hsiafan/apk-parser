@@ -18,11 +18,11 @@ public class ApkMeta {
 
     private long versionCode = -1;
 
-    private int minSdkVersion = -1;
+    private String minSdkVersion;
 
-    private int targetSdkVersion = -1;
+    private String targetSdkVersion;
 
-    private int maxSdkVersion = -1;
+    private String maxSdkVersion;
 
     private GlEsVersion glEsVersion;
 
@@ -62,27 +62,27 @@ public class ApkMeta {
         this.versionCode = versionCode;
     }
 
-    public int getMinSdkVersion() {
+    public String getMinSdkVersion() {
         return minSdkVersion;
     }
 
-    public void setMinSdkVersion(int minSdkVersion) {
+    public void setMinSdkVersion(String minSdkVersion) {
         this.minSdkVersion = minSdkVersion;
     }
 
-    public int getTargetSdkVersion() {
+    public String getTargetSdkVersion() {
         return targetSdkVersion;
     }
 
-    public void setTargetSdkVersion(int targetSdkVersion) {
+    public void setTargetSdkVersion(String targetSdkVersion) {
         this.targetSdkVersion = targetSdkVersion;
     }
 
-    public int getMaxSdkVersion() {
+    public String getMaxSdkVersion() {
         return maxSdkVersion;
     }
 
-    public void setMaxSdkVersion(int maxSdkVersion) {
+    public void setMaxSdkVersion(String maxSdkVersion) {
         this.maxSdkVersion = maxSdkVersion;
     }
 

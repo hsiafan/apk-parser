@@ -63,11 +63,11 @@ public class ApkMetaConstructor implements XmlStreamer {
             }
         } else if (currentTag.equals("uses-sdk")) {
             if (name.equals("minSdkVersion")) {
-                apkMeta.setMinSdkVersion(Integer.parseInt(value));
+                apkMeta.setMinSdkVersion(value);
             } else if (name.equals("maxSdkVersion")) {
-                apkMeta.setMaxSdkVersion(Integer.parseInt(value));
+                apkMeta.setMaxSdkVersion(value);
             } else if (name.equals("targetSdkVersion")) {
-                apkMeta.setTargetSdkVersion(Integer.parseInt(value));
+                apkMeta.setTargetSdkVersion(value);
             }
         } else if (currentTag.equals("uses-permission")) {
             if (name.equals("name")) {
