@@ -69,7 +69,11 @@ public class ApkParser implements Closeable {
         if (!apkMetaMap.containsKey(preferredLocale)) {
             parseManifestXml();
         }
-        return apkMetaMap.get(preferredLocale);
+        ApkMeta apkMeta = apkMetaMap.get(preferredLocale);
+        if (apkMeta != null) {
+            findNativeLib(apkMeta);
+        }
+        return apkMeta;
     }
 
     /**
@@ -188,7 +192,7 @@ public class ApkParser implements Closeable {
 
 
     /**
-     * get class infos form dex file. currrent only class name
+     * get class infos form dex file. currently only class name
      */
     public DexClass[] getDexClasses() throws IOException {
         if (this.dexClasses == null) {
@@ -317,6 +321,47 @@ public class ApkParser implements Closeable {
             } finally {
                 in.close();
             }
+        }
+    }
+
+    private void findNativeLib(ApkMeta apkMeta) {
+        boolean hasNative = false;
+        Set<String> supportArches = new HashSet<String>();
+
+        Enumeration<ZipArchiveEntry> enu = zf.getEntries();
+        while (enu.hasMoreElements()) {
+            ZipArchiveEntry entry = enu.nextElement();
+            if (entry.isDirectory()) {
+                continue;
+            }
+            String path = entry.getName();
+            // some apk put .so under assert/, copy to data/data/xxx and use System.loadLibrary
+            // to load the dynamic library, this can be very complicated,
+            // the developer did not need to abey ordinary rules to name the .so file path.
+            // we do not take it into account now
+            if (path.endsWith(".so") && (path.startsWith(AndroidConstants.LIB_PREFIX))) {
+                int idx = path.lastIndexOf('/');
+                if (idx < 0) {
+                    //should not happen
+                    continue;
+                }
+                String archStr = path.substring(0, idx);
+                idx = archStr.lastIndexOf('/');
+                if (idx > 0) {
+                    archStr = archStr.substring(idx + 1);
+                }
+                try {
+                    supportArches.add(archStr);
+                    hasNative = true;
+                } catch (IllegalArgumentException ignore) {
+                    // unknown arch string... just ignore it
+                }
+            }
+        }
+
+        apkMeta.setHasNative(hasNative);
+        if (hasNative) {
+            apkMeta.setSupportArches(new ArrayList<String>(supportArches));
         }
     }
 

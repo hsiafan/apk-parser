@@ -38,6 +38,17 @@ public class ApkMeta {
 
     private List<UseFeature> useFeatures = new ArrayList<UseFeature>();
 
+    /**
+     * this may not be accurate
+     */
+    private boolean hasNative;
+
+    /**
+     * may be x86, mips, armeabi, armeabi-v7a
+     * this may not be accurate
+     */
+    private List<String> supportArches;
+
     public String getPackageName() {
         return packageName;
     }
@@ -175,5 +186,35 @@ public class ApkMeta {
 
     public void addUsePermission(UseFeature useFeature) {
         this.useFeatures.add(useFeature);
+    }
+
+    /**
+     * this may not be accurate.
+     */
+    public boolean isHasNative() {
+        return hasNative;
+    }
+
+    public void setHasNative(boolean hasNative) {
+        this.hasNative = hasNative;
+    }
+
+    /**
+     * may be x86, mips, armeabi, armeabi-v7a.
+     * this may not be accurate.
+     *
+     * some apk put .so under assert/, copy to data/data/xxx and use System.loadLibrary
+     * to load the dynamic library, this can be very complicated,
+     * the developer did not need to abey ordinary rules to name the .so file path.
+     * we do not take it into account now
+     *
+     * @return null if hasNative is false, otherwise the support arches as string
+     */
+    public List<String> getSupportArches() {
+        return supportArches;
+    }
+
+    public void setSupportArches(List<String> supportArches) {
+        this.supportArches = supportArches;
     }
 }

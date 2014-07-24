@@ -1,3 +1,7 @@
+1.4.1
+* add more info to certificate meta
+* add native arch support info to apk meta
+
 1.4.0
 * change sdk version type to String, to handle Android L and later
 
