@@ -13,7 +13,7 @@ If maven is used, you can add dependency:
         <dependency>
             <groupId>net.dongliu.apk-parser</groupId>
             <artifactId>apk-parser</artifactId>
-            <version>1.3.0</version>
+            <version>1.4.1</version>
         </dependency>
 ```
 to your pom file.
