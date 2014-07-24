@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * parser Certificater info.
+ * parser certificate info.
+ * One apk may have multi certificates(certificate chain).
  *
  * @author dongliu
  */
@@ -31,7 +32,7 @@ public class CertificateParser {
     }
 
     /**
-     * get certificater info
+     * get certificate info
      *
      * @throws IOException
      * @throws CertificateEncodingException
@@ -39,18 +40,23 @@ public class CertificateParser {
     public void parse() throws IOException, CertificateEncodingException {
 
         PKCS7 pkcs7 = new PKCS7(Utils.toByteArray(in));
-        X509Certificate[] publicKey = pkcs7.getCertificates();
+        X509Certificate[] certificates = pkcs7.getCertificates();
         certificateMetas = new ArrayList<CertificateMeta>();
-        for (X509Certificate cetificate : publicKey) {
+        for (X509Certificate certificate : certificates) {
             CertificateMeta certificateMeta = new CertificateMeta();
-            byte[] bytes = cetificate.getEncoded();
-            String signature = md5Digest(bytes);
-            String publicKeyString = byteToHexString(cetificate.getEncoded());
-            String base64Signature = md5Digest(publicKeyString);
-            certificateMeta.setData(bytes);
-            certificateMeta.setBase64Signature(base64Signature);
-            certificateMeta.setSignature(signature);
             certificateMetas.add(certificateMeta);
+
+            byte[] bytes = certificate.getEncoded();
+            String certMd5 = md5Digest(bytes);
+            String publicKeyString = byteToHexString(bytes);
+            String certBase64Md5 = md5Digest(publicKeyString);
+            certificateMeta.setData(bytes);
+            certificateMeta.setCertBase64Md5(certBase64Md5);
+            certificateMeta.setCertMd5(certMd5);
+            certificateMeta.setStartDate(certificate.getNotBefore());
+            certificateMeta.setEndDate(certificate.getNotAfter());
+            certificateMeta.setSignAlgorithm(certificate.getSigAlgName());
+            certificateMeta.setSignAlgorithmOID(certificate.getSigAlgOID());
         }
     }
 

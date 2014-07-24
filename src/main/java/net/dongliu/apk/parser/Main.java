@@ -106,8 +106,8 @@ public class Main {
             } else if (type.equals("sign")) {
                 List<CertificateMeta> certs = apkParser.getCertificateMetas();
                 for (CertificateMeta cert : certs) {
-                    System.out.println("Certficate md5:" + cert.getSignature());
-                    System.out.println("Certficate base64 md5:" + cert.getBase64Signature());
+                    System.out.println("Certficate md5:" + cert.getCertMd5());
+                    System.out.println("Certficate base64 md5:" + cert.getCertBase64Md5());
                 }
             } else {
                 System.out.println("Unknow type:" + type);

@@ -250,7 +250,7 @@ public class ApkParser implements Closeable {
      * @return
      * @throws IOException
      */
-    public ApkSignStatus checkSign() throws IOException {
+    public ApkSignStatus verifyApk() throws IOException {
         ZipArchiveEntry entry = getEntry("META-INF/MANIFEST.MF");
         if (entry == null) {
             // apk is not signed;
@@ -335,7 +335,7 @@ public class ApkParser implements Closeable {
     }
 
     /**
-     * The locale prefrerred. Will cause getManifestXml / getApkMeta to return diffrent values.
+     * The locale preferred. Will cause getManifestXml / getApkMeta to return different values.
      * The default value if Locale.none, which will not translate resource strings. you need to set
      * one locale if wanted localized resources(app title, themes name, etc.)
      */
