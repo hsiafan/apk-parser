@@ -9,7 +9,7 @@
         <version>7</version>
     </parent>
 
-    <groupId>net.dongliu.apk-parser</groupId>
+    <groupId>net.dongliu</groupId>
     <artifactId>apk-parser</artifactId>
     <name>apk-parser</name>
     <packaging>jar</packaging>

@@ -1,24 +1,24 @@
-A pure java apk parser, to read encoded xml file and get apk infos, with no need for appt/dexdump binarys.
+A pure java apk parser, to read encoded xml file and get apk infos, with no need for appt/dexdump binaries.
 
 ### Fuctions
 For now, the following is (partially) supported:
 * resource table by ResourceTableParser
 * binary xml file by BinaryXmlParser
 * dex file by DexParser
-* certificate by CetificateParser
+* certificate by CertificateParser
 
 ### Dev
 If maven is used, you can add dependency:
 ```
         <dependency>
-            <groupId>net.dongliu.apk-parser</groupId>
+            <groupId>net.dongliu</groupId>
             <artifactId>apk-parser</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.2</version>
         </dependency>
 ```
 to your pom file.
 
-The easiest way is to use the ApkParser class, which contains convenient mehods to get AndroidManifest.xml, apk meta infos, etc.
+The easiest way is to use the ApkParser class, which contains convenient methods to get AndroidManifest.xml, apk meta infos, etc.
 ```
 ApkParser apkParser = new ApkParser(new File(filePath));
 if (locale != null) {
@@ -41,14 +41,14 @@ The apk-parser set locale to null and do not translate resource tag in default. 
 ```
 apkParser.setPreferredLocale(Locale.ENGLISH);
 ```
-This paramerter work for getApkMeta, getManifestXml, and other binary xmls.Apk may contains multi languages, apk parser will find best match languages with locale you specified.
+This parameter work for getApkMeta, getManifestXml, and other binary xmls. Apk may contains multi languages, apk parser will find best match languages with locale you specified.
 
 ### Command-line use
 Run
 ```
 mvn assembly:assembly
 ```
-to get all-in-one excuteable jar.
+to get all-in-one executable jar.
 
 Usages:
 ```
