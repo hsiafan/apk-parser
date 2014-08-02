@@ -28,7 +28,7 @@ ApkMeta apkMeta = apkParser.getApkMeta();
 System.out.println(apkMeta);
 Set<Locale> locales = apkParser.getLocales();
 for (Locale l : locales) {
-System.out.println(l);
+    System.out.println(l);
 }
 apkParser.close();
 ```
