@@ -47,7 +47,7 @@ Apk parser will find best match languages with locale you specified.
 If locale is set to null, ApkParser will not translate resource tag, just give the resource id.
 For example, apk title will be '@string/app_name' instead of 'WeChat'.
 
-#### executable jar
+#### Executable jar
 Run
 ```
 mvn assembly:assembly
