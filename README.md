@@ -8,6 +8,8 @@ For now, the following is (partially) supported:
 * certificate by CertificateParser
 
 ### Dev
+
+#### Maven
 If maven is used, you can add dependency:
 ```
         <dependency>
@@ -18,41 +20,46 @@ If maven is used, you can add dependency:
 ```
 to your pom file.
 
+#### Usage
 The easiest way is to use the ApkParser class, which contains convenient methods to get AndroidManifest.xml, apk meta infos, etc.
 ```
-ApkParser apkParser = new ApkParser(new File(filePath));
-if (locale != null) {
-    // set a locale to translate resource tag into specific strings in language the locale specified
-    apkParser.setPreferredLocale(locale);
-}
-
-String xml = apkParser.getManifestXml();
-System.out.println(xml);
-ApkMeta apkMeta = apkParser.getApkMeta();
-System.out.println(apkMeta);
-Set<Locale> locales = apkParser.getLocales();
-for (Locale l : locales) {
-    System.out.println(l);
-}
-apkParser.close();
+    ApkParser apkParser = new ApkParser(new File(filePath));
+    String xml = apkParser.getManifestXml();
+    System.out.println(xml);
+    ApkMeta apkMeta = apkParser.getApkMeta();
+    System.out.println(apkMeta);
+    Set<Locale> locales = apkParser.getLocales();
+    for (Locale l : locales) {
+        System.out.println(l);
+    }
+    apkParser.close();
 ```
 
-The apk-parser set locale to null and do not translate resource tag in default. If you want a specific resource string, for example, you want apk title 'WeChat' instead of '@string/app_name', just set the preferred Locale:
+#### Locales
+Apk may appear different infos(title, icon, etc.) for different region and language, which is determined by Locales.
+ApkParser can set locales. If locale is not set, the default Locale of of OS is used.
+You can set locale like this:
 ```
-apkParser.setPreferredLocale(Locale.ENGLISH);
+    ApkParser apkParser = new ApkParser(new File(filePath));
+    apkParser.setPreferredLocale(Locale.ENGLISH);
+    ApkMeta apkMeta = apkParser.getApkMeta();
 ```
-This parameter work for getApkMeta, getManifestXml, and other binary xmls. Apk may contains multi languages, apk parser will find best match languages with locale you specified.
+The PreferredLocale parameter work for getApkMeta, getManifestXml, and other binary xmls.
+Apk parser will find best match languages with locale you specified.
+
+If locale is set to null, ApkParser will not translate resource tag, just give the resource id.
+For example, apk title will be '@string/app_name' instead of 'WeChat'.
 
 ### Command-line use
 Run
 ```
-mvn assembly:assembly
+    mvn assembly:assembly
 ```
 to get all-in-one executable jar.
 
 Usages:
 ```
-java -jar apk-parser-all.jar -l en_US -t manifest [apkfile]     # get apk manifest file as text xml
-java -jar apk-parser-all.jar -l en_US -t info [apkfile]         # get apk basic infos
+    java -jar apk-parser-all.jar -l en_US -t manifest [apkfile]     # get apk manifest file as text xml
+    java -jar apk-parser-all.jar -l en_US -t info [apkfile]         # get apk basic infos
 ```
 Use java -jar apk-parser-all.jar -h to see more options.

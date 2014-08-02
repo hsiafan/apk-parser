@@ -39,7 +39,7 @@ public class ApkParser implements Closeable {
     /**
      * default is null
      */
-    private Locale preferredLocale;
+    private Locale preferredLocale = Locale.getDefault();
 
     public ApkParser(File apkFile) throws IOException {
         this.apkFile = apkFile;
@@ -222,6 +222,10 @@ public class ApkParser implements Closeable {
      * @return
      */
     public Icon getIcon() throws IOException {
+        if (this.preferredLocale == null) {
+            throw new ParserException("PreferredLocale must be set first");
+        }
+
         ApkMeta apkMeta = getApkMeta();
         String iconPath = apkMeta.getIcon();
         ZipArchiveEntry entry = getEntry(iconPath);
