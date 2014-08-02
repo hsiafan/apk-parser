@@ -1,6 +1,6 @@
 A pure java apk parser, to read encoded xml file and get apk infos, with no need for appt/dexdump binaries.
 
-### Fuctions
+#### Features
 For now, the following is (partially) supported:
 * resource table by ResourceTableParser
 * binary xml file by BinaryXmlParser
