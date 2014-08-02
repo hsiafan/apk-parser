@@ -7,42 +7,39 @@ For now, the following is (partially) supported:
 * dex file by DexParser
 * certificate by CertificateParser
 
-### Dev
-
 #### Maven
 If maven is used, you can add dependency:
 ```
-        <dependency>
-            <groupId>net.dongliu</groupId>
-            <artifactId>apk-parser</artifactId>
-            <version>1.4.2</version>
-        </dependency>
+<dependency>
+    <groupId>net.dongliu</groupId>
+    <artifactId>apk-parser</artifactId>
+    <version>1.4.2</version>
+</dependency>
 ```
 to your pom file.
 
 #### Usage
 The easiest way is to use the ApkParser class, which contains convenient methods to get AndroidManifest.xml, apk meta infos, etc.
 ```
-    ApkParser apkParser = new ApkParser(new File(filePath));
-    String xml = apkParser.getManifestXml();
-    System.out.println(xml);
-    ApkMeta apkMeta = apkParser.getApkMeta();
-    System.out.println(apkMeta);
-    Set<Locale> locales = apkParser.getLocales();
-    for (Locale l : locales) {
-        System.out.println(l);
-    }
-    apkParser.close();
+ApkParser apkParser = new ApkParser(new File(filePath));
+String xml = apkParser.getManifestXml();
+System.out.println(xml);
+ApkMeta apkMeta = apkParser.getApkMeta();
+System.out.println(apkMeta);
+Set<Locale> locales = apkParser.getLocales();
+for (Locale l : locales) {
+System.out.println(l);
+}
+apkParser.close();
 ```
 
 #### Locales
 Apk may appear different infos(title, icon, etc.) for different region and language, which is determined by Locales.
-ApkParser can set locales. If locale is not set, the default Locale of of OS is used.
-You can set locale like this:
+If locale is not set, the default Locale of of OS is used. You can set locale like this:
 ```
-    ApkParser apkParser = new ApkParser(new File(filePath));
-    apkParser.setPreferredLocale(Locale.ENGLISH);
-    ApkMeta apkMeta = apkParser.getApkMeta();
+ApkParser apkParser = new ApkParser(new File(filePath));
+apkParser.setPreferredLocale(Locale.ENGLISH);
+ApkMeta apkMeta = apkParser.getApkMeta();
 ```
 The PreferredLocale parameter work for getApkMeta, getManifestXml, and other binary xmls.
 Apk parser will find best match languages with locale you specified.
@@ -50,16 +47,16 @@ Apk parser will find best match languages with locale you specified.
 If locale is set to null, ApkParser will not translate resource tag, just give the resource id.
 For example, apk title will be '@string/app_name' instead of 'WeChat'.
 
-### Command-line use
+#### executable jar
 Run
 ```
-    mvn assembly:assembly
+mvn assembly:assembly
 ```
 to get all-in-one executable jar.
 
 Usages:
 ```
-    java -jar apk-parser-all.jar -l en_US -t manifest [apkfile]     # get apk manifest file as text xml
-    java -jar apk-parser-all.jar -l en_US -t info [apkfile]         # get apk basic infos
+java -jar apk-parser-all.jar -l en_US -t manifest [apkfile]     # get apk manifest file as text xml
+java -jar apk-parser-all.jar -l en_US -t info [apkfile]         # get apk basic infos
 ```
 Use java -jar apk-parser-all.jar -h to see more options.
