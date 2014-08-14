@@ -9,7 +9,7 @@ For now, the following is (partially) supported:
 
 #### Maven
 If maven is used, you can add dependency:
-```
+```xml
 <dependency>
     <groupId>net.dongliu</groupId>
     <artifactId>apk-parser</artifactId>
@@ -20,7 +20,7 @@ to your pom file.
 
 #### Usage
 The easiest way is to use the ApkParser class, which contains convenient methods to get AndroidManifest.xml, apk meta infos, etc.
-```
+```java
 ApkParser apkParser = new ApkParser(new File(filePath));
 String xml = apkParser.getManifestXml();
 System.out.println(xml);
@@ -36,7 +36,7 @@ apkParser.close();
 #### Locales
 Apk may appear different infos(title, icon, etc.) for different region and language, which is determined by Locales.
 If locale is not set, the default Locale of of OS is used. You can set locale like this:
-```
+```java
 ApkParser apkParser = new ApkParser(new File(filePath));
 apkParser.setPreferredLocale(Locale.ENGLISH);
 ApkMeta apkMeta = apkParser.getApkMeta();
