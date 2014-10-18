@@ -318,7 +318,8 @@ public class ApkParser implements Closeable {
         } else {
             InputStream in = zf.getInputStream(resourceEntry);
             try {
-                ResourceTableParser resourceTableParser = new ResourceTableParser(in);
+                ResourceTableParser resourceTableParser = new ResourceTableParser(in,
+                        resourceEntry.getSize());
                 resourceTableParser.parse();
                 this.resourceTable = resourceTableParser.getResourceTable();
                 this.locales = resourceTableParser.getLocales();
