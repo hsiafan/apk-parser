@@ -131,7 +131,7 @@ public class ParseUtils {
 
         // read strings. the head and metas have 28 bytes
         long stringPos = beginPos + stringPoolHeader.stringsStart - stringPoolHeader.headerSize;
-        in.advanceIfNotRearch(stringPos);
+        in.advanceToPos(stringPos);
 
         StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
         for (int i = 0; i < offsets.length; i++) {
@@ -148,7 +148,7 @@ public class ParseUtils {
                 continue;
             }
 
-            in.advanceIfNotRearch(entry.getOffset());
+            in.advanceToPos(entry.getOffset());
             lastOffset = entry.getOffset();
             String str = ParseUtils.readString(in, stringEncoding);
             lastStr = str;
@@ -160,7 +160,7 @@ public class ParseUtils {
             // now we just skip it
         }
 
-        in.advanceIfNotRearch(beginPos + stringPoolHeader.chunkSize - stringPoolHeader.headerSize);
+        in.advanceToPos(beginPos + stringPoolHeader.chunkSize - stringPoolHeader.headerSize);
 
         return stringPool;
     }

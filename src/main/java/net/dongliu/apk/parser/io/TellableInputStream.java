@@ -76,7 +76,7 @@ public class TellableInputStream {
      *
      * @param pos
      */
-    public void advanceIfNotRearch(long pos) throws IOException {
+    public void advanceToPos(long pos) throws IOException {
         if (this.pos < pos) {
             skip((int) (pos - this.pos));
         } else if (this.pos > pos) {

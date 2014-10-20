@@ -101,7 +101,7 @@ public class BinaryXmlParser {
                             throw new ParserException("Unexpected chunk type:" + chunkHeader.chunkType);
                         }
                 }
-                in.advanceIfNotRearch(beginPos + chunkHeader.chunkSize - chunkHeader.headerSize);
+                in.advanceToPos(beginPos + chunkHeader.chunkSize - chunkHeader.headerSize);
                 chunkHeader = readChunkHeader();
             }
         } finally {
@@ -236,34 +236,39 @@ public class BinaryXmlParser {
             return null;
         }
 
+        long begin = in.tell();
         int chunkType = in.readUShort();
-        int headSize = in.readUShort();
+        int headerSize = in.readUShort();
         long chunkSize = in.readUInt();
 
         switch (chunkType) {
             case ChunkType.XML:
-                return new XmlHeader(chunkType, headSize, chunkSize);
+                return new XmlHeader(chunkType, headerSize, chunkSize);
             case ChunkType.STRING_POOL:
-                StringPoolHeader stringPoolHeader = new StringPoolHeader(chunkType, headSize, chunkSize);
+                StringPoolHeader stringPoolHeader = new StringPoolHeader(chunkType, headerSize, chunkSize);
                 stringPoolHeader.stringCount = in.readUInt();
                 stringPoolHeader.styleCount = in.readUInt();
                 stringPoolHeader.flags = in.readUInt();
                 stringPoolHeader.stringsStart = in.readUInt();
                 stringPoolHeader.stylesStart = in.readUInt();
+                in.advanceToPos(begin + headerSize);
                 return stringPoolHeader;
             case ChunkType.XML_RESOURCE_MAP:
-                return new XmlResourceMapHeader(chunkType, headSize, chunkSize);
+                in.advanceToPos(begin + headerSize);
+                return new XmlResourceMapHeader(chunkType, headerSize, chunkSize);
             case ChunkType.XML_START_NAMESPACE:
             case ChunkType.XML_END_NAMESPACE:
             case ChunkType.XML_START_ELEMENT:
             case ChunkType.XML_END_ELEMENT:
             case ChunkType.XML_CDATA:
-                XmlNodeHeader header = new XmlNodeHeader(chunkType, headSize, chunkSize);
+                XmlNodeHeader header = new XmlNodeHeader(chunkType, headerSize, chunkSize);
                 header.lineNum = (int) in.readUInt();
                 header.commentRef = (int) in.readUInt();
+                in.advanceToPos(begin + headerSize);
                 return header;
             case ChunkType.NULL:
-                in.skip((int) (chunkSize - headSize));
+                //in.advanceToPos(begin + headerSize);
+                //in.skip((int) (chunkSize - headerSize));
             default:
                 throw new ParserException("Unexpected chunk type:" + chunkType);
         }

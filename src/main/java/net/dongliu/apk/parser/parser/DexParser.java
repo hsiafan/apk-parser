@@ -60,7 +60,7 @@ public class DexParser {
         int[] typeIds = readTypes(header.typeIdsOff, header.typeIdsSize);
 
         // read classes
-        DexClassStruct[] dexClasseStructs = readClass(header.classDefsOff, header.classDefsSize);
+        DexClassStruct[] dexClassStructs = readClass(header.classDefsOff, header.classDefsSize);
 
         StringPool stringpool = readStrings(stringOffsets);
 
@@ -69,18 +69,18 @@ public class DexParser {
             types[i] = stringpool.get(typeIds[i]);
         }
 
-        dexClasses = new DexClass[dexClasseStructs.length];
+        dexClasses = new DexClass[dexClassStructs.length];
         for (int i = 0; i < dexClasses.length; i++) {
             dexClasses[i] = new DexClass();
         }
-        for (int i = 0; i < dexClasseStructs.length; i++) {
-            DexClassStruct dexClassStruct = dexClasseStructs[i];
-            DexClass dexClasse = dexClasses[i];
-            dexClasse.setClassType(types[dexClassStruct.classIdx]);
+        for (int i = 0; i < dexClassStructs.length; i++) {
+            DexClassStruct dexClassStruct = dexClassStructs[i];
+            DexClass dexClass = dexClasses[i];
+            dexClass.setClassType(types[dexClassStruct.classIdx]);
             if (dexClassStruct.superclassIdx != NO_INDEX) {
-                dexClasse.setSuperClass(types[dexClassStruct.superclassIdx]);
+                dexClass.setSuperClass(types[dexClassStruct.superclassIdx]);
             }
-            dexClasse.setAccessFlags(dexClassStruct.accessFlags);
+            dexClass.setAccessFlags(dexClassStruct.accessFlags);
         }
     }
 
@@ -88,7 +88,7 @@ public class DexParser {
      * read class info.
      */
     private DexClassStruct[] readClass(long classDefsOff, int classDefsSize) throws IOException {
-        in.advanceIfNotRearch(classDefsOff);
+        in.advanceToPos(classDefsOff);
 
         DexClassStruct[] dexClassStructs = new DexClassStruct[classDefsSize];
         for (int i = 0; i < classDefsSize; i++) {
@@ -113,7 +113,7 @@ public class DexParser {
      * read types.
      */
     private int[] readTypes(long typeIdsOff, int typeIdsSize) throws IOException {
-        in.advanceIfNotRearch(typeIdsOff);
+        in.advanceToPos(typeIdsOff);
         int[] typeIds = new int[typeIdsSize];
         for (int i = 0; i < typeIdsSize; i++) {
             typeIds[i] = (int) in.readUInt();
@@ -147,7 +147,7 @@ public class DexParser {
                 stringpool.set(entry.getIdx(), lastStr);
                 continue;
             }
-            in.advanceIfNotRearch(entry.getOffset());
+            in.advanceToPos(entry.getOffset());
             lastOffset = entry.getOffset();
             String str = readString();
             lastStr = str;
@@ -160,7 +160,7 @@ public class DexParser {
      * read string identifiers list.
      */
     private long[] readStringPool(long stringIdsOff, int stringIdsSize) throws IOException {
-        in.advanceIfNotRearch(stringIdsOff);
+        in.advanceToPos(stringIdsOff);
         long offsets[] = new long[stringIdsSize];
         for (int i = 0; i < stringIdsSize; i++) {
             offsets[i] = in.readUInt();
@@ -281,7 +281,7 @@ public class DexParser {
         header.dataSize = in.readInt();
         header.dataOff = in.readUInt();
 
-        in.advanceIfNotRearch(header.headerSize);
+        in.advanceToPos(header.headerSize);
 
         return header;
     }
