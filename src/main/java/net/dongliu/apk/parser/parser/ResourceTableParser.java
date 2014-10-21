@@ -54,9 +54,12 @@ public class ResourceTableParser {
             resourceTable = new ResourceTable();
             resourceTable.stringPool = stringPool;
 
+            PackageHeader packageHeader = (PackageHeader) readChunkHeader();
             for (int i = 0; i < resourceTableHeader.packageCount; i++) {
-                ResourcePackage resourcePackage = readPackage((PackageHeader) readChunkHeader());
+                PackageHeader[] packageHeaders = new PackageHeader[1];
+                ResourcePackage resourcePackage = readPackage(packageHeader, packageHeaders);
                 resourceTable.addPackage(resourcePackage);
+                packageHeader = packageHeaders[0];
             }
         } finally {
             in.close();
@@ -65,7 +68,8 @@ public class ResourceTableParser {
     }
 
     // read one package
-    private ResourcePackage readPackage(PackageHeader packageHeader) throws IOException {
+    private ResourcePackage readPackage(PackageHeader packageHeader, PackageHeader[] packageHeaders)
+            throws IOException {
         //read packageHeader
         ResourcePackage resourcePackage = new ResourcePackage(packageHeader);
 
@@ -136,6 +140,8 @@ public class ResourceTableParser {
                     in.advanceToPos(typeChunkBegin + typeHeader.chunkSize - typeHeader.headerSize);
                     break;
                 case ChunkType.TABLE_PACKAGE:
+                    // another package. we should read next package here
+                    packageHeaders[0] = (PackageHeader) chunkHeader;
                     break outer;
                 default:
                     throw new ParserException("unexpected chunk type:" + chunkHeader.chunkType);
