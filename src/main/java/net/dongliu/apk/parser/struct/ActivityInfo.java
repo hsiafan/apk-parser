@@ -12,7 +12,7 @@ import java.util.List;
  * @author dongliu
  */
 public class ActivityInfo {
-    public static enum ScreenOrienTation {
+    public static enum ScreenOrientation {
         behind(0x00000003),
         fullSensor(0x0000000a),
         fullUser(0x0000000d),
@@ -32,12 +32,12 @@ public class ActivityInfo {
 
         private int value;
 
-        private ScreenOrienTation(int value) {
+        private ScreenOrientation(int value) {
             this.value = value;
         }
 
-        public static ScreenOrienTation valueOf(int value) {
-            for (ScreenOrienTation s : ScreenOrienTation.values()) {
+        public static ScreenOrientation valueOf(int value) {
+            for (ScreenOrientation s : ScreenOrientation.values()) {
                 if (s.value == value) {
                     return s;
                 }

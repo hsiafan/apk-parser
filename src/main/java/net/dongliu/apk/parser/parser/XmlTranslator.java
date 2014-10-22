@@ -81,15 +81,26 @@ public class XmlTranslator implements XmlStreamer {
         }
 
         String value = attribute.toStringValue(resourceTable, locale);
-        if (attribute.name.equals("screenOrientation")) {
-            ActivityInfo.ScreenOrienTation screenOrienTation =
-                    ActivityInfo.ScreenOrienTation.valueOf(Integer.parseInt(value));
-            if (screenOrienTation != null) {
-                value = screenOrienTation.toString();
+        String finalValue;
+        try {
+            finalValue = getAttributeValueAsString(attribute.name, value);
+        } catch (NumberFormatException e) {
+            finalValue = value;
+        }
+        sb.append(attribute.name).append('=').append('"')
+                .append(finalValue.replace("\"", "\\\"")).append('"');
+    }
+
+    private String getAttributeValueAsString(String attributeName, String value) {
+        if (attributeName.equals("screenOrientation")) {
+            ActivityInfo.ScreenOrientation screenOrientation =
+                    ActivityInfo.ScreenOrientation.valueOf(Integer.valueOf(value));
+            if (screenOrientation != null) {
+                value = screenOrientation.toString();
             }
-        } else if (attribute.name.equals("configChanges")) {
+        } else if (attributeName.equals("configChanges")) {
             List<ActivityInfo.ConfigChanges> configChangesList =
-                    ActivityInfo.ConfigChanges.valuesOf(Integer.parseInt(value));
+                    ActivityInfo.ConfigChanges.valuesOf(Integer.valueOf(value));
             if (!configChangesList.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
                 for (ActivityInfo.ConfigChanges c : configChangesList) {
@@ -98,9 +109,9 @@ public class XmlTranslator implements XmlStreamer {
                 sb.deleteCharAt(sb.length() - 1);
                 value = sb.toString();
             }
-        } else if (attribute.name.equals("windowSoftInputMode")) {
+        } else if (attributeName.equals("windowSoftInputMode")) {
             List<ActivityInfo.WindowSoftInputMode> windowSoftInputModeList =
-                    ActivityInfo.WindowSoftInputMode.valuesOf(Integer.parseInt(value));
+                    ActivityInfo.WindowSoftInputMode.valuesOf(Integer.valueOf(value));
             if (!windowSoftInputModeList.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
                 for (ActivityInfo.WindowSoftInputMode w : windowSoftInputModeList) {
@@ -109,15 +120,14 @@ public class XmlTranslator implements XmlStreamer {
                 sb.deleteCharAt(sb.length() - 1);
                 value = sb.toString();
             }
-        } else if (attribute.name.equals("launchMode")) {
+        } else if (attributeName.equals("launchMode")) {
             ActivityInfo.LaunchMode launchMode =
-                    ActivityInfo.LaunchMode.valueOf(Integer.parseInt(value));
+                    ActivityInfo.LaunchMode.valueOf(Integer.valueOf(value));
             if (launchMode != null) {
                 value = launchMode.toString();
             }
         }
-        sb.append(attribute.name).append('=').append('"')
-                .append(value.replace("\"", "\\\"")).append('"');
+        return value;
     }
 
     @Override
