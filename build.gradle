@@ -1,0 +1,75 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+group = 'net.dongliu'
+version = '1.4.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.apache.commons:commons-compress:1.6'
+    testCompile 'junit:junit:4.+'
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+                name 'apk-parser'
+                packaging 'jar'
+                description 'Pure java apk parser lib'
+                url 'https://github.com/xiaxiaocao/apk-parser'
+
+                scm {
+                    url 'https://github.com/xiaxiaocao/apk-parse'
+                    connection 'scm:git:git@github.com:xiaxiaocao/apk-parser.git'
+                    developerConnection 'scm:git:git@github.com:xiaxiaocao/apk-parser.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'xiaxiaocao'
+                        name 'Dong Liu'
+                    }
+                }
+            }
+        }
+    }
+}
