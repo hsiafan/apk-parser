@@ -1,7 +1,7 @@
 package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.io.TellableInputStream;
+import net.dongliu.apk.parser.io.CountingInputStream;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
 import net.dongliu.apk.parser.utils.ParseUtils;
@@ -25,7 +25,7 @@ public class ResourceTableParser {
      */
     private ByteOrder byteOrder = ByteOrder.LITTLE;
     private StringPool stringPool;
-    private TellableInputStream in;
+    private CountingInputStream in;
     // the resource table file size
     private final long size;
     private ResourceTable resourceTable;
@@ -33,7 +33,7 @@ public class ResourceTableParser {
     private Set<Locale> locales;
 
     public ResourceTableParser(InputStream in, long size) {
-        this.in = new TellableInputStream(in, byteOrder);
+        this.in = new CountingInputStream(in, byteOrder);
         this.locales = new HashSet<Locale>();
         this.size = size;
     }
@@ -76,14 +76,14 @@ public class ResourceTableParser {
         long beginPos = in.tell();
         // read type string pool
         if (packageHeader.typeStrings > 0) {
-            in.advanceToPos(beginPos + packageHeader.typeStrings - packageHeader.headerSize);
+            in.advanceTo(beginPos + packageHeader.typeStrings - packageHeader.headerSize);
             resourcePackage.typeStringPool = ParseUtils.readStringPool(in,
                     (StringPoolHeader) readChunkHeader());
         }
 
         //read key string pool
         if (packageHeader.keyStrings > 0) {
-            in.advanceToPos(beginPos + packageHeader.keyStrings - packageHeader.headerSize);
+            in.advanceTo(beginPos + packageHeader.keyStrings - packageHeader.headerSize);
             resourcePackage.keyStringPool = ParseUtils.readStringPool(in,
                     (StringPoolHeader) readChunkHeader());
         }
@@ -108,7 +108,7 @@ public class ResourceTableParser {
                     typeSpec.name = resourcePackage.typeStringPool.get(typeSpecHeader.id - 1);
 
                     resourcePackage.addTypeSpec(typeSpec);
-                    in.advanceToPos(typeSpecChunkBegin + typeSpecHeader.chunkSize -
+                    in.advanceTo(typeSpecChunkBegin + typeSpecHeader.chunkSize -
                             typeSpecHeader.headerSize);
                     break;
                 case ChunkType.TABLE_TYPE:
@@ -121,12 +121,12 @@ public class ResourceTableParser {
                     }
 
                     long entryPos = typeChunkBegin + typeHeader.entriesStart - typeHeader.headerSize;
-                    in.advanceToPos(entryPos);
+                    in.advanceTo(entryPos);
                     // read Resource Entries
                     ResourceEntry[] resourceEntries = new ResourceEntry[offsets.length];
                     for (int i = 0; i < offsets.length; i++) {
                         if (offsets[i] != TypeHeader.NO_ENTRY) {
-                            in.advanceToPos(entryPos + offsets[i]);
+                            in.advanceTo(entryPos + offsets[i]);
                             resourceEntries[i] = readResourceEntry(resourcePackage.keyStringPool);
                         } else {
                             resourceEntries[i] = null;
@@ -137,7 +137,7 @@ public class ResourceTableParser {
                     type.resourceEntries = resourceEntries;
                     resourcePackage.addType(type);
                     locales.add(type.locale);
-                    in.advanceToPos(typeChunkBegin + typeHeader.chunkSize - typeHeader.headerSize);
+                    in.advanceTo(typeChunkBegin + typeHeader.chunkSize - typeHeader.headerSize);
                     break;
                 case ChunkType.TABLE_PACKAGE:
                     // another package. we should read next package here
@@ -168,7 +168,7 @@ public class ResourceTableParser {
             resourceMapEntry.parent = in.readUInt();
             resourceMapEntry.count = in.readUInt();
 
-            in.advanceToPos(beginPos + resourceEntry.size);
+            in.advanceTo(beginPos + resourceEntry.size);
 
             //An individual complex Resource entry comprises an entry immediately followed by one or more fields.
             ResourceTableMap[] resourceTableMaps = new ResourceTableMap[(int) resourceMapEntry.count];
@@ -179,7 +179,7 @@ public class ResourceTableParser {
             resourceMapEntry.resourceTableMaps = resourceTableMaps;
             return resourceMapEntry;
         } else {
-            in.advanceToPos(beginPos + resourceEntry.size);
+            in.advanceTo(beginPos + resourceEntry.size);
             resourceEntry.value = ParseUtils.readResValue(in, stringPool);
             return resourceEntry;
         }
@@ -238,7 +238,7 @@ public class ResourceTableParser {
                 ResourceTableHeader resourceTableHeader = new ResourceTableHeader(chunkType,
                         headerSize, chunkSize);
                 resourceTableHeader.packageCount = in.readUInt();
-                in.advanceToPos(begin + headerSize);
+                in.advanceTo(begin + headerSize);
                 return resourceTableHeader;
             case ChunkType.STRING_POOL:
                 StringPoolHeader stringPoolHeader = new StringPoolHeader(chunkType, headerSize,
@@ -248,7 +248,7 @@ public class ResourceTableParser {
                 stringPoolHeader.flags = in.readUInt();
                 stringPoolHeader.stringsStart = in.readUInt();
                 stringPoolHeader.stylesStart = in.readUInt();
-                in.advanceToPos(begin + headerSize);
+                in.advanceTo(begin + headerSize);
                 return stringPoolHeader;
             case ChunkType.TABLE_PACKAGE:
                 PackageHeader packageHeader = new PackageHeader(chunkType, headerSize, chunkSize);
@@ -258,7 +258,7 @@ public class ResourceTableParser {
                 packageHeader.lastPublicType = in.readUInt();
                 packageHeader.keyStrings = in.readUInt();
                 packageHeader.lastPublicKey = in.readUInt();
-                in.advanceToPos(begin + headerSize);
+                in.advanceTo(begin + headerSize);
                 return packageHeader;
             case ChunkType.TABLE_TYPE_SPEC:
                 TypeSpecHeader typeSpecHeader = new TypeSpecHeader(chunkType, headerSize, chunkSize);
@@ -266,7 +266,7 @@ public class ResourceTableParser {
                 typeSpecHeader.res0 = in.readUByte();
                 typeSpecHeader.res1 = in.readUShort();
                 typeSpecHeader.entryCount = in.readUInt();
-                in.advanceToPos(begin + headerSize);
+                in.advanceTo(begin + headerSize);
                 return typeSpecHeader;
             case ChunkType.TABLE_TYPE:
                 TypeHeader typeHeader = new TypeHeader(chunkType, headerSize, chunkSize);
@@ -276,7 +276,7 @@ public class ResourceTableParser {
                 typeHeader.entryCount = in.readUInt();
                 typeHeader.entriesStart = in.readUInt();
                 typeHeader.config = readResTableConfig();
-                in.advanceToPos(begin + headerSize);
+                in.advanceTo(begin + headerSize);
                 return typeHeader;
             case ChunkType.NULL:
                 //in.skip((int) (chunkSize - headerSize));

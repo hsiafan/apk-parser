@@ -2,7 +2,7 @@ package net.dongliu.apk.parser.utils;
 
 import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.io.TellableInputStream;
+import net.dongliu.apk.parser.io.CountingInputStream;
 import net.dongliu.apk.parser.parser.StringPoolEntry;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
@@ -21,7 +21,7 @@ public class ParseUtils {
     /**
      * read string from input stream. if get EOF before read enough data, throw IOException.
      */
-    public static String readString(TellableInputStream in, StringEncoding encoding)
+    public static String readString(CountingInputStream in, StringEncoding encoding)
             throws IOException {
         if (encoding == StringEncoding.UTF8) {
             //  The lengths are encoded in the same way as for the 16-bit format
@@ -52,7 +52,7 @@ public class ParseUtils {
      * @return
      * @throws IOException
      */
-    public static String readStringUTF16(TellableInputStream in, int strLen) throws IOException {
+    public static String readStringUTF16(CountingInputStream in, int strLen) throws IOException {
         String str = in.readStringUTF16(strLen);
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
@@ -65,13 +65,13 @@ public class ParseUtils {
 
     /**
      * read encoding len.
-     * see Stringpool.cpp ENCODE_LENGTH
+     * see StringPool.cpp ENCODE_LENGTH
      *
      * @param in
      * @return
      * @throws IOException
      */
-    private static int readLen(TellableInputStream in) throws IOException {
+    private static int readLen(CountingInputStream in) throws IOException {
         int len = 0;
         int i = in.read();
         if ((i & 0x80) != 0) {
@@ -92,7 +92,7 @@ public class ParseUtils {
      * @return
      * @throws IOException
      */
-    private static int readLen16(TellableInputStream in) throws IOException {
+    private static int readLen16(CountingInputStream in) throws IOException {
         int len = 0;
         int i = in.readUShort();
         if ((i & 0x8000) != 0) {
@@ -113,7 +113,7 @@ public class ParseUtils {
      * @return
      * @throws IOException
      */
-    public static StringPool readStringPool(TellableInputStream in,
+    public static StringPool readStringPool(CountingInputStream in,
                                             StringPoolHeader stringPoolHeader) throws IOException {
 
         long beginPos = in.tell();
@@ -131,7 +131,7 @@ public class ParseUtils {
 
         // read strings. the head and metas have 28 bytes
         long stringPos = beginPos + stringPoolHeader.stringsStart - stringPoolHeader.headerSize;
-        in.advanceToPos(stringPos);
+        in.advanceTo(stringPos);
 
         StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
         for (int i = 0; i < offsets.length; i++) {
@@ -148,7 +148,7 @@ public class ParseUtils {
                 continue;
             }
 
-            in.advanceToPos(entry.getOffset());
+            in.advanceTo(entry.getOffset());
             lastOffset = entry.getOffset();
             String str = ParseUtils.readString(in, stringEncoding);
             lastStr = str;
@@ -160,7 +160,7 @@ public class ParseUtils {
             // now we just skip it
         }
 
-        in.advanceToPos(beginPos + stringPoolHeader.chunkSize - stringPoolHeader.headerSize);
+        in.advanceTo(beginPos + stringPoolHeader.chunkSize - stringPoolHeader.headerSize);
 
         return stringPool;
     }
@@ -170,7 +170,7 @@ public class ParseUtils {
      *
      * @return
      */
-    public static String readRGBs(TellableInputStream in, int strLen)
+    public static String readRGBs(CountingInputStream in, int strLen)
             throws IOException {
         long l = in.readUInt();
         StringBuilder sb = new StringBuilder();
@@ -188,7 +188,7 @@ public class ParseUtils {
      * @return
      * @throws IOException
      */
-    public static ResourceEntity readResValue(TellableInputStream in, StringPool stringPool,
+    public static ResourceEntity readResValue(CountingInputStream in, StringPool stringPool,
                                               boolean isStyle) throws IOException {
         ResValue resValue = new ResValue();
         resValue.size = in.readUShort();
@@ -237,7 +237,7 @@ public class ParseUtils {
         return resValue.data;
     }
 
-    private static String getDemension(TellableInputStream in) throws IOException {
+    private static String getDemension(CountingInputStream in) throws IOException {
         long l = in.readUInt();
         short unit = (short) (l & 0xff);
         String unitStr;
@@ -261,12 +261,12 @@ public class ParseUtils {
                 unitStr = "in";
                 break;
             default:
-                unitStr = "unknow unit:0x" + Integer.toHexString(unit);
+                unitStr = "unknown unit:0x" + Integer.toHexString(unit);
         }
         return (l >> 8) + unitStr;
     }
 
-    private static String getFraction(TellableInputStream in) throws IOException {
+    private static String getFraction(CountingInputStream in) throws IOException {
         long l = in.readUInt();
         // The low-order 4 bits of the data value specify the type of the fraction
         short type = (short) (l & 0xf);
@@ -279,7 +279,7 @@ public class ParseUtils {
                 pstr = "%p";
                 break;
             default:
-                pstr = "unknow type:0x" + Integer.toHexString(type);
+                pstr = "unknown type:0x" + Integer.toHexString(type);
         }
         float value = Float.intBitsToFloat((int) (l >> 4));
         return value + pstr;
@@ -287,7 +287,7 @@ public class ParseUtils {
 
     public static void checkChunkType(int expected, int real) {
         if (expected != real) {
-            throw new ParserException("Excepct chunk type:" + Integer.toHexString(expected)
+            throw new ParserException("Expect chunk type:" + Integer.toHexString(expected)
                     + ", but got:" + Integer.toHexString(real));
         }
     }
@@ -364,7 +364,7 @@ public class ParseUtils {
      * @param stringPool
      * @return
      */
-    public static ResourceEntity readResValue(TellableInputStream in, StringPool stringPool)
+    public static ResourceEntity readResValue(CountingInputStream in, StringPool stringPool)
             throws IOException {
         return readResValue(in, stringPool, false);
     }

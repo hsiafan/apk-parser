@@ -2,7 +2,7 @@ package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.bean.DexClass;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.io.TellableInputStream;
+import net.dongliu.apk.parser.io.CountingInputStream;
 import net.dongliu.apk.parser.struct.ByteOrder;
 import net.dongliu.apk.parser.struct.StringPool;
 import net.dongliu.apk.parser.struct.dex.DexClassStruct;
@@ -24,7 +24,7 @@ import java.util.Arrays;
  */
 public class DexParser {
 
-    private TellableInputStream in;
+    private CountingInputStream in;
     private ByteOrder byteOrder = ByteOrder.LITTLE;
 
     private static final int NO_INDEX = 0xffffffff;
@@ -32,7 +32,7 @@ public class DexParser {
     private DexClass[] dexClasses;
 
     public DexParser(InputStream in) {
-        this.in = new TellableInputStream(in, byteOrder);
+        this.in = new CountingInputStream(in, byteOrder);
     }
 
     public void parse() throws IOException {
@@ -88,7 +88,7 @@ public class DexParser {
      * read class info.
      */
     private DexClassStruct[] readClass(long classDefsOff, int classDefsSize) throws IOException {
-        in.advanceToPos(classDefsOff);
+        in.advanceTo(classDefsOff);
 
         DexClassStruct[] dexClassStructs = new DexClassStruct[classDefsSize];
         for (int i = 0; i < classDefsSize; i++) {
@@ -113,7 +113,7 @@ public class DexParser {
      * read types.
      */
     private int[] readTypes(long typeIdsOff, int typeIdsSize) throws IOException {
-        in.advanceToPos(typeIdsOff);
+        in.advanceTo(typeIdsOff);
         int[] typeIds = new int[typeIdsSize];
         for (int i = 0; i < typeIdsSize; i++) {
             typeIds[i] = (int) in.readUInt();
@@ -147,7 +147,7 @@ public class DexParser {
                 stringpool.set(entry.getIdx(), lastStr);
                 continue;
             }
-            in.advanceToPos(entry.getOffset());
+            in.advanceTo(entry.getOffset());
             lastOffset = entry.getOffset();
             String str = readString();
             lastStr = str;
@@ -160,7 +160,7 @@ public class DexParser {
      * read string identifiers list.
      */
     private long[] readStringPool(long stringIdsOff, int stringIdsSize) throws IOException {
-        in.advanceToPos(stringIdsOff);
+        in.advanceTo(stringIdsOff);
         long offsets[] = new long[stringIdsSize];
         for (int i = 0; i < stringIdsSize; i++) {
             offsets[i] = in.readUInt();
@@ -281,7 +281,7 @@ public class DexParser {
         header.dataSize = in.readInt();
         header.dataOff = in.readUInt();
 
-        in.advanceToPos(header.headerSize);
+        in.advanceTo(header.headerSize);
 
         return header;
     }

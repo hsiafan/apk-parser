@@ -8,15 +8,19 @@ import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.compress.utils.IOUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
 import java.security.cert.CertificateEncodingException;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
 
 /**
  * ApkParser and result holder.
@@ -67,13 +71,9 @@ public class ApkParser implements Closeable {
      */
     public ApkMeta getApkMeta() throws IOException {
         if (!apkMetaMap.containsKey(preferredLocale)) {
-            parseManifestXml();
+            parseApkMeta();
         }
-        ApkMeta apkMeta = apkMetaMap.get(preferredLocale);
-        if (apkMeta != null) {
-            findNativeLib(apkMeta);
-        }
-        return apkMeta;
+        return apkMetaMap.get(preferredLocale);
     }
 
     /**
@@ -127,14 +127,176 @@ public class ApkParser implements Closeable {
     }
 
     /**
-     * parse manifest.xml, get apkMeta and manifestXml text.
+     * parse manifest.xml, get apkMeta.
+     *
+     * @throws IOException
+     */
+    private void parseApkMeta() throws IOException {
+        if (!manifestXmlMap.containsKey(preferredLocale)) {
+            parseManifestXml();
+        }
+        String xml = this.manifestXmlMap.get(preferredLocale);
+
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        Document document;
+        try {
+            //DOM parser instance
+            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+            //parse an XML file into a DOM tree
+            document = builder.parse(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+        } catch (Exception e) {
+            throw new ParserException("Parse manifest xml failed", e);
+        }
+
+        ApkMeta apkMeta = new ApkMeta();
+        Node manifestNode = document.getElementsByTagName("manifest").item(0);
+        NamedNodeMap manifestAttr = manifestNode.getAttributes();
+        apkMeta.setPackageName(getAttribute(manifestAttr, "package"));
+        apkMeta.setVersionCode(getLongAttribute(manifestAttr, "android:versionCode"));
+        apkMeta.setVersionName(getAttribute(manifestAttr, "android:versionName"));
+        String installLocation = getAttribute(manifestAttr, "android:installLocation");
+        if (installLocation != null) {
+            apkMeta.setInstallLocation(Constants.InstallLocation.valueOf(installLocation));
+        }
+
+        NodeList nodes = manifestNode.getChildNodes();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            String nodeName = node.getNodeName();
+            if (nodeName.equals("uses-sdk")) {
+                parseSdk(apkMeta, node);
+            } else if (nodeName.equals("supports-screens")) {
+                parseScreens(apkMeta, node);
+            } else if (nodeName.equals("uses-feature")) {
+                parseUsesFeature(apkMeta, node);
+            } else if (nodeName.equals("application")) {
+                parseApplication(apkMeta, node);
+            } else if (nodeName.equals("uses-permission")) {
+                parseUsesPermission(apkMeta, node);
+            } else if (nodeName.equals("permission")) {
+                // provided permissions
+                parsePermission(apkMeta, node);
+            }
+        }
+        apkMetaMap.put(preferredLocale, apkMeta);
+    }
+
+    private void parseApplication(ApkMeta apkMeta, Node node) {
+        NamedNodeMap attributes = node.getAttributes();
+        apkMeta.setLabel(getAttribute(attributes, "android:label"));
+        apkMeta.setIcon(getAttribute(attributes, "android:icon"));
+
+        // activity, service, receiver, intent ...
+        // we do not parse those now
+    }
+
+    private void parseUsesPermission(ApkMeta apkMeta, Node node) {
+        NamedNodeMap attributes = node.getAttributes();
+        apkMeta.addUsesPermission(getAttribute(attributes, "android:name"));
+    }
+
+    private void parseUsesFeature(ApkMeta apkMeta, Node node) {
+        NamedNodeMap attributes = node.getAttributes();
+        String name = getAttribute(attributes, "android:name");
+        boolean required = getBoolAttribute(attributes, "android:required", true);
+        if (name != null) {
+            UseFeature useFeature = new UseFeature();
+            useFeature.setName(name);
+            useFeature.setRequired(required);
+            apkMeta.addUseFeatures(useFeature);
+        } else {
+            Integer gl = getIntAttribute(attributes, "android:glEsVersion");
+            if (gl != null) {
+                int v = gl;
+                GlEsVersion glEsVersion = new GlEsVersion();
+                glEsVersion.setMajor(v >> 16);
+                glEsVersion.setMinor(v & 0xffff);
+                glEsVersion.setRequired(required);
+                apkMeta.setGlEsVersion(glEsVersion);
+            }
+        }
+    }
+
+    private void parseSdk(ApkMeta apkMeta, Node node) {
+        NamedNodeMap attributes = node.getAttributes();
+        apkMeta.setMinSdkVersion(getAttribute(attributes, "android:minSdkVersion"));
+        apkMeta.setMaxSdkVersion(getAttribute(attributes, "android:maxSdkVersion"));
+        apkMeta.setTargetSdkVersion(getAttribute(attributes, "android:targetSdkVersion"));
+    }
+
+    private void parseScreens(ApkMeta apkMeta, Node node) {
+        NamedNodeMap attributes = node.getAttributes();
+        apkMeta.setSmallScreens(getBoolAttribute(attributes, "android:minSdkVersion", false));
+        apkMeta.setLargeScreens(getBoolAttribute(attributes, "android:largeScreens", false));
+        apkMeta.setNormalScreens(getBoolAttribute(attributes, "android:normalScreens", false));
+        apkMeta.setAnyDensity(getBoolAttribute(attributes, "android:anyDensity", false));
+    }
+
+
+    private void parsePermission(ApkMeta apkMeta, Node node) {
+        NamedNodeMap attributes = node.getAttributes();
+        Permission permission = new Permission();
+        permission.setName(getAttribute(attributes, "android:name"));
+        permission.setLabel(getAttribute(attributes, "android:label"));
+        permission.setIcon(getAttribute(attributes, "android:icon"));
+        permission.setGroup(getAttribute(attributes, "android:group"));
+        permission.setDescription(getAttribute(attributes, "android:description"));
+        String protectionLevel = getAttribute(attributes, "android:protectionLevel");
+        if (protectionLevel != null) {
+            permission.setProtectionLevel(Constants.ProtectionLevel.valueOf(protectionLevel));
+        }
+        apkMeta.addPermission(permission);
+    }
+
+    private Long getLongAttribute(NamedNodeMap namedNodeMap, String name) {
+        String value = getAttribute(namedNodeMap, name);
+        if (value == null) {
+            return null;
+        } else {
+            return Long.valueOf(value);
+        }
+    }
+
+    private Integer getIntAttribute(NamedNodeMap namedNodeMap, String name) {
+        String value = getAttribute(namedNodeMap, name);
+        if (value == null) {
+            return null;
+        } else {
+            return Integer.valueOf(value);
+        }
+    }
+
+    private boolean getBoolAttribute(NamedNodeMap namedNodeMap, String name, boolean defaultValue) {
+        Boolean value = getBoolAttribute(namedNodeMap, name);
+        return value == null ? defaultValue : value;
+    }
+
+    private Boolean getBoolAttribute(NamedNodeMap namedNodeMap, String name) {
+        String value = getAttribute(namedNodeMap, name);
+        if (value == null) {
+            return null;
+        } else {
+            return Boolean.valueOf(value);
+        }
+    }
+
+    private String getAttribute(NamedNodeMap namedNodeMap, String name) {
+        Node node = namedNodeMap.getNamedItem(name);
+        if (node == null) {
+            return null;
+        }
+        return node.getNodeValue();
+    }
+
+    /**
+     * parse manifest.xml, get manifestXml as xml text.
      *
      * @throws IOException
      */
     private void parseManifestXml() throws IOException {
         ZipArchiveEntry manifestEntry = getEntry(AndroidConstants.MANIFEST_FILE);
         if (manifestEntry == null) {
-            throw new ParserException("manifest xml file not found");
+            throw new ParserException("Manifest xml file not found");
         }
 
         if (this.resourceTable == null) {
@@ -147,14 +309,9 @@ public class ApkParser implements Closeable {
             BinaryXmlParser binaryXmlParser = new BinaryXmlParser(in, manifestEntry.getSize());
             binaryXmlParser.setLocale(preferredLocale);
             XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
-            ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor(resourceTable,
-                    preferredLocale);
-            CompositeXmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator,
-                    apkMetaConstructor);
-            binaryXmlParser.setXmlStreamer(xmlStreamer);
+            binaryXmlParser.setXmlStreamer(xmlTranslator);
             binaryXmlParser.parse();
             manifestXmlMap.put(preferredLocale, xmlTranslator.getXml());
-            apkMetaMap.put(preferredLocale, apkMetaConstructor.getApkMeta());
         } finally {
             in.close();
         }
@@ -178,11 +335,7 @@ public class ApkParser implements Closeable {
             BinaryXmlParser binaryXmlParser = new BinaryXmlParser(in, entry.getSize());
             binaryXmlParser.setLocale(preferredLocale);
             XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
-            ApkMetaConstructor apkMetaConstructor = new ApkMetaConstructor(resourceTable,
-                    preferredLocale);
-            CompositeXmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator,
-                    apkMetaConstructor);
-            binaryXmlParser.setXmlStreamer(xmlStreamer);
+            binaryXmlParser.setXmlStreamer(xmlTranslator);
             binaryXmlParser.parse();
             return xmlTranslator.getXml();
         } finally {
@@ -326,47 +479,6 @@ public class ApkParser implements Closeable {
             } finally {
                 in.close();
             }
-        }
-    }
-
-    private void findNativeLib(ApkMeta apkMeta) {
-        boolean hasNative = false;
-        Set<String> supportArches = new HashSet<String>();
-
-        Enumeration<ZipArchiveEntry> enu = zf.getEntries();
-        while (enu.hasMoreElements()) {
-            ZipArchiveEntry entry = enu.nextElement();
-            if (entry.isDirectory()) {
-                continue;
-            }
-            String path = entry.getName();
-            // some apk put .so under assert/, copy to data/data/xxx and use System.loadLibrary
-            // to load the dynamic library, this can be very complicated,
-            // the developer did not need to abey ordinary rules to name the .so file path.
-            // we do not take it into account now
-            if (path.endsWith(".so") && (path.startsWith(AndroidConstants.LIB_PREFIX))) {
-                int idx = path.lastIndexOf('/');
-                if (idx < 0) {
-                    //should not happen
-                    continue;
-                }
-                String archStr = path.substring(0, idx);
-                idx = archStr.lastIndexOf('/');
-                if (idx > 0) {
-                    archStr = archStr.substring(idx + 1);
-                }
-                try {
-                    supportArches.add(archStr);
-                    hasNative = true;
-                } catch (IllegalArgumentException ignore) {
-                    // unknown arch string... just ignore it
-                }
-            }
-        }
-
-        apkMeta.setHasNative(hasNative);
-        if (hasNative) {
-            apkMeta.setSupportArches(new ArrayList<String>(supportArches));
         }
     }
 

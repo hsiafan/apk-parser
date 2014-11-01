@@ -12,12 +12,12 @@ import java.io.InputStream;
  *
  * @author dongliu
  */
-public class TellableInputStream {
+public class CountingInputStream {
     private InputStream in;
     private ByteOrder byteOrder;
     private long pos;
 
-    public TellableInputStream(InputStream in, ByteOrder byteOrder) {
+    public CountingInputStream(InputStream in, ByteOrder byteOrder) {
         if (in instanceof BufferedInputStream) {
             this.in = in;
         } else {
@@ -76,7 +76,7 @@ public class TellableInputStream {
      *
      * @param pos
      */
-    public void advanceToPos(long pos) throws IOException {
+    public void advanceTo(long pos) throws IOException {
         if (this.pos < pos) {
             skip((int) (pos - this.pos));
         } else if (this.pos > pos) {

@@ -1,17 +1,19 @@
-package net.dongliu.apk.parser.struct;
+package net.dongliu.apk.parser.bean;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Activity constants.
- * see
- * http://developer.android.com/reference/android/content/pm/ActivityInfo.html
- * http://developer.android.com/guide/topics/manifest/activity-element.html
+ * manifest constant
  *
- * @author dongliu
+ * @author Dong Liu
  */
-public class ActivityInfo {
+public class Constants {
+
+
+    // Activity constants begin. see:
+    // http://developer.android.com/reference/android/content/pm/ActivityInfo.html
+    // http://developer.android.com/guide/topics/manifest/activity-element.html
     public static enum ScreenOrientation {
         behind(0x00000003),
         fullSensor(0x0000000a),
@@ -139,4 +141,50 @@ public class ActivityInfo {
             return list;
         }
     }
+
+    //http://developer.android.com/reference/android/content/pm/PermissionInfo.html
+    public enum ProtectionLevel {
+        normal(0), dangerous(1), signature(2), signatureOrSystem(3);
+        private int value;
+
+        ProtectionLevel(int value) {
+            this.value = value;
+        }
+
+        public static ProtectionLevel valueOf(int value) {
+            for (ProtectionLevel protectionLevel : ProtectionLevel.values()) {
+                if (protectionLevel.value == value) {
+                    return protectionLevel;
+                }
+            }
+            return null;
+        }
+    }
+
+
+    // Activity constants end
+
+    /**
+     * Installation
+     */
+    //TODO: installLocation values
+    public enum InstallLocation {
+        auto(0), internalOnly(1), preferExternal(2);
+        private int value;
+
+        InstallLocation(int value) {
+            this.value = value;
+        }
+
+        public static InstallLocation valueOf(int value) {
+            for (InstallLocation installLocation : InstallLocation.values()) {
+                if (installLocation.value == value) {
+                    return installLocation;
+                }
+            }
+            return null;
+        }
+    }
+
+
 }

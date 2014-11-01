@@ -3,11 +3,6 @@ package net.dongliu.apk.parser.bean;
 import java.util.Locale;
 
 /**
- * The java use ISO639 and ISO3166 to represent a local, with language lower case and country upper case.
- * <p>
- * Note: we do not use java.util.Locale here.
- * </p>
- *
  * @author dongliu
  */
 public class Locales {

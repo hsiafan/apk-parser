@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.struct.ActivityInfo;
+import net.dongliu.apk.parser.bean.Constants.*;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.xml.*;
 
@@ -91,43 +91,55 @@ public class XmlTranslator implements XmlStreamer {
                 .append(finalValue.replace("\"", "\\\"")).append('"');
     }
 
+    //trans int attr value to string
     private String getAttributeValueAsString(String attributeName, String value) {
+        int intValue = Integer.valueOf(value);
+        String realValue = value;
         if (attributeName.equals("screenOrientation")) {
-            ActivityInfo.ScreenOrientation screenOrientation =
-                    ActivityInfo.ScreenOrientation.valueOf(Integer.valueOf(value));
+            ScreenOrientation screenOrientation =
+                    ScreenOrientation.valueOf(intValue);
             if (screenOrientation != null) {
-                value = screenOrientation.toString();
+                realValue = screenOrientation.name();
             }
         } else if (attributeName.equals("configChanges")) {
-            List<ActivityInfo.ConfigChanges> configChangesList =
-                    ActivityInfo.ConfigChanges.valuesOf(Integer.valueOf(value));
+            List<ConfigChanges> configChangesList =
+                    ConfigChanges.valuesOf(intValue);
             if (!configChangesList.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
-                for (ActivityInfo.ConfigChanges c : configChangesList) {
-                    sb.append(c.toString()).append('|');
+                for (ConfigChanges c : configChangesList) {
+                    sb.append(c.name()).append('|');
                 }
                 sb.deleteCharAt(sb.length() - 1);
-                value = sb.toString();
+                realValue = sb.toString();
             }
         } else if (attributeName.equals("windowSoftInputMode")) {
-            List<ActivityInfo.WindowSoftInputMode> windowSoftInputModeList =
-                    ActivityInfo.WindowSoftInputMode.valuesOf(Integer.valueOf(value));
+            List<WindowSoftInputMode> windowSoftInputModeList =
+                    WindowSoftInputMode.valuesOf(intValue);
             if (!windowSoftInputModeList.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
-                for (ActivityInfo.WindowSoftInputMode w : windowSoftInputModeList) {
-                    sb.append(w.toString()).append('|');
+                for (WindowSoftInputMode w : windowSoftInputModeList) {
+                    sb.append(w.name()).append('|');
                 }
                 sb.deleteCharAt(sb.length() - 1);
-                value = sb.toString();
+                realValue = sb.toString();
             }
         } else if (attributeName.equals("launchMode")) {
-            ActivityInfo.LaunchMode launchMode =
-                    ActivityInfo.LaunchMode.valueOf(Integer.valueOf(value));
+            LaunchMode launchMode = LaunchMode.valueOf(intValue);
             if (launchMode != null) {
-                value = launchMode.toString();
+                realValue = launchMode.name();
+            }
+        } else if (attributeName.equals("installLocation")) {
+            InstallLocation installLocation = InstallLocation.valueOf(intValue);
+            if (installLocation != null) {
+                realValue = installLocation.name();
+            }
+        } else if (attributeName.equals("protectionLevel")) {
+            ProtectionLevel protectionLevel = ProtectionLevel.valueOf(intValue);
+            if (protectionLevel != null) {
+                realValue = protectionLevel.name();
             }
         }
-        return value;
+        return realValue;
     }
 
     @Override

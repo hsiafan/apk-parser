@@ -2,7 +2,7 @@ package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.io.TellableInputStream;
+import net.dongliu.apk.parser.io.CountingInputStream;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.xml.*;
 import net.dongliu.apk.parser.utils.ParseUtils;
@@ -26,7 +26,7 @@ public class BinaryXmlParser {
     private ByteOrder byteOrder = ByteOrder.LITTLE;
     private StringPool stringPool;
     private String[] resourceMap;
-    private TellableInputStream in;
+    private CountingInputStream in;
     private long fileSize;
     private XmlStreamer xmlStreamer;
 
@@ -36,7 +36,7 @@ public class BinaryXmlParser {
     private Locale locale = Locales.any;
 
     public BinaryXmlParser(InputStream in, long fileSize) {
-        this.in = new TellableInputStream(in, byteOrder);
+        this.in = new CountingInputStream(in, byteOrder);
         this.fileSize = fileSize;
     }
 
@@ -101,7 +101,7 @@ public class BinaryXmlParser {
                             throw new ParserException("Unexpected chunk type:" + chunkHeader.chunkType);
                         }
                 }
-                in.advanceToPos(beginPos + chunkHeader.chunkSize - chunkHeader.headerSize);
+                in.advanceTo(beginPos + chunkHeader.chunkSize - chunkHeader.headerSize);
                 chunkHeader = readChunkHeader();
             }
         } finally {
@@ -117,7 +117,8 @@ public class BinaryXmlParser {
         }
         xmlCData.typedData = ParseUtils.readResValue(in, stringPool);
         if (xmlStreamer != null) {
-            xmlStreamer.onCData(xmlCData);
+            //TODO: to know more about cdata. some cdata appears in xml tags
+            //xmlStreamer.onCData(xmlCData);
         }
         return xmlCData;
     }
@@ -251,10 +252,10 @@ public class BinaryXmlParser {
                 stringPoolHeader.flags = in.readUInt();
                 stringPoolHeader.stringsStart = in.readUInt();
                 stringPoolHeader.stylesStart = in.readUInt();
-                in.advanceToPos(begin + headerSize);
+                in.advanceTo(begin + headerSize);
                 return stringPoolHeader;
             case ChunkType.XML_RESOURCE_MAP:
-                in.advanceToPos(begin + headerSize);
+                in.advanceTo(begin + headerSize);
                 return new XmlResourceMapHeader(chunkType, headerSize, chunkSize);
             case ChunkType.XML_START_NAMESPACE:
             case ChunkType.XML_END_NAMESPACE:
@@ -264,10 +265,10 @@ public class BinaryXmlParser {
                 XmlNodeHeader header = new XmlNodeHeader(chunkType, headerSize, chunkSize);
                 header.lineNum = (int) in.readUInt();
                 header.commentRef = (int) in.readUInt();
-                in.advanceToPos(begin + headerSize);
+                in.advanceTo(begin + headerSize);
                 return header;
             case ChunkType.NULL:
-                //in.advanceToPos(begin + headerSize);
+                //in.advanceTo(begin + headerSize);
                 //in.skip((int) (chunkSize - headerSize));
             default:
                 throw new ParserException("Unexpected chunk type:" + chunkType);

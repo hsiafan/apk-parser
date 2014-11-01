@@ -16,7 +16,9 @@ public class ApkMeta {
 
     private String versionName;
 
-    private long versionCode = -1;
+    private Long versionCode;
+
+    private Constants.InstallLocation installLocation;
 
     private String minSdkVersion;
 
@@ -34,20 +36,11 @@ public class ApkMeta {
 
     private boolean largeScreens;
 
-    private List<String> permissions = new ArrayList<String>();
+    private List<String> usesPermissions = new ArrayList<String>();
 
-    private List<UseFeature> useFeatures = new ArrayList<UseFeature>();
+    private List<UseFeature> usesFeatures = new ArrayList<UseFeature>();
 
-    /**
-     * this may not be accurate
-     */
-    private boolean hasNative;
-
-    /**
-     * may be x86, mips, armeabi, armeabi-v7a
-     * this may not be accurate
-     */
-    private List<String> supportArches;
+    private List<Permission> permissions = new ArrayList<Permission>();
 
     public String getPackageName() {
         return packageName;
@@ -65,11 +58,11 @@ public class ApkMeta {
         this.versionName = versionName;
     }
 
-    public long getVersionCode() {
+    public Long getVersionCode() {
         return versionCode;
     }
 
-    public void setVersionCode(long versionCode) {
+    public void setVersionCode(Long versionCode) {
         this.versionCode = versionCode;
     }
 
@@ -97,16 +90,12 @@ public class ApkMeta {
         this.maxSdkVersion = maxSdkVersion;
     }
 
-    public List<String> getPermissions() {
-        return permissions;
+    public List<String> getUsesPermissions() {
+        return usesPermissions;
     }
 
-    public void setPermissions(List<String> permissions) {
-        this.permissions = permissions;
-    }
-
-    public void addPermission(String permission) {
-        this.permissions.add(permission);
+    public void addUsesPermission(String permission) {
+        this.usesPermissions.add(permission);
     }
 
     public String getIcon() {
@@ -157,6 +146,38 @@ public class ApkMeta {
         this.largeScreens = largeScreens;
     }
 
+    public GlEsVersion getGlEsVersion() {
+        return glEsVersion;
+    }
+
+    public void setGlEsVersion(GlEsVersion glEsVersion) {
+        this.glEsVersion = glEsVersion;
+    }
+
+    public List<UseFeature> getUsesFeatures() {
+        return usesFeatures;
+    }
+
+    public void addUseFeatures(UseFeature useFeature) {
+        this.usesFeatures.add(useFeature);
+    }
+
+    public Constants.InstallLocation getInstallLocation() {
+        return installLocation;
+    }
+
+    public void setInstallLocation(Constants.InstallLocation installLocation) {
+        this.installLocation = installLocation;
+    }
+
+    public void addPermission(Permission permission) {
+        this.permissions.add(permission);
+    }
+
+    public List<Permission> getPermissions() {
+        return this.permissions;
+    }
+
     @Override
     public String toString() {
         return "packageName: \t" + packageName + "\n"
@@ -168,53 +189,4 @@ public class ApkMeta {
                 + "maxSdkVersion: \t" + maxSdkVersion;
     }
 
-    public GlEsVersion getGlEsVersion() {
-        return glEsVersion;
-    }
-
-    public void setGlEsVersion(GlEsVersion glEsVersion) {
-        this.glEsVersion = glEsVersion;
-    }
-
-    public List<UseFeature> getUseFeatures() {
-        return useFeatures;
-    }
-
-    public void setUseFeatures(List<UseFeature> useFeatures) {
-        this.useFeatures = useFeatures;
-    }
-
-    public void addUsePermission(UseFeature useFeature) {
-        this.useFeatures.add(useFeature);
-    }
-
-    /**
-     * this may not be accurate.
-     */
-    public boolean isHasNative() {
-        return hasNative;
-    }
-
-    public void setHasNative(boolean hasNative) {
-        this.hasNative = hasNative;
-    }
-
-    /**
-     * may be x86, mips, armeabi, armeabi-v7a.
-     * this may not be accurate.
-     *
-     * some apk put .so under assert/, copy to data/data/xxx and use System.loadLibrary
-     * to load the dynamic library, this can be very complicated,
-     * the developer did not need to abey ordinary rules to name the .so file path.
-     * we do not take it into account now
-     *
-     * @return null if hasNative is false, otherwise the support arches as string
-     */
-    public List<String> getSupportArches() {
-        return supportArches;
-    }
-
-    public void setSupportArches(List<String> supportArches) {
-        this.supportArches = supportArches;
-    }
 }
