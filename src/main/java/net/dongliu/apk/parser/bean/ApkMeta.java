@@ -9,38 +9,26 @@ import java.util.List;
 public class ApkMeta {
 
     private String packageName;
-
     private String label;
-
-    private String icon;
-
+    private Icon icon;
     private String versionName;
-
     private Long versionCode;
-
     private Constants.InstallLocation installLocation;
-
     private String minSdkVersion;
-
     private String targetSdkVersion;
-
     private String maxSdkVersion;
-
     private GlEsVersion glEsVersion;
-
     private boolean anyDensity;
-
     private boolean smallScreens;
-
     private boolean normalScreens;
-
     private boolean largeScreens;
 
     private List<String> usesPermissions = new ArrayList<String>();
-
     private List<UseFeature> usesFeatures = new ArrayList<UseFeature>();
-
     private List<Permission> permissions = new ArrayList<Permission>();
+    private List<Service> services = new ArrayList<Service>();
+    private List<Activity> activities = new ArrayList<Activity>();
+    private List<Receiver> receivers = new ArrayList<Receiver>();
 
     public String getPackageName() {
         return packageName;
@@ -98,11 +86,11 @@ public class ApkMeta {
         this.usesPermissions.add(permission);
     }
 
-    public String getIcon() {
+    public Icon getIcon() {
         return icon;
     }
 
-    public void setIcon(String icon) {
+    public void setIcon(Icon icon) {
         this.icon = icon;
     }
 
@@ -176,6 +164,30 @@ public class ApkMeta {
 
     public List<Permission> getPermissions() {
         return this.permissions;
+    }
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    public void addService(Service service) {
+        this.services.add(service);
+    }
+
+    public List<Activity> getActivities() {
+        return activities;
+    }
+
+    public void addActivity(Activity activity) {
+        this.activities.add(activity);
+    }
+
+    public List<Receiver> getReceivers() {
+        return receivers;
+    }
+
+    public void addReceiver(Receiver receiver) {
+        this.receivers.add(receiver);
     }
 
     @Override

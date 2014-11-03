@@ -7,6 +7,8 @@ package net.dongliu.apk.parser.bean;
  */
 public class Icon {
 
+    private String path;
+
     private String format;
 
     private String dpiLevel;
@@ -35,5 +37,13 @@ public class Icon {
 
     public void setData(byte[] data) {
         this.data = data;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }
