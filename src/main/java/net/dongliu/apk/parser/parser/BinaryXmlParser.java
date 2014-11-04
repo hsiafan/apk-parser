@@ -71,9 +71,9 @@ public class BinaryXmlParser {
             }
 
             while (chunkHeader != null) {
-                if (chunkHeader.chunkType == ChunkType.XML_END_NAMESPACE) {
+                /*if (chunkHeader.chunkType == ChunkType.XML_END_NAMESPACE) {
                     break;
-                }
+                }*/
                 long beginPos = in.tell();
                 switch (chunkHeader.chunkType) {
                     case ChunkType.XML_END_NAMESPACE:
