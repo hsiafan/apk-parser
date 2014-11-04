@@ -20,7 +20,7 @@ With maven, you can add apk-parser as dependency by:
 
 #### Usage
 The easiest way is to use the ApkParser class, which contains convenient methods to get AndroidManifest.xml, apk meta infos, etc.
-##### Apk meta info
+#####1. Apk meta info
 ```java
 try(ApkParser apkParser = new ApkParser(new File(filePath))) {
     System.out.println(apkMeta.getLabel());
@@ -31,14 +31,14 @@ try(ApkParser apkParser = new ApkParser(new File(filePath))) {
     }
 }
 ```
-##### Get binary xml and menifest xml file
+#####2. Get binary xml and menifest xml file
 ```java
 try(ApkParser apkParser = new ApkParser(new File(filePath))) {
     String manifestXml = apkParser.getManifestXml();
     String xml = apkParser.transBinaryXml("res/menu/main.xml");
 }
 ```
-##### Get dex classes
+#####3. Get dex classes
 ```java
 try(ApkParser apkParser = new ApkParser(new File(filePath))) {
     DexClass[] classes = apkParser.getDexClasses();
@@ -48,7 +48,7 @@ try(ApkParser apkParser = new ApkParser(new File(filePath))) {
 }
 ```
 
-##### Get certificate and verify apk signature
+#####4. Get certificate and verify apk signature
 ```java
 try(ApkParser apkParser = new ApkParser(new File(filePath))) {
     ApkSignStatus signStatus = apkParser.verifyApk();
@@ -59,7 +59,7 @@ try(ApkParser apkParser = new ApkParser(new File(filePath))) {
 }
 ```
 
-#### Locales
+#####5. Locales
 Apk may appear different infos(title, icon, etc.) for different region and language, which is determined by Locales.
 If locale is not set, the default Locale of of OS is used. You can set locale like this:
 ```java
