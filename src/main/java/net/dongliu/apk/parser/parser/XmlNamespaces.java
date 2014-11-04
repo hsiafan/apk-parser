@@ -85,8 +85,10 @@ class XmlNamespaces {
 
             XmlNamespace namespace = (XmlNamespace) o;
 
-            if (!prefix.equals(namespace.prefix)) return false;
-            if (!uri.equals(namespace.uri)) return false;
+            if (prefix == null && namespace.prefix != null) return false;
+            if (uri == null && namespace.uri != null) return false;
+            if (prefix != null && !prefix.equals(namespace.prefix)) return false;
+            if (uri != null && !uri.equals(namespace.uri)) return false;
 
             return true;
         }
