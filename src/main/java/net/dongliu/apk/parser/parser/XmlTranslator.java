@@ -7,6 +7,8 @@ import net.dongliu.apk.parser.struct.xml.*;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 /**
  * trans to xml text when parse binary xml file.
  *
@@ -87,8 +89,9 @@ public class XmlTranslator implements XmlStreamer {
         } catch (NumberFormatException e) {
             finalValue = value;
         }
+        String escapedFinalValue = StringEscapeUtils.escapeXml10(finalValue);
         sb.append(attribute.name).append('=').append('"')
-                .append(finalValue.replace("\"", "\\\"")).append('"');
+                .append(escapedFinalValue).append('"');
     }
 
     //trans int attr value to string

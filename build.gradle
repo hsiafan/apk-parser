@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     compile 'org.apache.commons:commons-compress:1.6'
+    compile 'org.apache.commons:commons-lang3:3.3.2'
     testCompile 'junit:junit:4.+'
 }
 
