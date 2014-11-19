@@ -14,7 +14,7 @@ With maven, you can add apk-parser as dependency by:
 <dependency>
     <groupId>net.dongliu</groupId>
     <artifactId>apk-parser</artifactId>
-    <version>1.6.0</version>
+    <version>1.6.1</version>
 </dependency>
 ```
 
