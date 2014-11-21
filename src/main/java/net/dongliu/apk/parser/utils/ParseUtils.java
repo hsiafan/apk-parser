@@ -2,12 +2,13 @@ package net.dongliu.apk.parser.utils;
 
 import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.io.CountingInputStream;
 import net.dongliu.apk.parser.parser.StringPoolEntry;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -17,29 +18,29 @@ import java.util.Locale;
  */
 public class ParseUtils {
 
+    public static Charset charsetUTF8 = Charset.forName("UTF-8");
 
     /**
-     * read string from input stream. if get EOF before read enough data, throw IOException.
+     * read string from input buffer. if get EOF before read enough data, throw IOException.
      */
-    public static String readString(CountingInputStream in, StringEncoding encoding)
-            throws IOException {
-        if (encoding == StringEncoding.UTF8) {
+    public static String readString(ByteBuffer buffer, boolean utf8) {
+        if (utf8) {
             //  The lengths are encoded in the same way as for the 16-bit format
             // but using 8-bit rather than 16-bit integers.
-            int strLen = readLen(in);
-            int bytesLen = readLen(in);
-            byte[] bytes = in.readBytes(bytesLen);
-            String str = new String(bytes, "UTF-8");
+            int strLen = readLen(buffer);
+            int bytesLen = readLen(buffer);
+            byte[] bytes = Buffers.readBytes(buffer, bytesLen);
+            String str = new String(bytes, charsetUTF8);
             // zero
-            int trailling = in.readUByte();
+            int trailling = Buffers.readUByte(buffer);
             return str;
 
         } else {
             // The length is encoded as either one or two 16-bit integers as per the commentRef...
-            int strLen = readLen16(in);
-            String str = in.readStringUTF16(strLen);
+            int strLen = readLen16(buffer);
+            String str = Buffers.readString(buffer, strLen);
             // zero
-            int trailling = in.readUShort();
+            int trailling = Buffers.readUShort(buffer);
             return str;
         }
     }
@@ -47,13 +48,10 @@ public class ParseUtils {
     /**
      * read utf-16 encoding str, use zero char to end str.
      *
-     * @param in
-     * @param strLen
-     * @return
      * @throws IOException
      */
-    public static String readStringUTF16(CountingInputStream in, int strLen) throws IOException {
-        String str = in.readStringUTF16(strLen);
+    public static String readStringUTF16(ByteBuffer buffer, int strLen) {
+        String str = Buffers.readString(buffer, strLen);
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
             if (c == 0) {
@@ -67,17 +65,17 @@ public class ParseUtils {
      * read encoding len.
      * see StringPool.cpp ENCODE_LENGTH
      *
-     * @param in
+     * @param buffer
      * @return
      * @throws IOException
      */
-    private static int readLen(CountingInputStream in) throws IOException {
+    private static int readLen(ByteBuffer buffer) {
         int len = 0;
-        int i = in.read();
+        int i = Buffers.readUByte(buffer);
         if ((i & 0x80) != 0) {
             //read one more byte.
             len |= (i & 0x7f) << 7;
-            len += in.read();
+            len += Buffers.readUByte(buffer);
         } else {
             len = i;
         }
@@ -88,16 +86,16 @@ public class ParseUtils {
      * read encoding len.
      * see Stringpool.cpp ENCODE_LENGTH
      *
-     * @param in
+     * @param buffer
      * @return
      * @throws IOException
      */
-    private static int readLen16(CountingInputStream in) throws IOException {
+    private static int readLen16(ByteBuffer buffer) {
         int len = 0;
-        int i = in.readUShort();
+        int i = Buffers.readUShort(buffer);
         if ((i & 0x8000) != 0) {
             len |= (i & 0x7fff) << 15;
-            len += in.readUShort();
+            len += Buffers.readUShort(buffer);
         } else {
             len = i;
         }
@@ -108,36 +106,35 @@ public class ParseUtils {
     /**
      * read String pool, for apk binary xml file and resource table.
      *
-     * @param in
+     * @param buffer
      * @param stringPoolHeader
      * @return
      * @throws IOException
      */
-    public static StringPool readStringPool(CountingInputStream in,
-                                            StringPoolHeader stringPoolHeader) throws IOException {
+    public static StringPool readStringPool(ByteBuffer buffer, StringPoolHeader stringPoolHeader) {
 
-        long beginPos = in.tell();
+        long beginPos = buffer.position();
         long[] offsets = new long[(int) stringPoolHeader.stringCount];
         // read strings offset
         if (stringPoolHeader.stringCount > 0) {
             for (int idx = 0; idx < stringPoolHeader.stringCount; idx++) {
-                offsets[idx] = in.readUInt();
+                offsets[idx] = Buffers.readUInt(buffer);
             }
         }
         // read flag
+        // the string index is sorted by the string values if true
         boolean sorted = (stringPoolHeader.flags & StringPoolHeader.SORTED_FLAG) != 0;
-        StringEncoding stringEncoding = (stringPoolHeader.flags & StringPoolHeader.UTF8_FLAG) != 0 ?
-                StringEncoding.UTF8 : StringEncoding.UTF16;
+        // string use utf-8 format if true, otherwise utf-16
+        boolean utf8 = (stringPoolHeader.flags & StringPoolHeader.UTF8_FLAG) != 0;
 
         // read strings. the head and metas have 28 bytes
         long stringPos = beginPos + stringPoolHeader.stringsStart - stringPoolHeader.headerSize;
-        in.advanceTo(stringPos);
+        buffer.position((int) stringPos);
 
         StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
         for (int i = 0; i < offsets.length; i++) {
             entries[i] = new StringPoolEntry(i, stringPos + offsets[i]);
         }
-        Arrays.sort(entries);
 
         String lastStr = null;
         long lastOffset = -1;
@@ -148,9 +145,9 @@ public class ParseUtils {
                 continue;
             }
 
-            in.advanceTo(entry.getOffset());
+            buffer.position((int) entry.getOffset());
             lastOffset = entry.getOffset();
-            String str = ParseUtils.readString(in, stringEncoding);
+            String str = ParseUtils.readString(buffer, utf8);
             lastStr = str;
             stringPool.set(entry.getIdx(), str);
         }
@@ -160,7 +157,7 @@ public class ParseUtils {
             // now we just skip it
         }
 
-        in.advanceTo(beginPos + stringPoolHeader.chunkSize - stringPoolHeader.headerSize);
+        buffer.position((int) (beginPos + stringPoolHeader.chunkSize - stringPoolHeader.headerSize));
 
         return stringPool;
     }
@@ -170,9 +167,8 @@ public class ParseUtils {
      *
      * @return
      */
-    public static String readRGBs(CountingInputStream in, int strLen)
-            throws IOException {
-        long l = in.readUInt();
+    public static String readRGBs(ByteBuffer buffer, int strLen) {
+        long l = Buffers.readUInt(buffer);
         StringBuilder sb = new StringBuilder();
         for (int i = strLen / 2 - 1; i >= 0; i--) {
             sb.append(Integer.toHexString((int) ((l >> i * 8) & 0xff)));
@@ -183,62 +179,62 @@ public class ParseUtils {
     /**
      * read res value, convert from different types to string.
      *
-     * @param in
+     * @param buffer
      * @param stringPool
      * @return
      * @throws IOException
      */
-    public static ResourceEntity readResValue(CountingInputStream in, StringPool stringPool,
-                                              boolean isStyle) throws IOException {
+    public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool,
+                                              boolean isStyle) {
         ResValue resValue = new ResValue();
-        resValue.size = in.readUShort();
-        resValue.res0 = in.readUByte();
-        resValue.dataType = in.readUByte();
+        resValue.size = Buffers.readUShort(buffer);
+        resValue.res0 = Buffers.readUByte(buffer);
+        resValue.dataType = Buffers.readUByte(buffer);
 
         switch (resValue.dataType) {
             case ResValue.ResType.INT_DEC:
             case ResValue.ResType.INT_HEX:
-                resValue.data = new ResourceEntity(in.readInt());
+                resValue.data = new ResourceEntity(buffer.getInt());
                 break;
             case ResValue.ResType.STRING:
-                int strRef = in.readInt();
+                int strRef = buffer.getInt();
                 if (strRef > 0) {
                     resValue.data = new ResourceEntity(stringPool.get(strRef));
                 }
                 break;
             case ResValue.ResType.REFERENCE:
-                long resourceId = in.readUInt();
+                long resourceId = Buffers.readUInt(buffer);
                 resValue.data = new ResourceEntity(resourceId, isStyle);
                 break;
             case ResValue.ResType.INT_BOOLEAN:
-                resValue.data = new ResourceEntity(in.readInt() != 0);
+                resValue.data = new ResourceEntity(buffer.getInt() != 0);
                 break;
             case ResValue.ResType.NULL:
                 resValue.data = new ResourceEntity("");
                 break;
             case ResValue.ResType.INT_COLOR_RGB8:
             case ResValue.ResType.INT_COLOR_RGB4:
-                resValue.data = new ResourceEntity(readRGBs(in, 6));
+                resValue.data = new ResourceEntity(readRGBs(buffer, 6));
                 break;
             case ResValue.ResType.INT_COLOR_ARGB8:
             case ResValue.ResType.INT_COLOR_ARGB4:
-                resValue.data = new ResourceEntity(readRGBs(in, 8));
+                resValue.data = new ResourceEntity(readRGBs(buffer, 8));
                 break;
             case ResValue.ResType.DIMENSION:
-                resValue.data = new ResourceEntity(getDemension(in));
+                resValue.data = new ResourceEntity(getDimension(buffer));
                 break;
             case ResValue.ResType.FRACTION:
-                resValue.data = new ResourceEntity(getFraction(in));
+                resValue.data = new ResourceEntity(getFraction(buffer));
                 break;
             default:
-                resValue.data = new ResourceEntity("{" + resValue.dataType + ":" + in.readUInt()
-                        + "}");
+                resValue.data = new ResourceEntity("{" + resValue.dataType + ":"
+                        + Buffers.readUInt(buffer) + "}");
         }
         return resValue.data;
     }
 
-    private static String getDemension(CountingInputStream in) throws IOException {
-        long l = in.readUInt();
+    private static String getDimension(ByteBuffer buffer) {
+        long l = Buffers.readUInt(buffer);
         short unit = (short) (l & 0xff);
         String unitStr;
         switch (unit) {
@@ -266,8 +262,8 @@ public class ParseUtils {
         return (l >> 8) + unitStr;
     }
 
-    private static String getFraction(CountingInputStream in) throws IOException {
-        long l = in.readUInt();
+    private static String getFraction(ByteBuffer buffer) {
+        long l = Buffers.readUInt(buffer);
         // The low-order 4 bits of the data value specify the type of the fraction
         short type = (short) (l & 0xf);
         String pstr;
@@ -300,7 +296,7 @@ public class ParseUtils {
      * @param locale
      * @return
      */
-    public static String getResourceByid(long resourceId, boolean isStyle,
+    public static String getResourceById(long resourceId, boolean isStyle,
                                          ResourceTable resourceTable, Locale locale) {
 //        An Android Resource id is a 32-bit integer. It comprises
 //        an 8-bit Package id [bits 24-31]
@@ -360,12 +356,11 @@ public class ParseUtils {
     /**
      * read res value. for resource table parser
      *
-     * @param in
+     * @param buffer
      * @param stringPool
      * @return
      */
-    public static ResourceEntity readResValue(CountingInputStream in, StringPool stringPool)
-            throws IOException {
-        return readResValue(in, stringPool, false);
+    public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool) {
+        return readResValue(buffer, stringPool, false);
     }
 }

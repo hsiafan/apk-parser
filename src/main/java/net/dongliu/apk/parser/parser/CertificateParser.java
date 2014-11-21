@@ -2,6 +2,7 @@ package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.bean.CertificateMeta;
 import net.dongliu.apk.parser.utils.Utils;
+import org.apache.commons.compress.utils.Charsets;
 import sun.security.pkcs.PKCS7;
 
 import java.io.BufferedInputStream;
@@ -69,7 +70,7 @@ public class CertificateParser {
 
     private String md5Digest(String input) throws IOException {
         MessageDigest digest = getDigest("Md5");
-        digest.update(input.getBytes("UTF-8"));
+        digest.update(input.getBytes(Charsets.UTF_8));
         return getHexString(digest.digest());
     }
 

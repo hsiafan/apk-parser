@@ -70,7 +70,7 @@ public class ResourceEntity {
         if (this.value != null) {
             return this.value;
         }
-        return ParseUtils.getResourceByid(this.resourceId, isStyle, resourceTable, locale);
+        return ParseUtils.getResourceById(this.resourceId, isStyle, resourceTable, locale);
     }
 
     @Override

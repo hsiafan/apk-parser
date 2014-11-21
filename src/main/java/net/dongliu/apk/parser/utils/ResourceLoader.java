@@ -79,7 +79,7 @@ public class ResourceLoader {
                     continue;
                 }
                 String[] items = line.split("=");
-                int id = Integer.parseInt(items[1].trim().substring(2), 16);
+                int id = Integer.parseInt(items[1].trim());
                 String name = items[0].trim();
                 map.put(id, name);
             }
@@ -94,7 +94,4 @@ public class ResourceLoader {
         return map;
     }
 
-    public static void main(String[] args) {
-        loadSystemStyles();
-    }
 }

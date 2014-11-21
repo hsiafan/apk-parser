@@ -18,6 +18,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.security.cert.CertificateEncodingException;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -298,27 +299,11 @@ public class ApkParser implements Closeable {
      * @throws IOException
      */
     private void parseManifestXml() throws IOException {
-        ZipArchiveEntry manifestEntry = Utils.getEntry(zf, AndroidConstants.MANIFEST_FILE);
-        if (manifestEntry == null) {
+        String xml = transBinaryXml(AndroidConstants.MANIFEST_FILE);
+        if (xml == null) {
             throw new ParserException("Manifest xml file not found");
         }
-
-        if (this.resourceTable == null) {
-            parseResourceTable();
-        }
-
-        InputStream in = zf.getInputStream(manifestEntry);
-
-        try {
-            BinaryXmlParser binaryXmlParser = new BinaryXmlParser(in, manifestEntry.getSize());
-            binaryXmlParser.setLocale(preferredLocale);
-            XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
-            binaryXmlParser.setXmlStreamer(xmlTranslator);
-            binaryXmlParser.parse();
-            manifestXmlMap.put(preferredLocale, xmlTranslator.getXml());
-        } finally {
-            in.close();
-        }
+        manifestXmlMap.put(preferredLocale, xml);
     }
 
     /**
@@ -333,18 +318,18 @@ public class ApkParser implements Closeable {
         if (entry == null) {
             return null;
         }
+        if (this.resourceTable == null) {
+            parseResourceTable();
+        }
 
         InputStream in = zf.getInputStream(entry);
-        try {
-            BinaryXmlParser binaryXmlParser = new BinaryXmlParser(in, entry.getSize());
-            binaryXmlParser.setLocale(preferredLocale);
-            XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
-            binaryXmlParser.setXmlStreamer(xmlTranslator);
-            binaryXmlParser.parse();
-            return xmlTranslator.getXml();
-        } finally {
-            in.close();
-        }
+        ByteBuffer buffer = ByteBuffer.wrap(IOUtils.toByteArray(in));
+        BinaryXmlParser binaryXmlParser = new BinaryXmlParser(buffer);
+        binaryXmlParser.setLocale(preferredLocale);
+        XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
+        binaryXmlParser.setXmlStreamer(xmlTranslator);
+        binaryXmlParser.parse();
+        return xmlTranslator.getXml();
     }
 
 
@@ -361,16 +346,13 @@ public class ApkParser implements Closeable {
     private void parseDexFile() throws IOException {
         ZipArchiveEntry resourceEntry = Utils.getEntry(zf, AndroidConstants.DEX_FILE);
         if (resourceEntry == null) {
-            throw new ParserException("resource table not found");
+            throw new ParserException("Resource table not found");
         }
         InputStream in = zf.getInputStream(resourceEntry);
-        try {
-            DexParser dexParser = new DexParser(in);
-            dexParser.parse();
-            this.dexClasses = dexParser.getDexClasses();
-        } finally {
-            in.close();
-        }
+        ByteBuffer buffer = ByteBuffer.wrap(IOUtils.toByteArray(in));
+        DexParser dexParser = new DexParser(buffer);
+        dexParser.parse();
+        this.dexClasses = dexParser.getDexClasses();
     }
 
     /**
@@ -400,12 +382,8 @@ public class ApkParser implements Closeable {
             icon.setDpiLevel("");
         }
         InputStream inputStream = zf.getInputStream(entry);
-        try {
-            icon.setData(IOUtils.toByteArray(inputStream));
-            return icon;
-        } finally {
-            inputStream.close();
-        }
+        icon.setData(IOUtils.toByteArray(inputStream));
+        return icon;
     }
 
     /**
@@ -458,15 +436,15 @@ public class ApkParser implements Closeable {
             return;
         }
 
+        this.resourceTable = new ResourceTable();
+        this.locales = Collections.emptySet();
+
         InputStream in = zf.getInputStream(entry);
-        try {
-            ResourceTableParser resourceTableParser = new ResourceTableParser(in, entry.getSize());
-            resourceTableParser.parse();
-            this.resourceTable = resourceTableParser.getResourceTable();
-            this.locales = resourceTableParser.getLocales();
-        } finally {
-            in.close();
-        }
+        ByteBuffer buffer = ByteBuffer.wrap(IOUtils.toByteArray(in));
+        ResourceTableParser resourceTableParser = new ResourceTableParser(buffer);
+        resourceTableParser.parse();
+        this.resourceTable = resourceTableParser.getResourceTable();
+        this.locales = resourceTableParser.getLocales();
     }
 
     @Override

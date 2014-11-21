@@ -3,7 +3,7 @@ package net.dongliu.apk.parser.parser;
 /**
  * class for sort string pool indexes
  */
-public class StringPoolEntry implements Comparable<StringPoolEntry> {
+public class StringPoolEntry {
     private int idx;
     private long offset;
 
@@ -28,8 +28,4 @@ public class StringPoolEntry implements Comparable<StringPoolEntry> {
         this.offset = offset;
     }
 
-    @Override
-    public int compareTo(StringPoolEntry o) {
-        return (int) (this.offset - o.offset);
-    }
 }
