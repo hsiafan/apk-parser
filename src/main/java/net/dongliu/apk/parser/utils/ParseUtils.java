@@ -48,7 +48,6 @@ public class ParseUtils {
     /**
      * read utf-16 encoding str, use zero char to end str.
      *
-     * @throws IOException
      */
     public static String readStringUTF16(ByteBuffer buffer, int strLen) {
         String str = Buffers.readString(buffer, strLen);
@@ -67,7 +66,6 @@ public class ParseUtils {
      *
      * @param buffer
      * @return
-     * @throws IOException
      */
     private static int readLen(ByteBuffer buffer) {
         int len = 0;
@@ -88,7 +86,6 @@ public class ParseUtils {
      *
      * @param buffer
      * @return
-     * @throws IOException
      */
     private static int readLen16(ByteBuffer buffer) {
         int len = 0;
@@ -109,7 +106,6 @@ public class ParseUtils {
      * @param buffer
      * @param stringPoolHeader
      * @return
-     * @throws IOException
      */
     public static StringPool readStringPool(ByteBuffer buffer, StringPoolHeader stringPoolHeader) {
 
@@ -182,7 +178,6 @@ public class ParseUtils {
      * @param buffer
      * @param stringPool
      * @return
-     * @throws IOException
      */
     public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool,
                                               boolean isStyle) {

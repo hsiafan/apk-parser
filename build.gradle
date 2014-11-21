@@ -51,7 +51,7 @@ uploadArchives {
                 url 'https://github.com/xiaxiaocao/apk-parser'
 
                 scm {
-                    url 'https://github.com/xiaxiaocao/apk-parse'
+                    url 'https://github.com/xiaxiaocao/apk-parser'
                     connection 'scm:git:git@github.com:xiaxiaocao/apk-parser.git'
                     developerConnection 'scm:git:git@github.com:xiaxiaocao/apk-parser.git'
                 }

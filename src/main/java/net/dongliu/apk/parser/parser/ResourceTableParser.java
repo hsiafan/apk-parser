@@ -9,7 +9,6 @@ import net.dongliu.apk.parser.struct.resource.*;
 import net.dongliu.apk.parser.utils.Buffers;
 import net.dongliu.apk.parser.utils.ParseUtils;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashSet;
@@ -43,8 +42,6 @@ public class ResourceTableParser {
 
     /**
      * parse resource table file.
-     *
-     * @throws IOException
      */
     public void parse() {
         // read resource file header.
