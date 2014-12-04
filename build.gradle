@@ -31,17 +31,20 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
-signing {
-    sign configurations.archives
+task checkSonatypeProperties << {
+    if (project.properties['sonatypeUsername'] == null || project.properties['sonatypePassword'] == null) {
+        throw new IllegalStateException("ERROR: sonatypeUsername and sonatypePassword properties needed");
+    }
 }
 
 uploadArchives {
+    dependsOn checkSonatypeProperties
     repositories {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
+                authentication(userName: project.properties['sonatypeUsername'], password: project.properties['sonatypePassword'])
             }
 
             pom.project {
@@ -73,4 +76,9 @@ uploadArchives {
             }
         }
     }
+}
+
+signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
 }
