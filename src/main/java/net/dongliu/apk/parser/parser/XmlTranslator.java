@@ -39,7 +39,12 @@ public class XmlTranslator implements XmlStreamer {
         appendShift(shift++);
         sb.append('<');
         if (xmlNodeStartTag.namespace != null) {
-            sb.append(xmlNodeStartTag.namespace).append(":");
+            String prefix = namespaces.getPrefixViaUri(xmlNodeStartTag.namespace);
+            if (prefix != null) {
+                sb.append(prefix).append(":");
+            } else {
+                sb.append(xmlNodeStartTag.namespace).append(":");
+            }
         }
         sb.append(xmlNodeStartTag.name);
 
