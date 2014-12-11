@@ -43,7 +43,13 @@ public class XmlUtils {
     public static String getAttribute(NamedNodeMap namedNodeMap, String name) {
         Node node = namedNodeMap.getNamedItem(name);
         if (node == null) {
-            return null;
+            if (name.startsWith("android:")) {
+                name = name.substring("android:".length());
+            }
+            node = namedNodeMap.getNamedItem(name);
+            if (node == null) {
+                return null;
+            }
         }
         return node.getNodeValue();
     }
