@@ -14,13 +14,14 @@ With maven, you can add apk-parser as dependency by:
 <dependency>
     <groupId>net.dongliu</groupId>
     <artifactId>apk-parser</artifactId>
-    <version>1.7.1</version>
+    <version>1.7.3</version>
 </dependency>
 ```
 
 #### Usage
 The easiest way is to use the ApkParser class, which contains convenient methods to get AndroidManifest.xml, apk meta infos, etc.
 #####1. Apk meta info
+ApkMeta contains name(label), packageName, version, sdk, used features, activities, services, receivers, intent-filters, etc.
 ```java
 try(ApkParser apkParser = new ApkParser(new File(filePath))) {
     System.out.println(apkMeta.getLabel());
