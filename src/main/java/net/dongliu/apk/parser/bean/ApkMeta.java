@@ -1,6 +1,8 @@
 package net.dongliu.apk.parser.bean;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,6 +31,11 @@ public class ApkMeta {
     private List<Service> services = new ArrayList<Service>();
     private List<Activity> activities = new ArrayList<Activity>();
     private List<Receiver> receivers = new ArrayList<Receiver>();
+
+    /**
+     * all intent filters this apk register
+     */
+    private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
 
     public String getPackageName() {
         return packageName;
@@ -188,6 +195,18 @@ public class ApkMeta {
 
     public void addReceiver(Receiver receiver) {
         this.receivers.add(receiver);
+    }
+
+    public List<IntentFilter> getIntentFilters() {
+        return intentFilters;
+    }
+
+    public void addIntentFilter(IntentFilter intentFilter) {
+        this.intentFilters.add(intentFilter);
+    }
+
+    public void addIntentFilters(Collection<IntentFilter> intentFilters) {
+        this.intentFilters.addAll(intentFilters);
     }
 
     @Override

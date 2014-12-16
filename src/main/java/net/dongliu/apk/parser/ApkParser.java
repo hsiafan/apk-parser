@@ -209,30 +209,75 @@ public class ApkParser implements Closeable {
     }
 
     private void parseActivity(ApkMeta apkMeta, Node node) {
-        NamedNodeMap attributes = node.getAttributes();
         Activity activity = new Activity();
-        activity.setName(XmlUtils.getAttribute(attributes, "android:name"));
-        activity.setExported(XmlUtils.getBoolAttribute(attributes, "android:exported", false));
-        activity.setProcess(XmlUtils.getAttribute(attributes, "android:process"));
+        fillComponent(node, activity);
         apkMeta.addActivity(activity);
+        apkMeta.addIntentFilters(activity.getIntentFilters());
     }
 
     private void parseService(ApkMeta apkMeta, Node node) {
-        NamedNodeMap attributes = node.getAttributes();
         Service service = new Service();
-        service.setName(XmlUtils.getAttribute(attributes, "android:name"));
-        service.setExported(XmlUtils.getBoolAttribute(attributes, "android:exported", false));
-        service.setProcess(XmlUtils.getAttribute(attributes, "android:process"));
+        fillComponent(node, service);
         apkMeta.addService(service);
+        apkMeta.addIntentFilters(service.getIntentFilters());
     }
 
     private void parseReceiver(ApkMeta apkMeta, Node node) {
-        NamedNodeMap attributes = node.getAttributes();
         Receiver receiver = new Receiver();
-        receiver.setName(XmlUtils.getAttribute(attributes, "android:name"));
-        receiver.setExported(XmlUtils.getBoolAttribute(attributes, "android:exported", false));
-        receiver.setProcess(XmlUtils.getAttribute(attributes, "android:process"));
+        fillComponent(node, receiver);
         apkMeta.addReceiver(receiver);
+        apkMeta.addIntentFilters(receiver.getIntentFilters());
+    }
+
+    /**
+     * get and fill common android component data.
+     */
+    private void fillComponent(Node node, AndroidComponent component) {
+        NamedNodeMap attributes = node.getAttributes();
+        component.setName(XmlUtils.getAttribute(attributes, "android:name"));
+        component.setExported(XmlUtils.getBoolAttribute(attributes, "android:exported", false));
+        component.setProcess(XmlUtils.getAttribute(attributes, "android:process"));
+
+        // intent
+        NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            String childName = child.getNodeName();
+            if (childName.equals("intent-filter")) {
+                IntentFilter intentFilter = getIntentFilter(child);
+                intentFilter.setOwner(component);
+                component.addIntentFilter(intentFilter);
+            }
+        }
+    }
+
+    private IntentFilter getIntentFilter(Node intentNode) {
+        NodeList intentChildren = intentNode.getChildNodes();
+        IntentFilter intentFilter = new IntentFilter();
+        for (int j = 0; j < intentChildren.getLength(); j++) {
+            Node intentChild = intentChildren.item(j);
+            String intentChildName = intentChild.getNodeName();
+            NamedNodeMap intentChildAttributes = intentChild.getAttributes();
+            if (intentChildName.equals("action")) {
+                intentFilter.addAction(XmlUtils.getAttribute(intentChildAttributes, "android:name"));
+            } else if (intentChildName.equals("category")) {
+                intentFilter.addCategory(XmlUtils.getAttribute(intentChildAttributes, "android:name"));
+            } else if (intentChildName.equals("data")) {
+                String scheme = XmlUtils.getAttribute(intentChildAttributes, "android:scheme");
+                String host = XmlUtils.getAttribute(intentChildAttributes, "android:host");
+                String pathPrefix = XmlUtils.getAttribute(intentChildAttributes, "android:pathPrefix");
+                String mimeType = XmlUtils.getAttribute(intentChildAttributes, "android:mimeType");
+                String type = XmlUtils.getAttribute(intentChildAttributes, "android:type");
+                IntentFilter.IntentData data = new IntentFilter.IntentData();
+                data.setScheme(scheme);
+                data.setMimeType(mimeType);
+                data.setHost(host);
+                data.setPathPrefix(pathPrefix);
+                data.setType(type);
+                intentFilter.addData(data);
+            }
+        }
+        return intentFilter;
     }
 
     private void parseUsesPermission(ApkMeta apkMeta, Node node) {
