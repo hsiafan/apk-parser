@@ -36,23 +36,25 @@ public class ApkParser implements Closeable {
     private DexClass[] dexClasses;
     private ResourceTable resourceTable;
 
-    private Map<Locale, String> manifestXmlMap;
-    private Map<Locale, ApkMeta> apkMetaMap;
+    private String manifestXml;
+    private ApkMeta apkMeta;
     private Set<Locale> locales;
-    private List<CertificateMeta> certificateMetas;
+    private List<CertificateMeta> certificateMetaList;
     private final ZipFile zf;
     private File apkFile;
 
     /**
-     * default is null
+     * default use system locale
      */
     private Locale preferredLocale = Locale.getDefault();
 
     public ApkParser(File apkFile) throws IOException {
         this.apkFile = apkFile;
         this.zf = new ZipFile(apkFile);
-        this.manifestXmlMap = new HashMap<Locale, String>();
-        this.apkMetaMap = new HashMap<Locale, ApkMeta>();
+    }
+
+    public ApkParser(String filePath) throws IOException {
+        this(new File(filePath));
     }
 
     /**
@@ -61,10 +63,10 @@ public class ApkParser implements Closeable {
      * @return decoded AndroidManifest.xml
      */
     public String getManifestXml() throws IOException {
-        if (!manifestXmlMap.containsKey(preferredLocale)) {
+        if (this.manifestXml == null) {
             parseManifestXml();
         }
-        return manifestXmlMap.get(preferredLocale);
+        return this.manifestXml;
     }
 
     /**
@@ -73,10 +75,10 @@ public class ApkParser implements Closeable {
      * @return decoded AndroidManifest.xml
      */
     public ApkMeta getApkMeta() throws IOException {
-        if (!apkMetaMap.containsKey(preferredLocale)) {
+        if (this.apkMeta == null) {
             parseApkMeta();
         }
-        return apkMetaMap.get(preferredLocale);
+        return this.apkMeta;
     }
 
     /**
@@ -95,12 +97,12 @@ public class ApkParser implements Closeable {
     /**
      * get the apk's certificates.
      */
-    public List<CertificateMeta> getCertificateMetas() throws IOException,
+    public List<CertificateMeta> getCertificateMetaList() throws IOException,
             CertificateEncodingException {
-        if (this.certificateMetas == null) {
+        if (this.certificateMetaList == null) {
             parseCertificate();
         }
-        return this.certificateMetas;
+        return this.certificateMetaList;
     }
 
     private void parseCertificate() throws IOException, CertificateEncodingException {
@@ -119,13 +121,10 @@ public class ApkParser implements Closeable {
         if (entry == null) {
             throw new ParserException("ApkParser certificate not found");
         }
-        InputStream in = zf.getInputStream(entry);
-        try {
+        try (InputStream in = zf.getInputStream(entry)) {
             CertificateParser parser = new CertificateParser(in);
             parser.parse();
-            this.certificateMetas = parser.getCertificateMetas();
-        } finally {
-            in.close();
+            this.certificateMetaList = parser.getCertificateMetas();
         }
     }
 
@@ -135,10 +134,10 @@ public class ApkParser implements Closeable {
      * @throws IOException
      */
     private void parseApkMeta() throws IOException {
-        if (!manifestXmlMap.containsKey(preferredLocale)) {
+        if (this.manifestXml == null) {
             parseManifestXml();
         }
-        String xml = this.manifestXmlMap.get(preferredLocale);
+        String xml = this.manifestXml;
 
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -154,10 +153,10 @@ public class ApkParser implements Closeable {
         ApkMeta apkMeta = new ApkMeta();
         Node manifestNode = document.getElementsByTagName("manifest").item(0);
         NamedNodeMap manifestAttr = manifestNode.getAttributes();
-        apkMeta.setPackageName(XmlUtils.getAttribute(manifestAttr, "package"));
-        apkMeta.setVersionCode(XmlUtils.getLongAttribute(manifestAttr, "android:versionCode"));
-        apkMeta.setVersionName(XmlUtils.getAttribute(manifestAttr, "android:versionName"));
-        String installLocation = XmlUtils.getAttribute(manifestAttr, "android:installLocation");
+        apkMeta.setPackageName(XmlUtils.value(manifestAttr, "package"));
+        apkMeta.setVersionCode(XmlUtils.longValue(manifestAttr, "android:versionCode"));
+        apkMeta.setVersionName(XmlUtils.value(manifestAttr, "android:versionName"));
+        String installLocation = XmlUtils.value(manifestAttr, "android:installLocation");
         if (installLocation != null) {
             apkMeta.setInstallLocation(Constants.InstallLocation.valueOf(installLocation));
         }
@@ -166,28 +165,35 @@ public class ApkParser implements Closeable {
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             String nodeName = node.getNodeName();
-            if (nodeName.equals("uses-sdk")) {
-                parseSdk(apkMeta, node);
-            } else if (nodeName.equals("supports-screens")) {
-                parseScreens(apkMeta, node);
-            } else if (nodeName.equals("uses-feature")) {
-                parseUsesFeature(apkMeta, node);
-            } else if (nodeName.equals("application")) {
-                parseApplication(apkMeta, node);
-            } else if (nodeName.equals("uses-permission")) {
-                parseUsesPermission(apkMeta, node);
-            } else if (nodeName.equals("permission")) {
-                // provided permissions
-                parsePermission(apkMeta, node);
+            switch (nodeName) {
+                case "uses-sdk":
+                    parseSdk(apkMeta, node);
+                    break;
+                case "supports-screens":
+                    parseScreens(apkMeta, node);
+                    break;
+                case "uses-feature":
+                    parseUsesFeature(apkMeta, node);
+                    break;
+                case "application":
+                    parseApplication(apkMeta, node);
+                    break;
+                case "uses-permission":
+                    parseUsesPermission(apkMeta, node);
+                    break;
+                case "permission":
+                    // provided permissions
+                    parsePermission(apkMeta, node);
+                    break;
             }
         }
-        apkMetaMap.put(preferredLocale, apkMeta);
+        this.apkMeta = apkMeta;
     }
 
     private void parseApplication(ApkMeta apkMeta, Node node) throws IOException {
         NamedNodeMap attributes = node.getAttributes();
-        apkMeta.setLabel(XmlUtils.getAttribute(attributes, "android:label"));
-        String iconPath = XmlUtils.getAttribute(attributes, "android:icon");
+        apkMeta.setLabel(XmlUtils.value(attributes, "android:label"));
+        String iconPath = XmlUtils.value(attributes, "android:icon");
         if (iconPath != null) {
             Icon icon = getIcon(iconPath);
             apkMeta.setIcon(icon);
@@ -198,12 +204,16 @@ public class ApkParser implements Closeable {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             String childName = child.getNodeName();
-            if (childName.equals("service")) {
-                parseService(apkMeta, child);
-            } else if (childName.equals("activity")) {
-                parseActivity(apkMeta, child);
-            } else if (childName.equals("receiver")) {
-                parseReceiver(apkMeta, child);
+            switch (childName) {
+                case "service":
+                    parseService(apkMeta, child);
+                    break;
+                case "activity":
+                    parseActivity(apkMeta, child);
+                    break;
+                case "receiver":
+                    parseReceiver(apkMeta, child);
+                    break;
             }
         }
     }
@@ -234,9 +244,9 @@ public class ApkParser implements Closeable {
      */
     private void fillComponent(Node node, AndroidComponent component) {
         NamedNodeMap attributes = node.getAttributes();
-        component.setName(XmlUtils.getAttribute(attributes, "android:name"));
-        component.setExported(XmlUtils.getBoolAttribute(attributes, "android:exported", false));
-        component.setProcess(XmlUtils.getAttribute(attributes, "android:process"));
+        component.setName(XmlUtils.value(attributes, "android:name"));
+        component.setExported(XmlUtils.boolValue(attributes, "android:exported", false));
+        component.setProcess(XmlUtils.value(attributes, "android:process"));
 
         // intent
         NodeList children = node.getChildNodes();
@@ -252,29 +262,33 @@ public class ApkParser implements Closeable {
     }
 
     private IntentFilter getIntentFilter(Node intentNode) {
-        NodeList intentChildren = intentNode.getChildNodes();
+        NodeList children = intentNode.getChildNodes();
         IntentFilter intentFilter = new IntentFilter();
-        for (int j = 0; j < intentChildren.getLength(); j++) {
-            Node intentChild = intentChildren.item(j);
+        for (int j = 0; j < children.getLength(); j++) {
+            Node intentChild = children.item(j);
             String intentChildName = intentChild.getNodeName();
-            NamedNodeMap intentChildAttributes = intentChild.getAttributes();
-            if (intentChildName.equals("action")) {
-                intentFilter.addAction(XmlUtils.getAttribute(intentChildAttributes, "android:name"));
-            } else if (intentChildName.equals("category")) {
-                intentFilter.addCategory(XmlUtils.getAttribute(intentChildAttributes, "android:name"));
-            } else if (intentChildName.equals("data")) {
-                String scheme = XmlUtils.getAttribute(intentChildAttributes, "android:scheme");
-                String host = XmlUtils.getAttribute(intentChildAttributes, "android:host");
-                String pathPrefix = XmlUtils.getAttribute(intentChildAttributes, "android:pathPrefix");
-                String mimeType = XmlUtils.getAttribute(intentChildAttributes, "android:mimeType");
-                String type = XmlUtils.getAttribute(intentChildAttributes, "android:type");
-                IntentFilter.IntentData data = new IntentFilter.IntentData();
-                data.setScheme(scheme);
-                data.setMimeType(mimeType);
-                data.setHost(host);
-                data.setPathPrefix(pathPrefix);
-                data.setType(type);
-                intentFilter.addData(data);
+            NamedNodeMap attribute = intentChild.getAttributes();
+            switch (intentChildName) {
+                case "action":
+                    intentFilter.addAction(XmlUtils.value(attribute, "android:name"));
+                    break;
+                case "category":
+                    intentFilter.addCategory(XmlUtils.value(attribute, "android:name"));
+                    break;
+                case "data":
+                    String scheme = XmlUtils.value(attribute, "android:scheme");
+                    String host = XmlUtils.value(attribute, "android:host");
+                    String pathPrefix = XmlUtils.value(attribute, "android:pathPrefix");
+                    String mimeType = XmlUtils.value(attribute, "android:mimeType");
+                    String type = XmlUtils.value(attribute, "android:type");
+                    IntentFilter.IntentData data = new IntentFilter.IntentData();
+                    data.setScheme(scheme);
+                    data.setMimeType(mimeType);
+                    data.setHost(host);
+                    data.setPathPrefix(pathPrefix);
+                    data.setType(type);
+                    intentFilter.addData(data);
+                    break;
             }
         }
         return intentFilter;
@@ -282,13 +296,13 @@ public class ApkParser implements Closeable {
 
     private void parseUsesPermission(ApkMeta apkMeta, Node node) {
         NamedNodeMap attributes = node.getAttributes();
-        apkMeta.addUsesPermission(XmlUtils.getAttribute(attributes, "android:name"));
+        apkMeta.addUsesPermission(XmlUtils.value(attributes, "android:name"));
     }
 
     private void parseUsesFeature(ApkMeta apkMeta, Node node) {
         NamedNodeMap attributes = node.getAttributes();
-        String name = XmlUtils.getAttribute(attributes, "android:name");
-        boolean required = XmlUtils.getBoolAttribute(attributes, "android:required", true);
+        String name = XmlUtils.value(attributes, "android:name");
+        boolean required = XmlUtils.boolValue(attributes, "android:required", true);
         if (name != null) {
             UseFeature useFeature = new UseFeature();
             useFeature.setName(name);
@@ -309,29 +323,29 @@ public class ApkParser implements Closeable {
 
     private void parseSdk(ApkMeta apkMeta, Node node) {
         NamedNodeMap attributes = node.getAttributes();
-        apkMeta.setMinSdkVersion(XmlUtils.getAttribute(attributes, "android:minSdkVersion"));
-        apkMeta.setMaxSdkVersion(XmlUtils.getAttribute(attributes, "android:maxSdkVersion"));
-        apkMeta.setTargetSdkVersion(XmlUtils.getAttribute(attributes, "android:targetSdkVersion"));
+        apkMeta.setMinSdkVersion(XmlUtils.value(attributes, "android:minSdkVersion"));
+        apkMeta.setMaxSdkVersion(XmlUtils.value(attributes, "android:maxSdkVersion"));
+        apkMeta.setTargetSdkVersion(XmlUtils.value(attributes, "android:targetSdkVersion"));
     }
 
     private void parseScreens(ApkMeta apkMeta, Node node) {
         NamedNodeMap attributes = node.getAttributes();
-        apkMeta.setSmallScreens(XmlUtils.getBoolAttribute(attributes, "android:minSdkVersion", false));
-        apkMeta.setLargeScreens(XmlUtils.getBoolAttribute(attributes, "android:largeScreens", false));
-        apkMeta.setNormalScreens(XmlUtils.getBoolAttribute(attributes, "android:normalScreens", false));
-        apkMeta.setAnyDensity(XmlUtils.getBoolAttribute(attributes, "android:anyDensity", false));
+        apkMeta.setSmallScreens(XmlUtils.boolValue(attributes, "android:minSdkVersion", false));
+        apkMeta.setLargeScreens(XmlUtils.boolValue(attributes, "android:largeScreens", false));
+        apkMeta.setNormalScreens(XmlUtils.boolValue(attributes, "android:normalScreens", false));
+        apkMeta.setAnyDensity(XmlUtils.boolValue(attributes, "android:anyDensity", false));
     }
 
 
     private void parsePermission(ApkMeta apkMeta, Node node) {
         NamedNodeMap attributes = node.getAttributes();
         Permission permission = new Permission();
-        permission.setName(XmlUtils.getAttribute(attributes, "android:name"));
-        permission.setLabel(XmlUtils.getAttribute(attributes, "android:label"));
-        permission.setIcon(XmlUtils.getAttribute(attributes, "android:icon"));
-        permission.setGroup(XmlUtils.getAttribute(attributes, "android:group"));
-        permission.setDescription(XmlUtils.getAttribute(attributes, "android:description"));
-        String protectionLevel = XmlUtils.getAttribute(attributes, "android:protectionLevel");
+        permission.setName(XmlUtils.value(attributes, "android:name"));
+        permission.setLabel(XmlUtils.value(attributes, "android:label"));
+        permission.setIcon(XmlUtils.value(attributes, "android:icon"));
+        permission.setGroup(XmlUtils.value(attributes, "android:group"));
+        permission.setDescription(XmlUtils.value(attributes, "android:description"));
+        String protectionLevel = XmlUtils.value(attributes, "android:protectionLevel");
         if (protectionLevel != null) {
             permission.setProtectionLevel(Constants.ProtectionLevel.valueOf(protectionLevel));
         }
@@ -348,7 +362,7 @@ public class ApkParser implements Closeable {
         if (xml == null) {
             throw new ParserException("Manifest xml file not found");
         }
-        manifestXmlMap.put(preferredLocale, xml);
+        this.manifestXml = xml;
     }
 
     /**
@@ -494,11 +508,9 @@ public class ApkParser implements Closeable {
 
     @Override
     public void close() throws IOException {
-        this.certificateMetas = null;
-        this.apkMetaMap = null;
-        this.manifestXmlMap = null;
+        this.certificateMetaList = null;
         this.resourceTable = null;
-        this.certificateMetas = null;
+        this.certificateMetaList = null;
         zf.close();
     }
 
@@ -508,10 +520,13 @@ public class ApkParser implements Closeable {
 
     /**
      * The locale preferred. Will cause getManifestXml / getApkMeta to return different values.
-     * The default value if Locale.none, which will not translate resource strings. you need to set
-     * one locale if wanted localized resources(app title, themes name, etc.)
+     * The default value is from os default locale setting.
      */
     public void setPreferredLocale(Locale preferredLocale) {
-        this.preferredLocale = preferredLocale;
+        if (Objects.equals(this.preferredLocale, preferredLocale)) {
+            this.preferredLocale = preferredLocale;
+            this.manifestXml = null;
+            this.apkMeta = null;
+        }
     }
 }

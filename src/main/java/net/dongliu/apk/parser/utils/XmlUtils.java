@@ -8,8 +8,8 @@ import org.w3c.dom.Node;
  */
 public class XmlUtils {
 
-    public static Long getLongAttribute(NamedNodeMap namedNodeMap, String name) {
-        String value = getAttribute(namedNodeMap, name);
+    public static Long longValue(NamedNodeMap namedNodeMap, String name) {
+        String value = value(namedNodeMap, name);
         if (value == null) {
             return null;
         } else {
@@ -18,7 +18,7 @@ public class XmlUtils {
     }
 
     public static Integer getIntAttribute(NamedNodeMap namedNodeMap, String name) {
-        String value = getAttribute(namedNodeMap, name);
+        String value = value(namedNodeMap, name);
         if (value == null) {
             return null;
         } else {
@@ -26,13 +26,13 @@ public class XmlUtils {
         }
     }
 
-    public static boolean getBoolAttribute(NamedNodeMap namedNodeMap, String name, boolean defaultValue) {
+    public static boolean boolValue(NamedNodeMap namedNodeMap, String name, boolean defaultValue) {
         Boolean value = getBoolAttribute(namedNodeMap, name);
         return value == null ? defaultValue : value;
     }
 
     public static Boolean getBoolAttribute(NamedNodeMap namedNodeMap, String name) {
-        String value = getAttribute(namedNodeMap, name);
+        String value = value(namedNodeMap, name);
         if (value == null) {
             return null;
         } else {
@@ -40,7 +40,7 @@ public class XmlUtils {
         }
     }
 
-    public static String getAttribute(NamedNodeMap namedNodeMap, String name) {
+    public static String value(NamedNodeMap namedNodeMap, String name) {
         Node node = namedNodeMap.getNamedItem(name);
         if (node == null) {
             if (name.startsWith("android:")) {

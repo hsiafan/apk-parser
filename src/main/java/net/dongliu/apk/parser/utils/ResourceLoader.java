@@ -23,11 +23,10 @@ public class ResourceLoader {
 
 
     public static Map<Integer, String> loadSystemAttrIds() {
-        InputStream in = ResourceLoader.class.getResourceAsStream("/r_values.xml");
-        try {
+        try (InputStream in = ResourceLoader.class.getResourceAsStream("/r_values.xml")) {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser parser = factory.newSAXParser();
-            final Map<Integer, String> map = new HashMap<Integer, String>();
+            final Map<Integer, String> map = new HashMap<>();
             DefaultHandler dh = new DefaultHandler() {
                 @Override
                 public void startElement(String uri, String localName, String qName,
@@ -53,25 +52,15 @@ public class ResourceLoader {
             };
             parser.parse(in, dh);
             return map;
-        } catch (ParserConfigurationException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException(e);
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                in.close();
-            } catch (IOException ignored) {
-            }
         }
     }
 
     public static Map<Integer, String> loadSystemStyles() {
-        InputStream in = ResourceLoader.class.getResourceAsStream("/r_styles.conf");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        Map<Integer, String> map = new HashMap<Integer, String>();
-        try {
+        Map<Integer, String> map = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                ResourceLoader.class.getResourceAsStream("/r_styles.conf")))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
@@ -85,11 +74,6 @@ public class ResourceLoader {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                in.close();
-            } catch (IOException ignored) {
-            }
         }
         return map;
     }

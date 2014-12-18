@@ -37,7 +37,7 @@ public class ResourceTableParser {
     public ResourceTableParser(ByteBuffer buffer) {
         this.buffer = buffer.duplicate();
         this.buffer.order(byteOrder);
-        this.locales = new HashSet<Locale>();
+        this.locales = new HashSet<>();
     }
 
     /**
@@ -180,44 +180,18 @@ public class ResourceTableParser {
     }
 
     private ResourceTableMap readResourceTableMap() {
-        //TODO: to be implemented.
         ResourceTableMap resourceTableMap = new ResourceTableMap();
         resourceTableMap.nameRef = Buffers.readUInt(buffer);
         resourceTableMap.resValue = ParseUtils.readResValue(buffer, stringPool);
 
         if ((resourceTableMap.nameRef & 0x02000000) != 0) {
             //read arrays
-            parseArrays(resourceTableMap);
         } else if ((resourceTableMap.nameRef & 0x01000000) != 0) {
             // read attrs
-            parseAttrs(resourceTableMap);
         } else {
-
         }
 
         return resourceTableMap;
-    }
-
-    private void parseArrays(ResourceTableMap resourceTableMap) {
-
-    }
-
-    private void parseAttrs(ResourceTableMap resourceTableMap) {
-        switch ((int) resourceTableMap.nameRef) {
-            case ResourceTableMap.MapAttr.TYPE:
-//                String name = "attr";
-//                String format;
-//                int i = Integer.parseInt(resourceTableMap.resValue.data);
-//                switch (i) {
-//                    case ResourceTableMap.AttributeType.BOOLEAN:
-//                        format = "bool";
-//                }
-//                break;
-            default:
-                //resourceTableMap.data = "attr:" + resourceTableMap.nameRef;
-
-
-        }
     }
 
     private ChunkHeader readChunkHeader() {
