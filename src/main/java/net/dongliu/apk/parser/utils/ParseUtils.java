@@ -6,10 +6,8 @@ import net.dongliu.apk.parser.parser.StringPoolEntry;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -47,7 +45,6 @@ public class ParseUtils {
 
     /**
      * read utf-16 encoding str, use zero char to end str.
-     *
      */
     public static String readStringUTF16(ByteBuffer buffer, int strLen) {
         String str = Buffers.readString(buffer, strLen);
@@ -63,9 +60,6 @@ public class ParseUtils {
     /**
      * read encoding len.
      * see StringPool.cpp ENCODE_LENGTH
-     *
-     * @param buffer
-     * @return
      */
     private static int readLen(ByteBuffer buffer) {
         int len = 0;
@@ -83,9 +77,6 @@ public class ParseUtils {
     /**
      * read encoding len.
      * see Stringpool.cpp ENCODE_LENGTH
-     *
-     * @param buffer
-     * @return
      */
     private static int readLen16(ByteBuffer buffer) {
         int len = 0;
@@ -102,10 +93,6 @@ public class ParseUtils {
 
     /**
      * read String pool, for apk binary xml file and resource table.
-     *
-     * @param buffer
-     * @param stringPoolHeader
-     * @return
      */
     public static StringPool readStringPool(ByteBuffer buffer, StringPoolHeader stringPoolHeader) {
 
@@ -160,8 +147,6 @@ public class ParseUtils {
 
     /**
      * method to read resource value RGB/ARGB type.
-     *
-     * @return
      */
     public static String readRGBs(ByteBuffer buffer, int strLen) {
         long l = Buffers.readUInt(buffer);
@@ -174,10 +159,6 @@ public class ParseUtils {
 
     /**
      * read res value, convert from different types to string.
-     *
-     * @param buffer
-     * @param stringPool
-     * @return
      */
     public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool,
                                               boolean isStyle) {
@@ -285,11 +266,6 @@ public class ParseUtils {
 
     /**
      * get resource value by string-format via resourceId.
-     *
-     * @param resourceId
-     * @param resourceTable
-     * @param locale
-     * @return
      */
     public static String getResourceById(long resourceId, boolean isStyle,
                                          ResourceTable resourceTable, Locale locale) {
@@ -300,7 +276,7 @@ public class ParseUtils {
 
         // android system styles.
         if (isStyle && (resourceId & AndroidConstants.STYLE_ID_START) == AndroidConstants.STYLE_ID_START) {
-            return "@android:style/" + ResourceTable.styleMap.get((int) resourceId);
+            return "@android:style/" + ResourceTable.sysStyle.get((int) resourceId);
         }
 
         String str = "resourceId:0x" + Long.toHexString(resourceId);
@@ -350,10 +326,6 @@ public class ParseUtils {
 
     /**
      * read res value. for resource table parser
-     *
-     * @param buffer
-     * @param stringPool
-     * @return
      */
     public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool) {
         return readResValue(buffer, stringPool, false);

@@ -1,6 +1,5 @@
 package net.dongliu.apk.parser.struct.resource;
 
-import net.dongliu.apk.parser.struct.ResValue;
 import net.dongliu.apk.parser.struct.ResourceEntity;
 
 /**

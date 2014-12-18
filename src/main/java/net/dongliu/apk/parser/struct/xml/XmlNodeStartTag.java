@@ -19,6 +19,16 @@ public class XmlNodeStartTag {
     // Index (1-based) of the "style" attribute. 0 if none. uint16
     //public short styleIndex;
 
+    private Attributes attributes;
+
+    public Attributes getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Attributes attributes) {
+        this.attributes = attributes;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

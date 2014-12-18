@@ -1,13 +1,9 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.bean.Constants.*;
-import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.xml.*;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.List;
-import java.util.Locale;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * trans to xml text when parse binary xml file.
@@ -20,12 +16,7 @@ public class XmlTranslator implements XmlStreamer {
     private XmlNamespaces namespaces;
     private boolean isLastStartTag;
 
-    private Locale locale;
-    private ResourceTable resourceTable;
-
-    public XmlTranslator(ResourceTable resourceTable, Locale locale) {
-        this.locale = locale;
-        this.resourceTable = resourceTable;
+    public XmlTranslator() {
         sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
         this.namespaces = new XmlNamespaces();
@@ -57,6 +48,24 @@ public class XmlTranslator implements XmlStreamer {
             }
         }
         isLastStartTag = true;
+
+        for (Attribute attribute : xmlNodeStartTag.getAttributes().value()) {
+            onAttribute(attribute);
+        }
+    }
+
+    private void onAttribute(Attribute attribute) {
+        sb.append(" ");
+        String namespace = this.namespaces.getPrefixViaUri(attribute.namespace);
+        if (namespace == null) {
+            namespace = attribute.namespace;
+        }
+        if (namespace != null && !namespace.isEmpty()) {
+            sb.append(namespace).append(':');
+        }
+        String escapedFinalValue = StringEscapeUtils.escapeXml10(attribute.getValue());
+        sb.append(attribute.name).append('=').append('"')
+                .append(escapedFinalValue).append('"');
     }
 
     @Override
@@ -76,84 +85,11 @@ public class XmlTranslator implements XmlStreamer {
         isLastStartTag = false;
     }
 
-    @Override
-    public void onAttribute(Attribute attribute) {
-        sb.append(" ");
-        String namespace = this.namespaces.getPrefixViaUri(attribute.namespace);
-        if (namespace == null) {
-            namespace = attribute.namespace;
-        }
-        if (namespace != null && !namespace.isEmpty()) {
-            sb.append(namespace).append(':');
-        }
-
-        String value = attribute.toStringValue(resourceTable, locale);
-        String finalValue;
-        try {
-            finalValue = getAttributeValueAsString(attribute.name, value);
-        } catch (NumberFormatException e) {
-            finalValue = value;
-        }
-        String escapedFinalValue = StringEscapeUtils.escapeXml10(finalValue);
-        sb.append(attribute.name).append('=').append('"')
-                .append(escapedFinalValue).append('"');
-    }
-
-    //trans int attr value to string
-    private String getAttributeValueAsString(String attributeName, String value) {
-        int intValue = Integer.valueOf(value);
-        String realValue = value;
-        if (attributeName.equals("screenOrientation")) {
-            ScreenOrientation screenOrientation =
-                    ScreenOrientation.valueOf(intValue);
-            if (screenOrientation != null) {
-                realValue = screenOrientation.name();
-            }
-        } else if (attributeName.equals("configChanges")) {
-            List<ConfigChanges> configChangesList =
-                    ConfigChanges.valuesOf(intValue);
-            if (!configChangesList.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                for (ConfigChanges c : configChangesList) {
-                    sb.append(c.name()).append('|');
-                }
-                sb.deleteCharAt(sb.length() - 1);
-                realValue = sb.toString();
-            }
-        } else if (attributeName.equals("windowSoftInputMode")) {
-            List<WindowSoftInputMode> windowSoftInputModeList =
-                    WindowSoftInputMode.valuesOf(intValue);
-            if (!windowSoftInputModeList.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                for (WindowSoftInputMode w : windowSoftInputModeList) {
-                    sb.append(w.name()).append('|');
-                }
-                sb.deleteCharAt(sb.length() - 1);
-                realValue = sb.toString();
-            }
-        } else if (attributeName.equals("launchMode")) {
-            LaunchMode launchMode = LaunchMode.valueOf(intValue);
-            if (launchMode != null) {
-                realValue = launchMode.name();
-            }
-        } else if (attributeName.equals("installLocation")) {
-            InstallLocation installLocation = InstallLocation.valueOf(intValue);
-            if (installLocation != null) {
-                realValue = installLocation.name();
-            }
-        } else if (attributeName.equals("protectionLevel")) {
-            ProtectionLevel protectionLevel = ProtectionLevel.valueOf(intValue);
-            if (protectionLevel != null) {
-                realValue = protectionLevel.name();
-            }
-        }
-        return realValue;
-    }
 
     @Override
     public void onCData(XmlCData xmlCData) {
         appendShift(shift);
-        sb.append(xmlCData.toStringValue(resourceTable, locale)).append('\n');
+        sb.append(xmlCData.getValue()).append('\n');
         isLastStartTag = false;
     }
 

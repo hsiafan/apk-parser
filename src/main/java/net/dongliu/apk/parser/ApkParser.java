@@ -1,23 +1,22 @@
 package net.dongliu.apk.parser;
 
-import net.dongliu.apk.parser.bean.*;
+import net.dongliu.apk.parser.bean.ApkMeta;
+import net.dongliu.apk.parser.bean.ApkSignStatus;
+import net.dongliu.apk.parser.bean.CertificateMeta;
+import net.dongliu.apk.parser.bean.DexClass;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.utils.Utils;
-import net.dongliu.apk.parser.utils.XmlUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.compress.utils.IOUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.security.cert.CertificateEncodingException;
 import java.util.*;
@@ -137,219 +136,6 @@ public class ApkParser implements Closeable {
         if (this.manifestXml == null) {
             parseManifestXml();
         }
-        String xml = this.manifestXml;
-
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        Document document;
-        try {
-            //DOM parser instance
-            DocumentBuilder builder = builderFactory.newDocumentBuilder();
-            //parse an XML file into a DOM tree
-            document = builder.parse(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-        } catch (Exception e) {
-            throw new ParserException("Parse manifest xml failed", e);
-        }
-
-        ApkMeta apkMeta = new ApkMeta();
-        Node manifestNode = document.getElementsByTagName("manifest").item(0);
-        NamedNodeMap manifestAttr = manifestNode.getAttributes();
-        apkMeta.setPackageName(XmlUtils.value(manifestAttr, "package"));
-        apkMeta.setVersionCode(XmlUtils.longValue(manifestAttr, "android:versionCode"));
-        apkMeta.setVersionName(XmlUtils.value(manifestAttr, "android:versionName"));
-        String installLocation = XmlUtils.value(manifestAttr, "android:installLocation");
-        if (installLocation != null) {
-            apkMeta.setInstallLocation(Constants.InstallLocation.valueOf(installLocation));
-        }
-
-        NodeList nodes = manifestNode.getChildNodes();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            Node node = nodes.item(i);
-            String nodeName = node.getNodeName();
-            switch (nodeName) {
-                case "uses-sdk":
-                    parseSdk(apkMeta, node);
-                    break;
-                case "supports-screens":
-                    parseScreens(apkMeta, node);
-                    break;
-                case "uses-feature":
-                    parseUsesFeature(apkMeta, node);
-                    break;
-                case "application":
-                    parseApplication(apkMeta, node);
-                    break;
-                case "uses-permission":
-                    parseUsesPermission(apkMeta, node);
-                    break;
-                case "permission":
-                    // provided permissions
-                    parsePermission(apkMeta, node);
-                    break;
-            }
-        }
-        this.apkMeta = apkMeta;
-    }
-
-    private void parseApplication(ApkMeta apkMeta, Node node) throws IOException {
-        NamedNodeMap attributes = node.getAttributes();
-        apkMeta.setLabel(XmlUtils.value(attributes, "android:label"));
-        String iconPath = XmlUtils.value(attributes, "android:icon");
-        if (iconPath != null) {
-            Icon icon = getIcon(iconPath);
-            apkMeta.setIcon(icon);
-        }
-
-        // activity, service, receiver, intent ...
-        NodeList children = node.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node child = children.item(i);
-            String childName = child.getNodeName();
-            switch (childName) {
-                case "service":
-                    parseService(apkMeta, child);
-                    break;
-                case "activity":
-                    parseActivity(apkMeta, child);
-                    break;
-                case "receiver":
-                    parseReceiver(apkMeta, child);
-                    break;
-            }
-        }
-    }
-
-    private void parseActivity(ApkMeta apkMeta, Node node) {
-        Activity activity = new Activity();
-        fillComponent(node, activity);
-        apkMeta.addActivity(activity);
-        apkMeta.addIntentFilters(activity.getIntentFilters());
-    }
-
-    private void parseService(ApkMeta apkMeta, Node node) {
-        Service service = new Service();
-        fillComponent(node, service);
-        apkMeta.addService(service);
-        apkMeta.addIntentFilters(service.getIntentFilters());
-    }
-
-    private void parseReceiver(ApkMeta apkMeta, Node node) {
-        Receiver receiver = new Receiver();
-        fillComponent(node, receiver);
-        apkMeta.addReceiver(receiver);
-        apkMeta.addIntentFilters(receiver.getIntentFilters());
-    }
-
-    /**
-     * get and fill common android component data.
-     */
-    private void fillComponent(Node node, AndroidComponent component) {
-        NamedNodeMap attributes = node.getAttributes();
-        component.setName(XmlUtils.value(attributes, "android:name"));
-        component.setExported(XmlUtils.boolValue(attributes, "android:exported", false));
-        component.setProcess(XmlUtils.value(attributes, "android:process"));
-
-        // intent
-        NodeList children = node.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node child = children.item(i);
-            String childName = child.getNodeName();
-            if (childName.equals("intent-filter")) {
-                IntentFilter intentFilter = getIntentFilter(child);
-                intentFilter.setOwner(component);
-                component.addIntentFilter(intentFilter);
-            }
-        }
-    }
-
-    private IntentFilter getIntentFilter(Node intentNode) {
-        NodeList children = intentNode.getChildNodes();
-        IntentFilter intentFilter = new IntentFilter();
-        for (int j = 0; j < children.getLength(); j++) {
-            Node intentChild = children.item(j);
-            String intentChildName = intentChild.getNodeName();
-            NamedNodeMap attribute = intentChild.getAttributes();
-            switch (intentChildName) {
-                case "action":
-                    intentFilter.addAction(XmlUtils.value(attribute, "android:name"));
-                    break;
-                case "category":
-                    intentFilter.addCategory(XmlUtils.value(attribute, "android:name"));
-                    break;
-                case "data":
-                    String scheme = XmlUtils.value(attribute, "android:scheme");
-                    String host = XmlUtils.value(attribute, "android:host");
-                    String pathPrefix = XmlUtils.value(attribute, "android:pathPrefix");
-                    String mimeType = XmlUtils.value(attribute, "android:mimeType");
-                    String type = XmlUtils.value(attribute, "android:type");
-                    IntentFilter.IntentData data = new IntentFilter.IntentData();
-                    data.setScheme(scheme);
-                    data.setMimeType(mimeType);
-                    data.setHost(host);
-                    data.setPathPrefix(pathPrefix);
-                    data.setType(type);
-                    intentFilter.addData(data);
-                    break;
-            }
-        }
-        return intentFilter;
-    }
-
-    private void parseUsesPermission(ApkMeta apkMeta, Node node) {
-        NamedNodeMap attributes = node.getAttributes();
-        apkMeta.addUsesPermission(XmlUtils.value(attributes, "android:name"));
-    }
-
-    private void parseUsesFeature(ApkMeta apkMeta, Node node) {
-        NamedNodeMap attributes = node.getAttributes();
-        String name = XmlUtils.value(attributes, "android:name");
-        boolean required = XmlUtils.boolValue(attributes, "android:required", true);
-        if (name != null) {
-            UseFeature useFeature = new UseFeature();
-            useFeature.setName(name);
-            useFeature.setRequired(required);
-            apkMeta.addUseFeatures(useFeature);
-        } else {
-            Integer gl = XmlUtils.getIntAttribute(attributes, "android:glEsVersion");
-            if (gl != null) {
-                int v = gl;
-                GlEsVersion glEsVersion = new GlEsVersion();
-                glEsVersion.setMajor(v >> 16);
-                glEsVersion.setMinor(v & 0xffff);
-                glEsVersion.setRequired(required);
-                apkMeta.setGlEsVersion(glEsVersion);
-            }
-        }
-    }
-
-    private void parseSdk(ApkMeta apkMeta, Node node) {
-        NamedNodeMap attributes = node.getAttributes();
-        apkMeta.setMinSdkVersion(XmlUtils.value(attributes, "android:minSdkVersion"));
-        apkMeta.setMaxSdkVersion(XmlUtils.value(attributes, "android:maxSdkVersion"));
-        apkMeta.setTargetSdkVersion(XmlUtils.value(attributes, "android:targetSdkVersion"));
-    }
-
-    private void parseScreens(ApkMeta apkMeta, Node node) {
-        NamedNodeMap attributes = node.getAttributes();
-        apkMeta.setSmallScreens(XmlUtils.boolValue(attributes, "android:minSdkVersion", false));
-        apkMeta.setLargeScreens(XmlUtils.boolValue(attributes, "android:largeScreens", false));
-        apkMeta.setNormalScreens(XmlUtils.boolValue(attributes, "android:normalScreens", false));
-        apkMeta.setAnyDensity(XmlUtils.boolValue(attributes, "android:anyDensity", false));
-    }
-
-
-    private void parsePermission(ApkMeta apkMeta, Node node) {
-        NamedNodeMap attributes = node.getAttributes();
-        Permission permission = new Permission();
-        permission.setName(XmlUtils.value(attributes, "android:name"));
-        permission.setLabel(XmlUtils.value(attributes, "android:label"));
-        permission.setIcon(XmlUtils.value(attributes, "android:icon"));
-        permission.setGroup(XmlUtils.value(attributes, "android:group"));
-        permission.setDescription(XmlUtils.value(attributes, "android:description"));
-        String protectionLevel = XmlUtils.value(attributes, "android:protectionLevel");
-        if (protectionLevel != null) {
-            permission.setProtectionLevel(Constants.ProtectionLevel.valueOf(protectionLevel));
-        }
-        apkMeta.addPermission(permission);
     }
 
     /**
@@ -358,11 +144,15 @@ public class ApkParser implements Closeable {
      * @throws IOException
      */
     private void parseManifestXml() throws IOException {
-        String xml = transBinaryXml(AndroidConstants.MANIFEST_FILE);
-        if (xml == null) {
-            throw new ParserException("Manifest xml file not found");
+        XmlTranslator xmlTranslator = new XmlTranslator();
+        ApkMetaTranslator translator = new ApkMetaTranslator();
+        XmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator, translator);
+        transBinaryXml(AndroidConstants.MANIFEST_FILE, xmlStreamer);
+        this.manifestXml = xmlTranslator.getXml();
+        if (this.manifestXml == null) {
+            throw new ParserException("manifest xml not exists");
         }
-        this.manifestXml = xml;
+        this.apkMeta = translator.getApkMeta();
     }
 
     /**
@@ -381,14 +171,30 @@ public class ApkParser implements Closeable {
             parseResourceTable();
         }
 
+        XmlTranslator xmlTranslator = new XmlTranslator();
+        transBinaryXml(path, xmlTranslator);
+        return xmlTranslator.getXml();
+    }
+
+
+    private void transBinaryXml(String path, XmlStreamer xmlStreamer) throws IOException {
+        ZipArchiveEntry entry = Utils.getEntry(zf, path);
+        if (entry == null) {
+            return;
+        }
+        if (this.resourceTable == null) {
+            parseResourceTable();
+        }
+
+        long begin = System.currentTimeMillis();
         InputStream in = zf.getInputStream(entry);
         ByteBuffer buffer = ByteBuffer.wrap(IOUtils.toByteArray(in));
-        BinaryXmlParser binaryXmlParser = new BinaryXmlParser(buffer);
+        BinaryXmlParser binaryXmlParser = new BinaryXmlParser(buffer, resourceTable);
         binaryXmlParser.setLocale(preferredLocale);
-        XmlTranslator xmlTranslator = new XmlTranslator(resourceTable, preferredLocale);
-        binaryXmlParser.setXmlStreamer(xmlTranslator);
+        binaryXmlParser.setXmlStreamer(xmlStreamer);
         binaryXmlParser.parse();
-        return xmlTranslator.getXml();
+        System.out.print("parser binary xml: ");
+        System.out.println(System.currentTimeMillis() - begin);
     }
 
 
@@ -415,34 +221,18 @@ public class ApkParser implements Closeable {
     }
 
     /**
-     * get app icon as binary data, the icon's file format should be png
+     * read file in apk into bytes
      *
      * @return
      */
-    private Icon getIcon(String iconPath) throws IOException {
-        if (this.preferredLocale == null) {
-            throw new ParserException("PreferredLocale must be set first");
-        }
-
-        ZipArchiveEntry entry = Utils.getEntry(zf, iconPath);
+    private byte[] getData(String path) throws IOException {
+        ZipArchiveEntry entry = Utils.getEntry(zf, path);
         if (entry == null) {
             return null;
         }
 
-        Icon icon = new Icon();
-        icon.setPath(entry.getName());
-        icon.setFormat(iconPath.substring(iconPath.indexOf(".") + 1));
-        int idx = iconPath.indexOf("dpi/");
-        if (idx > 0) {
-            icon.setDpiLevel(iconPath.substring(
-                    iconPath.lastIndexOf("-", idx) + 1,
-                    idx + "dpi".length()));
-        } else {
-            icon.setDpiLevel("");
-        }
         InputStream inputStream = zf.getInputStream(entry);
-        icon.setData(IOUtils.toByteArray(inputStream));
-        return icon;
+        return IOUtils.toByteArray(inputStream);
     }
 
     /**
@@ -501,7 +291,11 @@ public class ApkParser implements Closeable {
         InputStream in = zf.getInputStream(entry);
         ByteBuffer buffer = ByteBuffer.wrap(IOUtils.toByteArray(in));
         ResourceTableParser resourceTableParser = new ResourceTableParser(buffer);
+        //TODO: profile
+        long begin = System.currentTimeMillis();
         resourceTableParser.parse();
+        System.out.print("parse resource table ");
+        System.out.println(System.currentTimeMillis() - begin);
         this.resourceTable = resourceTableParser.getResourceTable();
         this.locales = resourceTableParser.getLocales();
     }

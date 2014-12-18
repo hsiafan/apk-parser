@@ -28,13 +28,6 @@ public class CompositeXmlStreamer implements XmlStreamer {
     }
 
     @Override
-    public void onAttribute(Attribute attribute) {
-        for (XmlStreamer xmlStreamer : xmlStreamers) {
-            xmlStreamer.onAttribute(attribute);
-        }
-    }
-
-    @Override
     public void onCData(XmlCData xmlCData) {
         for (XmlStreamer xmlStreamer : xmlStreamers) {
             xmlStreamer.onCData(xmlCData);

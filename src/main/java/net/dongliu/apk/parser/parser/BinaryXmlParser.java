@@ -1,18 +1,21 @@
 package net.dongliu.apk.parser.parser;
 
+import net.dongliu.apk.parser.bean.Constants;
 import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.struct.ChunkHeader;
 import net.dongliu.apk.parser.struct.ChunkType;
 import net.dongliu.apk.parser.struct.StringPool;
 import net.dongliu.apk.parser.struct.StringPoolHeader;
+import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.xml.*;
 import net.dongliu.apk.parser.utils.Buffers;
 import net.dongliu.apk.parser.utils.ParseUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -32,15 +35,16 @@ public class BinaryXmlParser {
     private String[] resourceMap;
     private ByteBuffer buffer;
     private XmlStreamer xmlStreamer;
-
+    private final ResourceTable resourceTable;
     /**
      * default locale.
      */
     private Locale locale = Locales.any;
 
-    public BinaryXmlParser(ByteBuffer buffer) {
+    public BinaryXmlParser(ByteBuffer buffer, ResourceTable resourceTable) {
         this.buffer = buffer.duplicate();
         this.buffer.order(byteOrder);
+        this.resourceTable = resourceTable;
     }
 
     /**
@@ -115,7 +119,9 @@ public class BinaryXmlParser {
         xmlCData.typedData = ParseUtils.readResValue(buffer, stringPool);
         if (xmlStreamer != null) {
             //TODO: to know more about cdata. some cdata appears buffer xml tags
-            //xmlStreamer.onCData(xmlCData);
+//            String value = xmlCData.toStringValue(resourceTable, locale);
+//            xmlCData.setValue(value);
+//            xmlStreamer.onCData(xmlCData);
         }
         return xmlCData;
     }
@@ -143,10 +149,6 @@ public class BinaryXmlParser {
         }
         xmlNodeStartTag.name = stringPool.get(nameRef);
 
-        if (xmlStreamer != null) {
-            xmlStreamer.onStartTag(xmlNodeStartTag);
-        }
-
         // read attributes.
         // attributeStart and attributeSize are always 20 (0x14)
         int attributeStart = Buffers.readUShort(buffer);
@@ -157,14 +159,83 @@ public class BinaryXmlParser {
         int styleIndex = Buffers.readUShort(buffer);
 
         // read attributes
+        Attributes attributes = new Attributes(attributeCount);
         for (int count = 0; count < attributeCount; count++) {
             Attribute attribute = readAttribute();
             if (xmlStreamer != null) {
-                xmlStreamer.onAttribute(attribute);
+                String value = attribute.toStringValue(resourceTable, locale);
+                if (StringUtils.isNumeric(value)) {
+                    value = getFinalValueAsString(attribute.name, value);
+                }
+                attribute.setValue(value);
+                attributes.set(count, attribute);
             }
+        }
+        xmlNodeStartTag.setAttributes(attributes);
+
+        if (xmlStreamer != null) {
+            xmlStreamer.onStartTag(xmlNodeStartTag);
         }
 
         return xmlNodeStartTag;
+    }
+
+    //trans int attr value to string
+    private String getFinalValueAsString(String attributeName, String value) {
+        int intValue = Integer.valueOf(value);
+        String realValue = value;
+        switch (attributeName) {
+            case "screenOrientation":
+                Constants.ScreenOrientation screenOrientation =
+                        Constants.ScreenOrientation.valueOf(intValue);
+                if (screenOrientation != null) {
+                    realValue = screenOrientation.name();
+                }
+                break;
+            case "configChanges":
+                List<Constants.ConfigChanges> configChangesList =
+                        Constants.ConfigChanges.valuesOf(intValue);
+                if (!configChangesList.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    for (Constants.ConfigChanges c : configChangesList) {
+                        sb.append(c.name()).append('|');
+                    }
+                    sb.deleteCharAt(sb.length() - 1);
+                    realValue = sb.toString();
+                }
+                break;
+            case "windowSoftInputMode":
+                List<Constants.WindowSoftInputMode> windowSoftInputModeList =
+                        Constants.WindowSoftInputMode.valuesOf(intValue);
+                if (!windowSoftInputModeList.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    for (Constants.WindowSoftInputMode w : windowSoftInputModeList) {
+                        sb.append(w.name()).append('|');
+                    }
+                    sb.deleteCharAt(sb.length() - 1);
+                    realValue = sb.toString();
+                }
+                break;
+            case "launchMode":
+                Constants.LaunchMode launchMode = Constants.LaunchMode.valueOf(intValue);
+                if (launchMode != null) {
+                    realValue = launchMode.name();
+                }
+                break;
+            case "installLocation":
+                Constants.InstallLocation installLocation = Constants.InstallLocation.valueOf(intValue);
+                if (installLocation != null) {
+                    realValue = installLocation.name();
+                }
+                break;
+            case "protectionLevel":
+                Constants.ProtectionLevel protectionLevel = Constants.ProtectionLevel.valueOf(intValue);
+                if (protectionLevel != null) {
+                    realValue = protectionLevel.name();
+                }
+                break;
+        }
+        return realValue;
     }
 
     private Attribute readAttribute() {

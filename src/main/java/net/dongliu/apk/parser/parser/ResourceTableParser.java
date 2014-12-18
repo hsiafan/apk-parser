@@ -8,6 +8,8 @@ import net.dongliu.apk.parser.struct.StringPoolHeader;
 import net.dongliu.apk.parser.struct.resource.*;
 import net.dongliu.apk.parser.utils.Buffers;
 import net.dongliu.apk.parser.utils.ParseUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -55,17 +57,18 @@ public class ResourceTableParser {
 
         PackageHeader packageHeader = (PackageHeader) readChunkHeader();
         for (int i = 0; i < resourceTableHeader.packageCount; i++) {
-            PackageHeader[] packageHeaders = new PackageHeader[1];
-            ResourcePackage resourcePackage = readPackage(packageHeader, packageHeaders);
-            resourceTable.addPackage(resourcePackage);
-            packageHeader = packageHeaders[0];
+            Pair<ResourcePackage, PackageHeader> pair = readPackage(packageHeader);
+            resourceTable.addPackage(pair.getLeft());
+            packageHeader = pair.getRight();
         }
     }
 
     // read one package
-    private ResourcePackage readPackage(PackageHeader packageHeader, PackageHeader[] packageHeaders) {
+    private Pair<ResourcePackage, PackageHeader> readPackage(PackageHeader packageHeader) {
+        MutablePair<ResourcePackage, PackageHeader> pair = new MutablePair<>();
         //read packageHeader
         ResourcePackage resourcePackage = new ResourcePackage(packageHeader);
+        pair.setLeft(resourcePackage);
 
         long beginPos = buffer.position();
         // read type string pool
@@ -124,6 +127,7 @@ public class ResourceTableParser {
                             resourceEntries[i] = readResourceEntry(resourcePackage.keyStringPool);
                         } else {
                             resourceEntries[i] = null;
+
                         }
                     }
                     Type type = new Type(typeHeader);
@@ -135,14 +139,14 @@ public class ResourceTableParser {
                     break;
                 case ChunkType.TABLE_PACKAGE:
                     // another package. we should read next package here
-                    packageHeaders[0] = (PackageHeader) chunkHeader;
+                    pair.setRight((PackageHeader) chunkHeader);
                     break outer;
                 default:
                     throw new ParserException("unexpected chunk type:" + chunkHeader.chunkType);
             }
         }
 
-        return resourcePackage;
+        return pair;
 
     }
 

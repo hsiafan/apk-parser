@@ -43,6 +43,7 @@ public abstract class AndroidComponent {
     }
 
     public void addIntentFilter(IntentFilter intentFilter) {
+        intentFilter.setOwner(this);
         this.intentFilters.add(intentFilter);
     }
 }

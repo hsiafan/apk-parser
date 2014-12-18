@@ -10,10 +10,10 @@ import java.util.Map;
  * @author dongliu
  */
 public class ResourceTable {
-    private Map<Short, ResourcePackage> packageMap = new HashMap<Short, ResourcePackage>();
+    private Map<Short, ResourcePackage> packageMap = new HashMap<>();
     public StringPool stringPool;
 
-    public static Map<Integer, String> styleMap = ResourceLoader.loadSystemStyles();
+    public static Map<Integer, String> sysStyle = ResourceLoader.loadSystemStyles();
 
     public void addPackage(ResourcePackage resourcePackage) {
         this.packageMap.put(resourcePackage.id, resourcePackage);

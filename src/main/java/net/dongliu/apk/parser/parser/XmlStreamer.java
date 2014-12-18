@@ -13,8 +13,6 @@ public interface XmlStreamer {
 
     void onEndTag(XmlNodeEndTag xmlNodeEndTag);
 
-    void onAttribute(Attribute attribute);
-
     void onCData(XmlCData xmlCData);
 
     void onNamespaceStart(XmlNamespaceStartTag tag);

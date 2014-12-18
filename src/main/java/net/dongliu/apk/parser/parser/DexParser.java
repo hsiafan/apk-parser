@@ -10,7 +10,6 @@ import net.dongliu.apk.parser.utils.Buffers;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 /**
  * parse dex file.

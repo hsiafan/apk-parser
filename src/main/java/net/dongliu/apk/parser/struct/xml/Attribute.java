@@ -19,6 +19,8 @@ public class Attribute {
     public String rawValue;
     // Processesd typed value of this 
     public ResourceEntity typedValue;
+    // the final value as string
+    private String value;
 
     public String toStringValue(ResourceTable resourceTable, Locale locale) {
         if (rawValue != null) {
@@ -55,5 +57,13 @@ public class Attribute {
             return value;
         }
 
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

@@ -2,7 +2,6 @@ package net.dongliu.apk.parser.bean;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,7 +11,7 @@ public class ApkMeta {
 
     private String packageName;
     private String label;
-    private Icon icon;
+    private String icon;
     private String versionName;
     private Long versionCode;
     private Constants.InstallLocation installLocation;
@@ -25,17 +24,17 @@ public class ApkMeta {
     private boolean normalScreens;
     private boolean largeScreens;
 
-    private List<String> usesPermissions = new ArrayList<String>();
-    private List<UseFeature> usesFeatures = new ArrayList<UseFeature>();
-    private List<Permission> permissions = new ArrayList<Permission>();
-    private List<Service> services = new ArrayList<Service>();
-    private List<Activity> activities = new ArrayList<Activity>();
-    private List<Receiver> receivers = new ArrayList<Receiver>();
+    private List<String> usesPermissions = new ArrayList<>();
+    private List<UseFeature> usesFeatures = new ArrayList<>();
+    private List<Permission> permissions = new ArrayList<>();
+    private List<Service> services = new ArrayList<>();
+    private List<Activity> activities = new ArrayList<>();
+    private List<Receiver> receivers = new ArrayList<>();
 
     /**
      * all intent filters this apk register
      */
-    private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
+    private List<IntentFilter> intentFilters = new ArrayList<>();
 
     public String getPackageName() {
         return packageName;
@@ -93,14 +92,29 @@ public class ApkMeta {
         this.usesPermissions.add(permission);
     }
 
-    public Icon getIcon() {
+    /**
+     * the icon file path in apk
+     *
+     * @return null if not found
+     */
+    public String getIcon() {
         return icon;
     }
 
-    public void setIcon(Icon icon) {
+    public void setIcon(String icon) {
         this.icon = icon;
     }
 
+    /**
+     * alias for getLabel
+     */
+    public String getName() {
+        return label;
+    }
+
+    /**
+     * get the apk's title(name)
+     */
     public String getLabel() {
         return label;
     }

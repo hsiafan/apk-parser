@@ -19,6 +19,9 @@ public class XmlCData {
     // The typed value of the character data if this is a CDATA node.
     public ResourceEntity typedData;
 
+    // the final value as string
+    private String value;
+
     /**
      * get value as string
      *
@@ -30,6 +33,14 @@ public class XmlCData {
         } else {
             return CDATA_START + typedData.toStringValue(resourceTable, locale) + CDATA_END;
         }
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override

@@ -63,8 +63,6 @@ public class ResourceEntity {
 
     /**
      * get value as string
-     *
-     * @return
      */
     public String toStringValue(ResourceTable resourceTable, Locale locale) {
         if (this.value != null) {
