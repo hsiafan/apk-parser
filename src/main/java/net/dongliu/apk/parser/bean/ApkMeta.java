@@ -14,7 +14,7 @@ public class ApkMeta {
     private String icon;
     private String versionName;
     private Long versionCode;
-    private Constants.InstallLocation installLocation;
+    private String installLocation;
     private String minSdkVersion;
     private String targetSdkVersion;
     private String maxSdkVersion;
@@ -171,11 +171,11 @@ public class ApkMeta {
         this.usesFeatures.add(useFeature);
     }
 
-    public Constants.InstallLocation getInstallLocation() {
+    public String getInstallLocation() {
         return installLocation;
     }
 
-    public void setInstallLocation(Constants.InstallLocation installLocation) {
+    public void setInstallLocation(String installLocation) {
         this.installLocation = installLocation;
     }
 

@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.bean.Constants;
+import net.dongliu.apk.parser.bean.Constants.*;
 import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.struct.ChunkHeader;
@@ -186,18 +186,18 @@ public class BinaryXmlParser {
         String realValue = value;
         switch (attributeName) {
             case "screenOrientation":
-                Constants.ScreenOrientation screenOrientation =
-                        Constants.ScreenOrientation.valueOf(intValue);
+                ScreenOrientation screenOrientation =
+                        ScreenOrientation.valueOf(intValue);
                 if (screenOrientation != null) {
                     realValue = screenOrientation.name();
                 }
                 break;
             case "configChanges":
-                List<Constants.ConfigChanges> configChangesList =
-                        Constants.ConfigChanges.valuesOf(intValue);
+                List<ConfigChanges> configChangesList =
+                        ConfigChanges.valuesOf(intValue);
                 if (!configChangesList.isEmpty()) {
                     StringBuilder sb = new StringBuilder();
-                    for (Constants.ConfigChanges c : configChangesList) {
+                    for (ConfigChanges c : configChangesList) {
                         sb.append(c.name()).append('|');
                     }
                     sb.deleteCharAt(sb.length() - 1);
@@ -205,11 +205,11 @@ public class BinaryXmlParser {
                 }
                 break;
             case "windowSoftInputMode":
-                List<Constants.WindowSoftInputMode> windowSoftInputModeList =
-                        Constants.WindowSoftInputMode.valuesOf(intValue);
+                List<WindowSoftInputMode> windowSoftInputModeList =
+                        WindowSoftInputMode.valuesOf(intValue);
                 if (!windowSoftInputModeList.isEmpty()) {
                     StringBuilder sb = new StringBuilder();
-                    for (Constants.WindowSoftInputMode w : windowSoftInputModeList) {
+                    for (WindowSoftInputMode w : windowSoftInputModeList) {
                         sb.append(w.name()).append('|');
                     }
                     sb.deleteCharAt(sb.length() - 1);
@@ -217,21 +217,26 @@ public class BinaryXmlParser {
                 }
                 break;
             case "launchMode":
-                Constants.LaunchMode launchMode = Constants.LaunchMode.valueOf(intValue);
+                LaunchMode launchMode = LaunchMode.valueOf(intValue);
                 if (launchMode != null) {
                     realValue = launchMode.name();
                 }
                 break;
             case "installLocation":
-                Constants.InstallLocation installLocation = Constants.InstallLocation.valueOf(intValue);
+                InstallLocation installLocation = InstallLocation.valueOf(intValue);
                 if (installLocation != null) {
                     realValue = installLocation.name();
                 }
                 break;
             case "protectionLevel":
-                Constants.ProtectionLevel protectionLevel = Constants.ProtectionLevel.valueOf(intValue);
-                if (protectionLevel != null) {
-                    realValue = protectionLevel.name();
+                List<ProtectionLevel> protectionLevelList = ProtectionLevel.valueOf(intValue);
+                StringBuilder sb = new StringBuilder();
+                if (protectionLevelList != null) {
+                    for (ProtectionLevel protectionLevel : protectionLevelList) {
+                        sb.append(protectionLevel.name()).append('|');
+                    }
+                    sb.deleteCharAt(sb.length() - 1);
+                    realValue = sb.toString();
                 }
                 break;
         }

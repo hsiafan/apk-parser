@@ -32,7 +32,7 @@ public class ApkMetaTranslator implements XmlStreamer {
                 apkMeta.setVersionCode(attributes.getLong("versionCode"));
                 String installLocation = attributes.get("installLocation");
                 if (installLocation != null) {
-                    apkMeta.setInstallLocation(InstallLocation.valueOf(installLocation));
+                    apkMeta.setInstallLocation(installLocation);
                 }
                 break;
             case "uses-sdk":
@@ -78,7 +78,7 @@ public class ApkMetaTranslator implements XmlStreamer {
                 permission.setDescription(attributes.get("description"));
                 String protectionLevel = attributes.get("android:protectionLevel");
                 if (protectionLevel != null) {
-                    permission.setProtectionLevel(Constants.ProtectionLevel.valueOf(protectionLevel));
+                    permission.setProtectionLevel(protectionLevel);
                 }
                 apkMeta.addPermission(permission);
                 break;
