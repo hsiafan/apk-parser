@@ -144,20 +144,30 @@ public class Constants {
 
     //http://developer.android.com/reference/android/content/pm/PermissionInfo.html
     public enum ProtectionLevel {
-        normal(0), dangerous(1), signature(2), signatureOrSystem(3);
+        normal(0), dangerous(1), signature(2), signatureOrSystem(3),
+        system(0x10), development(0x20);
         private int value;
 
         ProtectionLevel(int value) {
             this.value = value;
         }
 
-        public static ProtectionLevel valueOf(int value) {
+        public static List<ProtectionLevel> valueOf(int value) {
+            List<ProtectionLevel> list = new ArrayList<ProtectionLevel>();
+            if ((value & system.value) != 0) {
+                value = value ^ system.value;
+                list.add(system);
+            }
+            if ((value & development.value) != 0) {
+                value = value ^ development.value;
+                list.add(development);
+            }
             for (ProtectionLevel protectionLevel : ProtectionLevel.values()) {
                 if (protectionLevel.value == value) {
-                    return protectionLevel;
+                    list.add(protectionLevel);
                 }
             }
-            return null;
+            return list;
         }
     }
 

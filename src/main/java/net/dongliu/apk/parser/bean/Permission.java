@@ -11,7 +11,7 @@ public class Permission {
     private String icon;
     private String description;
     private String group;
-    private Constants.ProtectionLevel protectionLevel;
+    private String protectionLevel;
 
     public String getName() {
         return name;
@@ -53,11 +53,11 @@ public class Permission {
         this.group = group;
     }
 
-    public Constants.ProtectionLevel getProtectionLevel() {
+    public String getProtectionLevel() {
         return protectionLevel;
     }
 
-    public void setProtectionLevel(Constants.ProtectionLevel protectionLevel) {
+    public void setProtectionLevel(String protectionLevel) {
         this.protectionLevel = protectionLevel;
     }
 }

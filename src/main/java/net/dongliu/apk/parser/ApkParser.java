@@ -55,6 +55,10 @@ public class ApkParser implements Closeable {
         this.apkMetaMap = new HashMap<Locale, ApkMeta>();
     }
 
+    public ApkParser(String filePath) throws IOException {
+        this(new File(filePath));
+    }
+
     /**
      * return decoded AndroidManifest.xml
      *
@@ -333,7 +337,7 @@ public class ApkParser implements Closeable {
         permission.setDescription(XmlUtils.getAttribute(attributes, "android:description"));
         String protectionLevel = XmlUtils.getAttribute(attributes, "android:protectionLevel");
         if (protectionLevel != null) {
-            permission.setProtectionLevel(Constants.ProtectionLevel.valueOf(protectionLevel));
+            permission.setProtectionLevel(protectionLevel);
         }
         apkMeta.addPermission(permission);
     }

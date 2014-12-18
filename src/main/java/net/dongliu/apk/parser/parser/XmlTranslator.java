@@ -142,9 +142,14 @@ public class XmlTranslator implements XmlStreamer {
                 realValue = installLocation.name();
             }
         } else if (attributeName.equals("protectionLevel")) {
-            ProtectionLevel protectionLevel = ProtectionLevel.valueOf(intValue);
-            if (protectionLevel != null) {
-                realValue = protectionLevel.name();
+            List<ProtectionLevel> list = ProtectionLevel.valueOf(intValue);
+            StringBuilder sb = new StringBuilder();
+            if (list != null) {
+                for (ProtectionLevel protectionLevel : list) {
+                    sb.append(protectionLevel.name()).append('|');
+                }
+                sb.deleteCharAt(sb.length() - 1);
+                realValue = sb.toString();
             }
         }
         return realValue;
