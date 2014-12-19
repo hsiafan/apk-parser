@@ -309,8 +309,8 @@ public class ParseUtils {
             if (resource == null) {
                 continue;
             }
-            ref = resource.key;
-            int level = Locales.match(locale, type.locale);
+            ref = resource.getKey();
+            int level = Locales.match(locale, type.getLocale());
             if (level == 2) {
                 result = resource.toStringValue(resourceTable, locale);
                 break;
@@ -319,7 +319,7 @@ public class ParseUtils {
             }
         }
         if (locale == null || result == null) {
-            result = "@" + typeSpec.name + "/" + ref;
+            result = "@" + typeSpec.getName() + "/" + ref;
         }
         return result;
     }

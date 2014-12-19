@@ -26,12 +26,12 @@ public class ResourcePackage {
         this.id = (short) header.id;
     }
 
-    private Map<Short, TypeSpec> typeSpecMap = new HashMap<Short, TypeSpec>();
+    private Map<Short, TypeSpec> typeSpecMap = new HashMap<>();
 
-    private Map<Short, List<Type>> typesMap = new HashMap<Short, List<Type>>();
+    private Map<Short, List<Type>> typesMap = new HashMap<>();
 
     public void addTypeSpec(TypeSpec typeSpec) {
-        this.typeSpecMap.put(typeSpec.id, typeSpec);
+        this.typeSpecMap.put(typeSpec.getId(), typeSpec);
     }
 
     public TypeSpec getTypeSpec(Short id) {
@@ -39,10 +39,10 @@ public class ResourcePackage {
     }
 
     public void addType(Type type) {
-        List<Type> types = this.typesMap.get(type.id);
+        List<Type> types = this.typesMap.get(type.getId());
         if (types == null) {
-            types = new ArrayList<Type>();
-            this.typesMap.put(type.id, types);
+            types = new ArrayList<>();
+            this.typesMap.put(type.getId(), types);
         }
         types.add(type);
     }

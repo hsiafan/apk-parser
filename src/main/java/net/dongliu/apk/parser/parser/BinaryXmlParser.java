@@ -164,7 +164,7 @@ public class BinaryXmlParser {
             if (xmlStreamer != null) {
                 String value = attribute.toStringValue(resourceTable, locale);
                 if (StringUtils.isNumeric(value)) {
-                    value = getFinalValueAsString(attribute.name, Integer.parseInt(value));
+                    value = getFinalValueAsString(attribute.name, value);
                 }
                 attribute.setValue(value);
                 attributes.set(count, attribute);
@@ -180,7 +180,8 @@ public class BinaryXmlParser {
     }
 
     //trans int attr value to string
-    private String getFinalValueAsString(String attributeName, int value) {
+    private String getFinalValueAsString(String attributeName, String str) {
+        int value = Integer.parseInt(str);
         switch (attributeName) {
             case "screenOrientation":
                 return AttributeValues.getScreenOrientation(value);
@@ -195,7 +196,7 @@ public class BinaryXmlParser {
             case "protectionLevel":
                 return AttributeValues.getProtectionLevel(value);
             default:
-                return String.valueOf(value);
+                return str;
         }
     }
 

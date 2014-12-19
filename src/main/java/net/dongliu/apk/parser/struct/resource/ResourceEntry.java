@@ -12,7 +12,7 @@ import java.util.Locale;
  */
 public class ResourceEntry {
     // Number of bytes in this structure. uint16_t
-    public int size;
+    private int size;
 
     // If set, this is a complex entry, holding a set of name/value
     // mappings.  It is followed by an array of ResTable_map structures.
@@ -21,15 +21,15 @@ public class ResourceEntry {
     // are allowed to reference it.
     public static final int FLAG_PUBLIC = 0x0002;
     // uint16_t
-    public int flags;
+    private int flags;
 
     // Reference into ResTable_package::keyStrings identifying this entry.
     //public long keyRef;
 
-    public String key;
+    private String key;
 
     // the resvalue following this resource entry.
-    public ResourceEntity value;
+    private ResourceEntity value;
 
     /**
      * get value as string
@@ -42,6 +42,38 @@ public class ResourceEntry {
         } else {
             return "null";
         }
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public int getFlags() {
+        return flags;
+    }
+
+    public void setFlags(int flags) {
+        this.flags = flags;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public ResourceEntity getValue() {
+        return value;
+    }
+
+    public void setValue(ResourceEntity value) {
+        this.value = value;
     }
 
     @Override

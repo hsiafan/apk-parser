@@ -49,6 +49,7 @@ public class ApkParser implements Closeable {
 
     public ApkParser(File apkFile) throws IOException {
         this.apkFile = apkFile;
+        // create zip file cost time, use one zip file for apk parser life cycle
         this.zf = new ZipFile(apkFile);
     }
 
@@ -186,15 +187,12 @@ public class ApkParser implements Closeable {
             parseResourceTable();
         }
 
-        long begin = System.currentTimeMillis();
         InputStream in = zf.getInputStream(entry);
         ByteBuffer buffer = ByteBuffer.wrap(IOUtils.toByteArray(in));
         BinaryXmlParser binaryXmlParser = new BinaryXmlParser(buffer, resourceTable);
         binaryXmlParser.setLocale(preferredLocale);
         binaryXmlParser.setXmlStreamer(xmlStreamer);
         binaryXmlParser.parse();
-        System.out.print("parser binary xml: ");
-        System.out.println(System.currentTimeMillis() - begin);
     }
 
 
@@ -291,11 +289,7 @@ public class ApkParser implements Closeable {
         InputStream in = zf.getInputStream(entry);
         ByteBuffer buffer = ByteBuffer.wrap(IOUtils.toByteArray(in));
         ResourceTableParser resourceTableParser = new ResourceTableParser(buffer);
-        //TODO: profile
-        long begin = System.currentTimeMillis();
         resourceTableParser.parse();
-        System.out.print("parse resource table ");
-        System.out.println(System.currentTimeMillis() - begin);
         this.resourceTable = resourceTableParser.getResourceTable();
         this.locales = resourceTableParser.getLocales();
     }

@@ -100,9 +100,11 @@ public class ResourceTableParser {
 
                     TypeSpec typeSpec = new TypeSpec(typeSpecHeader);
 
-                    typeSpec.entryFlags = entryFlags;
+
+
+                    typeSpec.setEntryFlags(entryFlags);
                     //id start from 1
-                    typeSpec.name = resourcePackage.typeStringPool.get(typeSpecHeader.id - 1);
+                    typeSpec.setName(resourcePackage.typeStringPool.get(typeSpecHeader.id - 1));
 
                     resourcePackage.addTypeSpec(typeSpec);
                     buffer.position((int) (typeSpecChunkBegin + typeSpecHeader.chunkSize -
@@ -117,24 +119,18 @@ public class ResourceTableParser {
                         offsets[i] = Buffers.readUInt(buffer);
                     }
 
+                    Type type = new Type(typeHeader);
+                    type.setName(resourcePackage.typeStringPool.get(typeHeader.id - 1));
                     long entryPos = typeChunkBegin + typeHeader.entriesStart - typeHeader.headerSize;
                     buffer.position((int) entryPos);
-                    // read Resource Entries
-                    ResourceEntry[] resourceEntries = new ResourceEntry[offsets.length];
-                    for (int i = 0; i < offsets.length; i++) {
-                        if (offsets[i] != TypeHeader.NO_ENTRY) {
-                            buffer.position((int) (entryPos + offsets[i]));
-                            resourceEntries[i] = readResourceEntry(resourcePackage.keyStringPool);
-                        } else {
-                            resourceEntries[i] = null;
-
-                        }
-                    }
-                    Type type = new Type(typeHeader);
-                    type.name = resourcePackage.typeStringPool.get(typeHeader.id - 1);
-                    type.resourceEntries = resourceEntries;
+                    ByteBuffer b = buffer.slice();
+                    b.order(byteOrder);
+                    type.setBuffer(b);
+                    type.setKeyStringPool(resourcePackage.keyStringPool);
+                    type.setOffsets(offsets);
+                    type.setStringPool(stringPool);
                     resourcePackage.addType(type);
-                    locales.add(type.locale);
+                    locales.add(type.getLocale());
                     buffer.position((int) (typeChunkBegin + typeHeader.chunkSize - typeHeader.headerSize));
                     break;
                 case ChunkType.TABLE_PACKAGE:
@@ -148,54 +144,6 @@ public class ResourceTableParser {
 
         return pair;
 
-    }
-
-    private ResourceEntry readResourceEntry(StringPool keyStringPool) {
-        long beginPos = buffer.position();
-        ResourceEntry resourceEntry = new ResourceEntry();
-        // size is always 8(simple), or 16(complex)
-        resourceEntry.size = Buffers.readUShort(buffer);
-        resourceEntry.flags = Buffers.readUShort(buffer);
-        long keyRef = buffer.getInt();
-        resourceEntry.key = keyStringPool.get((int) keyRef);
-
-        if ((resourceEntry.flags & ResourceEntry.FLAG_COMPLEX) != 0) {
-            ResourceMapEntry resourceMapEntry = new ResourceMapEntry(resourceEntry);
-
-            // Resource identifier of the parent mapping, or 0 if there is none.
-            resourceMapEntry.parent = Buffers.readUInt(buffer);
-            resourceMapEntry.count = Buffers.readUInt(buffer);
-
-            buffer.position((int) (beginPos + resourceEntry.size));
-
-            //An individual complex Resource entry comprises an entry immediately followed by one or more fields.
-            ResourceTableMap[] resourceTableMaps = new ResourceTableMap[(int) resourceMapEntry.count];
-            for (int i = 0; i < resourceMapEntry.count; i++) {
-                resourceTableMaps[i] = readResourceTableMap();
-            }
-
-            resourceMapEntry.resourceTableMaps = resourceTableMaps;
-            return resourceMapEntry;
-        } else {
-            buffer.position((int) (beginPos + resourceEntry.size));
-            resourceEntry.value = ParseUtils.readResValue(buffer, stringPool);
-            return resourceEntry;
-        }
-    }
-
-    private ResourceTableMap readResourceTableMap() {
-        ResourceTableMap resourceTableMap = new ResourceTableMap();
-        resourceTableMap.nameRef = Buffers.readUInt(buffer);
-        resourceTableMap.resValue = ParseUtils.readResValue(buffer, stringPool);
-
-        if ((resourceTableMap.nameRef & 0x02000000) != 0) {
-            //read arrays
-        } else if ((resourceTableMap.nameRef & 0x01000000) != 0) {
-            // read attrs
-        } else {
-        }
-
-        return resourceTableMap;
     }
 
     private ChunkHeader readChunkHeader() {
