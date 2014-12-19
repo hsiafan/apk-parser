@@ -97,21 +97,21 @@ public class ParseUtils {
     public static StringPool readStringPool(ByteBuffer buffer, StringPoolHeader stringPoolHeader) {
 
         long beginPos = buffer.position();
-        long[] offsets = new long[(int) stringPoolHeader.stringCount];
+        long[] offsets = new long[(int) stringPoolHeader.getStringCount()];
         // read strings offset
-        if (stringPoolHeader.stringCount > 0) {
-            for (int idx = 0; idx < stringPoolHeader.stringCount; idx++) {
+        if (stringPoolHeader.getStringCount() > 0) {
+            for (int idx = 0; idx < stringPoolHeader.getStringCount(); idx++) {
                 offsets[idx] = Buffers.readUInt(buffer);
             }
         }
         // read flag
         // the string index is sorted by the string values if true
-        boolean sorted = (stringPoolHeader.flags & StringPoolHeader.SORTED_FLAG) != 0;
+        boolean sorted = (stringPoolHeader.getFlags() & StringPoolHeader.SORTED_FLAG) != 0;
         // string use utf-8 format if true, otherwise utf-16
-        boolean utf8 = (stringPoolHeader.flags & StringPoolHeader.UTF8_FLAG) != 0;
+        boolean utf8 = (stringPoolHeader.getFlags() & StringPoolHeader.UTF8_FLAG) != 0;
 
         // read strings. the head and metas have 28 bytes
-        long stringPos = beginPos + stringPoolHeader.stringsStart - stringPoolHeader.headerSize;
+        long stringPos = beginPos + stringPoolHeader.getStringsStart() - stringPoolHeader.getHeaderSize();
         buffer.position((int) stringPos);
 
         StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
@@ -121,7 +121,7 @@ public class ParseUtils {
 
         String lastStr = null;
         long lastOffset = -1;
-        StringPool stringPool = new StringPool((int) stringPoolHeader.stringCount);
+        StringPool stringPool = new StringPool((int) stringPoolHeader.getStringCount());
         for (StringPoolEntry entry : entries) {
             if (entry.getOffset() == lastOffset) {
                 stringPool.set(entry.getIdx(), lastStr);
@@ -136,11 +136,11 @@ public class ParseUtils {
         }
 
         // read styles
-        if (stringPoolHeader.styleCount > 0) {
+        if (stringPoolHeader.getStyleCount() > 0) {
             // now we just skip it
         }
 
-        buffer.position((int) (beginPos + stringPoolHeader.chunkSize - stringPoolHeader.headerSize));
+        buffer.position((int) (beginPos + stringPoolHeader.getBodySize()));
 
         return stringPool;
     }
@@ -163,50 +163,50 @@ public class ParseUtils {
     public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool,
                                               boolean isStyle) {
         ResValue resValue = new ResValue();
-        resValue.size = Buffers.readUShort(buffer);
-        resValue.res0 = Buffers.readUByte(buffer);
-        resValue.dataType = Buffers.readUByte(buffer);
+        resValue.setSize(Buffers.readUShort(buffer));
+        resValue.setRes0(Buffers.readUByte(buffer));
+        resValue.setDataType(Buffers.readUByte(buffer));
 
-        switch (resValue.dataType) {
+        switch (resValue.getDataType()) {
             case ResValue.ResType.INT_DEC:
             case ResValue.ResType.INT_HEX:
-                resValue.data = new ResourceEntity(buffer.getInt());
+                resValue.setData(new ResourceEntity(buffer.getInt()));
                 break;
             case ResValue.ResType.STRING:
                 int strRef = buffer.getInt();
                 if (strRef > 0) {
-                    resValue.data = new ResourceEntity(stringPool.get(strRef));
+                    resValue.setData(new ResourceEntity(stringPool.get(strRef)));
                 }
                 break;
             case ResValue.ResType.REFERENCE:
                 long resourceId = Buffers.readUInt(buffer);
-                resValue.data = new ResourceEntity(resourceId, isStyle);
+                resValue.setData(new ResourceEntity(resourceId, isStyle));
                 break;
             case ResValue.ResType.INT_BOOLEAN:
-                resValue.data = new ResourceEntity(buffer.getInt() != 0);
+                resValue.setData(new ResourceEntity(buffer.getInt() != 0));
                 break;
             case ResValue.ResType.NULL:
-                resValue.data = new ResourceEntity("");
+                resValue.setData(new ResourceEntity(""));
                 break;
             case ResValue.ResType.INT_COLOR_RGB8:
             case ResValue.ResType.INT_COLOR_RGB4:
-                resValue.data = new ResourceEntity(readRGBs(buffer, 6));
+                resValue.setData(new ResourceEntity(readRGBs(buffer, 6)));
                 break;
             case ResValue.ResType.INT_COLOR_ARGB8:
             case ResValue.ResType.INT_COLOR_ARGB4:
-                resValue.data = new ResourceEntity(readRGBs(buffer, 8));
+                resValue.setData(new ResourceEntity(readRGBs(buffer, 8)));
                 break;
             case ResValue.ResType.DIMENSION:
-                resValue.data = new ResourceEntity(getDimension(buffer));
+                resValue.setData(new ResourceEntity(getDimension(buffer)));
                 break;
             case ResValue.ResType.FRACTION:
-                resValue.data = new ResourceEntity(getFraction(buffer));
+                resValue.setData(new ResourceEntity(getFraction(buffer)));
                 break;
             default:
-                resValue.data = new ResourceEntity("{" + resValue.dataType + ":"
-                        + Buffers.readUInt(buffer) + "}");
+                resValue.setData(new ResourceEntity("{" + resValue.getDataType() + ":"
+                        + Buffers.readUInt(buffer) + "}"));
         }
-        return resValue.data;
+        return resValue.getData();
     }
 
     private static String getDimension(ByteBuffer buffer) {

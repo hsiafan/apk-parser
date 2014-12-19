@@ -4,8 +4,8 @@ package net.dongliu.apk.parser.struct.xml;
  * @author dongliu
  */
 public class XmlNodeStartTag {
-    public String namespace;
-    public String name;
+    private String namespace;
+    private String name;
 
     // Byte offset from the start of this structure where the attributes start. uint16
     //public int attributeStart;
@@ -20,6 +20,22 @@ public class XmlNodeStartTag {
     //public short styleIndex;
 
     private Attributes attributes;
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public Attributes getAttributes() {
         return attributes;

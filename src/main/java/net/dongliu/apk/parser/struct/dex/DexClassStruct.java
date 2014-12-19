@@ -5,23 +5,23 @@ package net.dongliu.apk.parser.struct.dex;
  */
 public class DexClassStruct {
     /* index into typeIds for this class. u4 */
-    public int classIdx;
+    private int classIdx;
 
-    public int accessFlags;
+    private int accessFlags;
     /* index into typeIds for superclass. u4 */
-    public int superclassIdx;
+    private int superclassIdx;
 
     /* file offset to DexTypeList. u4 */
-    public long interfacesOff;
+    private long interfacesOff;
 
     /* index into stringIds for source file name. u4 */
-    public int sourceFileIdx;
+    private int sourceFileIdx;
     /* file offset to annotations_directory_item. u4 */
-    public long annotationsOff;
+    private long annotationsOff;
     /* file offset to class_data_item. u4 */
-    public long classDataOff;
+    private long classDataOff;
     /* file offset to DexEncodedArray. u4 */
-    public long staticValuesOff;
+    private long staticValuesOff;
 
     public static int ACC_PUBLIC = 0x1;
     public static int ACC_PRIVATE = 0x2;
@@ -42,4 +42,69 @@ public class DexClassStruct {
     public static int ACC_ENUM = 0x4000;
     public static int ACC_CONSTRUCTOR = 0x10000;
     public static int ACC_DECLARED_SYNCHRONIZED = 0x20000;
+
+
+    public int getClassIdx() {
+        return classIdx;
+    }
+
+    public void setClassIdx(int classIdx) {
+        this.classIdx = classIdx;
+    }
+
+    public int getAccessFlags() {
+        return accessFlags;
+    }
+
+    public void setAccessFlags(int accessFlags) {
+        this.accessFlags = accessFlags;
+    }
+
+    public int getSuperclassIdx() {
+        return superclassIdx;
+    }
+
+    public void setSuperclassIdx(int superclassIdx) {
+        this.superclassIdx = superclassIdx;
+    }
+
+    public long getInterfacesOff() {
+        return interfacesOff;
+    }
+
+    public void setInterfacesOff(long interfacesOff) {
+        this.interfacesOff = interfacesOff;
+    }
+
+    public int getSourceFileIdx() {
+        return sourceFileIdx;
+    }
+
+    public void setSourceFileIdx(int sourceFileIdx) {
+        this.sourceFileIdx = sourceFileIdx;
+    }
+
+    public long getAnnotationsOff() {
+        return annotationsOff;
+    }
+
+    public void setAnnotationsOff(long annotationsOff) {
+        this.annotationsOff = annotationsOff;
+    }
+
+    public long getClassDataOff() {
+        return classDataOff;
+    }
+
+    public void setClassDataOff(long classDataOff) {
+        this.classDataOff = classDataOff;
+    }
+
+    public long getStaticValuesOff() {
+        return staticValuesOff;
+    }
+
+    public void setStaticValuesOff(long staticValuesOff) {
+        this.staticValuesOff = staticValuesOff;
+    }
 }

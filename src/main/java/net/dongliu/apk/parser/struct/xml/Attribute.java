@@ -13,12 +13,12 @@ import java.util.Map;
  * @author dongliu
  */
 public class Attribute {
-    public String namespace;
-    public String name;
+    private String namespace;
+    private String name;
     // The original raw string value of this 
-    public String rawValue;
-    // Processesd typed value of this 
-    public ResourceEntity typedValue;
+    private String rawValue;
+    // Processed typed value of this
+    private ResourceEntity typedValue;
     // the final value as string
     private String value;
 
@@ -57,6 +57,38 @@ public class Attribute {
             return value;
         }
 
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getRawValue() {
+        return rawValue;
+    }
+
+    public void setRawValue(String rawValue) {
+        this.rawValue = rawValue;
+    }
+
+    public ResourceEntity getTypedValue() {
+        return typedValue;
+    }
+
+    public void setTypedValue(ResourceEntity typedValue) {
+        this.typedValue = typedValue;
     }
 
     public String getValue() {

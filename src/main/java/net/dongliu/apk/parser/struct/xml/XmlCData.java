@@ -14,10 +14,10 @@ public class XmlCData {
     public static final String CDATA_END = "]]>";
 
     // The raw CDATA character data.
-    public String data;
+    private String data;
 
     // The typed value of the character data if this is a CDATA node.
-    public ResourceEntity typedData;
+    private ResourceEntity typedData;
 
     // the final value as string
     private String value;
@@ -33,6 +33,22 @@ public class XmlCData {
         } else {
             return CDATA_START + typedData.toStringValue(resourceTable, locale) + CDATA_END;
         }
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public ResourceEntity getTypedData() {
+        return typedData;
+    }
+
+    public void setTypedData(ResourceEntity typedData) {
+        this.typedData = typedData;
     }
 
     public String getValue() {

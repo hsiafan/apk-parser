@@ -7,11 +7,11 @@ package net.dongliu.apk.parser.struct;
  */
 public class ResValue {
     // Number of bytes in this structure. uint16; always 8
-    public int size;
+    private int size;
     // Always set to 0. uint8
-    public short res0;
+    private short res0;
     // Type of the data value. uint8
-    public short dataType;
+    private short dataType;
     // The data for this item; as interpreted according to dataType. unit32
 
     /*
@@ -27,7 +27,39 @@ public class ResValue {
     /**
      * the real data repesented by string
      */
-    public ResourceEntity data;
+    private ResourceEntity data;
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public short getRes0() {
+        return res0;
+    }
+
+    public void setRes0(short res0) {
+        this.res0 = res0;
+    }
+
+    public short getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(short dataType) {
+        this.dataType = dataType;
+    }
+
+    public ResourceEntity getData() {
+        return data;
+    }
+
+    public void setData(ResourceEntity data) {
+        this.data = data;
+    }
 
     @Override
     public String toString() {

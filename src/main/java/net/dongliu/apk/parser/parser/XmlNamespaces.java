@@ -24,13 +24,13 @@ class XmlNamespaces {
     }
 
     public void addNamespace(XmlNamespaceStartTag tag) {
-        XmlNamespace namespace = new XmlNamespace(tag.prefix, tag.uri);
+        XmlNamespace namespace = new XmlNamespace(tag.getPrefix(), tag.getUri());
         namespaces.add(namespace);
         newNamespaces.add(namespace);
     }
 
     public void removeNamespace(XmlNamespaceEndTag tag) {
-        XmlNamespace namespace = new XmlNamespace(tag.prefix, tag.uri);
+        XmlNamespace namespace = new XmlNamespace(tag.getPrefix(), tag.getUri());
         namespaces.remove(namespace);
         newNamespaces.remove(namespace);
     }

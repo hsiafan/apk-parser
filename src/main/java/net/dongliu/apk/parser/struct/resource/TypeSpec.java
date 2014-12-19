@@ -10,7 +10,7 @@ public class TypeSpec {
     private short id;
 
     public TypeSpec(TypeSpecHeader header) {
-        this.id = header.id;
+        this.id = header.getId();
     }
 
     public boolean exists(int id) {

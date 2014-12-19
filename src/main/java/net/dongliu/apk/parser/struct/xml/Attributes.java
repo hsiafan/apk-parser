@@ -19,7 +19,7 @@ public class Attributes {
 
     public String get(String name) {
         for (Attribute attribute : attributes) {
-            if (attribute.name.equals(name)) {
+            if (attribute.getName().equals(name)) {
                 return attribute.getValue();
             }
         }

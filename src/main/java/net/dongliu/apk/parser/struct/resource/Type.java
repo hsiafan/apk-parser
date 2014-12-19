@@ -23,8 +23,8 @@ public class Type {
     private StringPool stringPool;
 
     public Type(TypeHeader header) {
-        this.id = header.id;
-        this.locale = new Locale(header.config.language, header.config.country);
+        this.id = header.getId();
+        this.locale = new Locale(header.getConfig().getLanguage(), header.getConfig().getCountry());
     }
 
     public ResourceEntry getResourceEntry(int id) {
@@ -77,12 +77,12 @@ public class Type {
 
     private ResourceTableMap readResourceTableMap() {
         ResourceTableMap resourceTableMap = new ResourceTableMap();
-        resourceTableMap.nameRef = Buffers.readUInt(buffer);
-        resourceTableMap.resValue = ParseUtils.readResValue(buffer, stringPool);
+        resourceTableMap.setNameRef(Buffers.readUInt(buffer));
+        resourceTableMap.setResValue(ParseUtils.readResValue(buffer, stringPool));
 
-        if ((resourceTableMap.nameRef & 0x02000000) != 0) {
+        if ((resourceTableMap.getNameRef() & 0x02000000) != 0) {
             //read arrays
-        } else if ((resourceTableMap.nameRef & 0x01000000) != 0) {
+        } else if ((resourceTableMap.getNameRef() & 0x01000000) != 0) {
             // read attrs
         } else {
         }

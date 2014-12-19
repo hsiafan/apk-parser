@@ -14,16 +14,16 @@ import java.util.Map;
  */
 public class ResourcePackage {
     // the packageName
-    public String name;
-    public short id;
+    private String name;
+    private short id;
     // contains the names of the types of the Resources defined in the ResourcePackage
-    public StringPool typeStringPool;
+    private StringPool typeStringPool;
     //  contains the names (keys) of the Resources defined in the ResourcePackage.
-    public StringPool keyStringPool;
+    private StringPool keyStringPool;
 
     public ResourcePackage(PackageHeader header) {
-        this.name = header.name;
-        this.id = (short) header.id;
+        this.name = header.getName();
+        this.id = (short) header.getId();
     }
 
     private Map<Short, TypeSpec> typeSpecMap = new HashMap<>();
@@ -49,5 +49,53 @@ public class ResourcePackage {
 
     public List<Type> getTypes(Short id) {
         return this.typesMap.get(id);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public short getId() {
+        return id;
+    }
+
+    public void setId(short id) {
+        this.id = id;
+    }
+
+    public StringPool getTypeStringPool() {
+        return typeStringPool;
+    }
+
+    public void setTypeStringPool(StringPool typeStringPool) {
+        this.typeStringPool = typeStringPool;
+    }
+
+    public StringPool getKeyStringPool() {
+        return keyStringPool;
+    }
+
+    public void setKeyStringPool(StringPool keyStringPool) {
+        this.keyStringPool = keyStringPool;
+    }
+
+    public Map<Short, TypeSpec> getTypeSpecMap() {
+        return typeSpecMap;
+    }
+
+    public void setTypeSpecMap(Map<Short, TypeSpec> typeSpecMap) {
+        this.typeSpecMap = typeSpecMap;
+    }
+
+    public Map<Short, List<Type>> getTypesMap() {
+        return typesMap;
+    }
+
+    public void setTypesMap(Map<Short, List<Type>> typesMap) {
+        this.typesMap = typesMap;
     }
 }

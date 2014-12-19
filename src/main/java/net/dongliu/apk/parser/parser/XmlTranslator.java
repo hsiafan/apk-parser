@@ -29,15 +29,15 @@ public class XmlTranslator implements XmlStreamer {
         }
         appendShift(shift++);
         sb.append('<');
-        if (xmlNodeStartTag.namespace != null) {
-            String prefix = namespaces.getPrefixViaUri(xmlNodeStartTag.namespace);
+        if (xmlNodeStartTag.getNamespace() != null) {
+            String prefix = namespaces.getPrefixViaUri(xmlNodeStartTag.getNamespace());
             if (prefix != null) {
                 sb.append(prefix).append(":");
             } else {
-                sb.append(xmlNodeStartTag.namespace).append(":");
+                sb.append(xmlNodeStartTag.getNamespace()).append(":");
             }
         }
-        sb.append(xmlNodeStartTag.name);
+        sb.append(xmlNodeStartTag.getName());
 
         List<XmlNamespaces.XmlNamespace> nps = namespaces.consumeNameSpaces();
         if (!nps.isEmpty()) {
@@ -56,15 +56,15 @@ public class XmlTranslator implements XmlStreamer {
 
     private void onAttribute(Attribute attribute) {
         sb.append(" ");
-        String namespace = this.namespaces.getPrefixViaUri(attribute.namespace);
+        String namespace = this.namespaces.getPrefixViaUri(attribute.getNamespace());
         if (namespace == null) {
-            namespace = attribute.namespace;
+            namespace = attribute.getNamespace();
         }
         if (namespace != null && !namespace.isEmpty()) {
             sb.append(namespace).append(':');
         }
         String escapedFinalValue = StringEscapeUtils.escapeXml10(attribute.getValue());
-        sb.append(attribute.name).append('=').append('"')
+        sb.append(attribute.getName()).append('=').append('"')
                 .append(escapedFinalValue).append('"');
     }
 
@@ -76,10 +76,10 @@ public class XmlTranslator implements XmlStreamer {
         } else {
             appendShift(shift);
             sb.append("</");
-            if (xmlNodeEndTag.namespace != null) {
-                sb.append(xmlNodeEndTag.namespace).append(":");
+            if (xmlNodeEndTag.getNamespace() != null) {
+                sb.append(xmlNodeEndTag.getNamespace()).append(":");
             }
-            sb.append(xmlNodeEndTag.name);
+            sb.append(xmlNodeEndTag.getName());
             sb.append(">\n");
         }
         isLastStartTag = false;

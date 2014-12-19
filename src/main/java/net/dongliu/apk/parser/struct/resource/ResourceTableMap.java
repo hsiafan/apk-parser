@@ -8,12 +8,34 @@ import net.dongliu.apk.parser.struct.ResourceEntity;
 public class ResourceTableMap {
     // ...elided
     // ResTable_ref; unit32
-    public long nameRef;
+    private long nameRef;
 
-    public ResourceEntity resValue;
+    private ResourceEntity resValue;
+    private String data;
 
+    public long getNameRef() {
+        return nameRef;
+    }
 
-    public String data;
+    public void setNameRef(long nameRef) {
+        this.nameRef = nameRef;
+    }
+
+    public ResourceEntity getResValue() {
+        return resValue;
+    }
+
+    public void setResValue(ResourceEntity resValue) {
+        this.resValue = resValue;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
 
     @Override
     public String toString() {

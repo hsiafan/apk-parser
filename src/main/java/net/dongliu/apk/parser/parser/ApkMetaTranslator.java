@@ -18,9 +18,9 @@ public class ApkMetaTranslator implements XmlStreamer {
 
     @Override
     public void onStartTag(XmlNodeStartTag xmlNodeStartTag) {
-        tagStack[depth++] = xmlNodeStartTag.name;
+        tagStack[depth++] = xmlNodeStartTag.getName();
         Attributes attributes = xmlNodeStartTag.getAttributes();
-        switch (xmlNodeStartTag.name) {
+        switch (xmlNodeStartTag.getName()) {
             case "application":
                 apkMeta.setLabel(attributes.get("label"));
                 apkMeta.setIcon(attributes.get("icon"));
@@ -139,7 +139,7 @@ public class ApkMetaTranslator implements XmlStreamer {
     @Override
     public void onEndTag(XmlNodeEndTag xmlNodeEndTag) {
         depth--;
-        switch (xmlNodeEndTag.name) {
+        switch (xmlNodeEndTag.getName()) {
             // below for server / activity / receiver
             case "service":
                 apkMeta.addService((Service) component);
