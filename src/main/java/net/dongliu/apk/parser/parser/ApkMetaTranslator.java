@@ -1,7 +1,6 @@
 package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.bean.*;
-import net.dongliu.apk.parser.bean.Constants.InstallLocation;
 import net.dongliu.apk.parser.struct.xml.*;
 
 /**

@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.bean.Constants.*;
+import net.dongliu.apk.parser.bean.AttributeValues;
 import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.struct.ChunkHeader;
@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -165,7 +164,7 @@ public class BinaryXmlParser {
             if (xmlStreamer != null) {
                 String value = attribute.toStringValue(resourceTable, locale);
                 if (StringUtils.isNumeric(value)) {
-                    value = getFinalValueAsString(attribute.name, value);
+                    value = getFinalValueAsString(attribute.name, Integer.parseInt(value));
                 }
                 attribute.setValue(value);
                 attributes.set(count, attribute);
@@ -181,66 +180,23 @@ public class BinaryXmlParser {
     }
 
     //trans int attr value to string
-    private String getFinalValueAsString(String attributeName, String value) {
-        int intValue = Integer.valueOf(value);
-        String realValue = value;
+    private String getFinalValueAsString(String attributeName, int value) {
         switch (attributeName) {
             case "screenOrientation":
-                ScreenOrientation screenOrientation =
-                        ScreenOrientation.valueOf(intValue);
-                if (screenOrientation != null) {
-                    realValue = screenOrientation.name();
-                }
-                break;
+                return AttributeValues.getScreenOrientation(value);
             case "configChanges":
-                List<ConfigChanges> configChangesList =
-                        ConfigChanges.valuesOf(intValue);
-                if (!configChangesList.isEmpty()) {
-                    StringBuilder sb = new StringBuilder();
-                    for (ConfigChanges c : configChangesList) {
-                        sb.append(c.name()).append('|');
-                    }
-                    sb.deleteCharAt(sb.length() - 1);
-                    realValue = sb.toString();
-                }
-                break;
+                return AttributeValues.getConfigChanges(value);
             case "windowSoftInputMode":
-                List<WindowSoftInputMode> windowSoftInputModeList =
-                        WindowSoftInputMode.valuesOf(intValue);
-                if (!windowSoftInputModeList.isEmpty()) {
-                    StringBuilder sb = new StringBuilder();
-                    for (WindowSoftInputMode w : windowSoftInputModeList) {
-                        sb.append(w.name()).append('|');
-                    }
-                    sb.deleteCharAt(sb.length() - 1);
-                    realValue = sb.toString();
-                }
-                break;
+                return AttributeValues.getWindowSoftInputMode(value);
             case "launchMode":
-                LaunchMode launchMode = LaunchMode.valueOf(intValue);
-                if (launchMode != null) {
-                    realValue = launchMode.name();
-                }
-                break;
+                return AttributeValues.getLaunchMode(value);
             case "installLocation":
-                InstallLocation installLocation = InstallLocation.valueOf(intValue);
-                if (installLocation != null) {
-                    realValue = installLocation.name();
-                }
-                break;
+                return AttributeValues.getInstallLocation(value);
             case "protectionLevel":
-                List<ProtectionLevel> protectionLevelList = ProtectionLevel.valueOf(intValue);
-                StringBuilder sb = new StringBuilder();
-                if (protectionLevelList != null) {
-                    for (ProtectionLevel protectionLevel : protectionLevelList) {
-                        sb.append(protectionLevel.name()).append('|');
-                    }
-                    sb.deleteCharAt(sb.length() - 1);
-                    realValue = sb.toString();
-                }
-                break;
+                return AttributeValues.getProtectionLevel(value);
+            default:
+                return String.valueOf(value);
         }
-        return realValue;
     }
 
     private Attribute readAttribute() {
@@ -319,7 +275,8 @@ public class BinaryXmlParser {
             case ChunkType.XML:
                 return new XmlHeader(chunkType, headerSize, chunkSize);
             case ChunkType.STRING_POOL:
-                StringPoolHeader stringPoolHeader = new StringPoolHeader(chunkType, headerSize, chunkSize);
+                StringPoolHeader stringPoolHeader = new StringPoolHeader(chunkType, headerSize,
+                        chunkSize);
                 stringPoolHeader.stringCount = Buffers.readUInt(buffer);
                 stringPoolHeader.styleCount = Buffers.readUInt(buffer);
                 stringPoolHeader.flags = Buffers.readUInt(buffer);

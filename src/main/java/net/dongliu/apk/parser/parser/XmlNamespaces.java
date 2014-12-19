@@ -19,8 +19,8 @@ class XmlNamespaces {
     private List<XmlNamespace> newNamespaces;
 
     public XmlNamespaces() {
-        this.namespaces = new ArrayList<XmlNamespace>();
-        this.newNamespaces = new ArrayList<XmlNamespace>();
+        this.namespaces = new ArrayList<>();
+        this.newNamespaces = new ArrayList<>();
     }
 
     public void addNamespace(XmlNamespaceStartTag tag) {
@@ -49,7 +49,7 @@ class XmlNamespaces {
 
     public List<XmlNamespace> consumeNameSpaces() {
         if (!newNamespaces.isEmpty()) {
-            List<XmlNamespace> xmlNamespaces = new ArrayList<XmlNamespace>();
+            List<XmlNamespace> xmlNamespaces = new ArrayList<>();
             xmlNamespaces.addAll(newNamespaces);
             newNamespaces.clear();
             return xmlNamespaces;

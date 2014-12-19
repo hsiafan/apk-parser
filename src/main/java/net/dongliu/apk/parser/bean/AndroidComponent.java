@@ -12,7 +12,7 @@ public abstract class AndroidComponent {
     private String name;
     private boolean exported;
     private String process;
-    private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>(0);
+    private List<IntentFilter> intentFilters = new ArrayList<>();
 
     public String getName() {
         return name;
