@@ -223,7 +223,7 @@ public class ApkParser implements Closeable {
      *
      * @return
      */
-    private byte[] getData(String path) throws IOException {
+    public byte[] getFileData(String path) throws IOException {
         ZipArchiveEntry entry = Utils.getEntry(zf, path);
         if (entry == null) {
             return null;

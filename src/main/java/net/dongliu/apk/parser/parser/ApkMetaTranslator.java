@@ -87,6 +87,8 @@ public class ApkMetaTranslator implements XmlStreamer {
                 fillComponent(attributes, service);
                 component = service;
                 break;
+            case "activity-alias":
+                //TODO: activity-alias
             case "activity":
                 Activity activity = new Activity();
                 fillComponent(attributes, activity);
