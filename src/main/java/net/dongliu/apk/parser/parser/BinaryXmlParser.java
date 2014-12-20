@@ -15,7 +15,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Android Binary XML format
@@ -163,8 +166,11 @@ public class BinaryXmlParser {
             Attribute attribute = readAttribute();
             if (xmlStreamer != null) {
                 String value = attribute.toStringValue(resourceTable, locale);
-                if (StringUtils.isNumeric(value)) {
-                    value = getFinalValueAsString(attribute.getName(), value);
+                if (intAttributes.contains(attribute.getName()) && StringUtils.isNumeric(value)) {
+                    try {
+                        value = getFinalValueAsString(attribute.getName(), value);
+                    } catch (Exception ignore) {
+                    }
                 }
                 attribute.setValue(value);
                 attributes.set(count, attribute);
@@ -179,6 +185,9 @@ public class BinaryXmlParser {
         return xmlNodeStartTag;
     }
 
+    private static final Set<String> intAttributes = new HashSet<>(
+            Arrays.asList("screenOrientation", "configChanges", "windowSoftInputMode",
+                    "launchMode", "installLocation", "protectionLevel"));
     //trans int attr value to string
     private String getFinalValueAsString(String attributeName, String str) {
         int value = Integer.parseInt(str);

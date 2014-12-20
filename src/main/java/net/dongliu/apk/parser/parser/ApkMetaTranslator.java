@@ -18,7 +18,6 @@ public class ApkMetaTranslator implements XmlStreamer {
 
     @Override
     public void onStartTag(XmlNodeStartTag xmlNodeStartTag) {
-        tagStack[depth++] = xmlNodeStartTag.getName();
         Attributes attributes = xmlNodeStartTag.getAttributes();
         switch (xmlNodeStartTag.getName()) {
             case "application":
@@ -101,7 +100,10 @@ public class ApkMetaTranslator implements XmlStreamer {
                 break;
             // below is for intent filter
             case "intent-filter":
-                intentFilter = new IntentFilter();
+                if (matchLastTag("activity") || matchLastTag("receiver") || matchLastTag("service")
+                        || matchLastTag("activity-alias")) {
+                    intentFilter = new IntentFilter();
+                }
                 break;
             case "action":
                 if (matchLastTag("intent-filter")) {
@@ -130,6 +132,7 @@ public class ApkMetaTranslator implements XmlStreamer {
                 }
                 break;
         }
+        tagStack[depth++] = xmlNodeStartTag.getName();
     }
 
     private void fillComponent(Attributes attributes, AndroidComponent component) {
@@ -156,9 +159,12 @@ public class ApkMetaTranslator implements XmlStreamer {
                 component = null;
                 break;
             case "intent-filter":
-                apkMeta.addIntentFilter(intentFilter);
-                component.addIntentFilter(intentFilter);
-                intentFilter = null;
+                if (matchLastTag("activity") || matchLastTag("receiver") || matchLastTag("service")
+                        || matchLastTag("activity-alias")) {
+                    apkMeta.addIntentFilter(intentFilter);
+                    component.addIntentFilter(intentFilter);
+                    intentFilter = null;
+                }
                 break;
         }
     }
