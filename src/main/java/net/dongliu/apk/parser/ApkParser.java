@@ -220,8 +220,6 @@ public class ApkParser implements Closeable {
 
     /**
      * read file in apk into bytes
-     *
-     * @return
      */
     public byte[] getFileData(String path) throws IOException {
         ZipArchiveEntry entry = Utils.getEntry(zf, path);
@@ -236,7 +234,6 @@ public class ApkParser implements Closeable {
     /**
      * check apk sign
      *
-     * @return
      * @throws IOException
      */
     public ApkSignStatus verifyApk() throws IOException {
@@ -255,8 +252,7 @@ public class ApkParser implements Closeable {
             if (e.isDirectory()) {
                 continue;
             }
-            InputStream in = jarFile.getInputStream(e);
-            try {
+            try (InputStream in = jarFile.getInputStream(e)) {
                 // Read in each jar entry. A security exception will be thrown if a signature/digest check fails.
                 int count;
                 while ((count = in.read(buffer, 0, buffer.length)) != -1) {
@@ -264,8 +260,6 @@ public class ApkParser implements Closeable {
                 }
             } catch (SecurityException se) {
                 return ApkSignStatus.incorrect;
-            } finally {
-                in.close();
             }
         }
         return ApkSignStatus.signed;
