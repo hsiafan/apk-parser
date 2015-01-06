@@ -1,11 +1,10 @@
-A pure java apk parser, to read encoded xml file and get apk infos, with no need for appt/dexdump binaries.
+A pure java apk parser, to read encoded xml file and get apk infos.
 
 #### Features
-For now, the following is (partially) supported:
-* resource table by ResourceTableParser
-* binary xml file by BinaryXmlParser
-* dex file by DexParser
-* certificate by CertificateParser
+* Retrieve basic apk metas, such as title, icon, package name, version, activities, etc.
+* Parse and convert binary xml file to text 
+* Classes from dex file
+* Get certificate metas and verify apk signature
 
 #### Get apk-parser
 Apk-parser has been submited to maven central repo, maven, gradle, ivy and other build tools can be used to get this lib.
