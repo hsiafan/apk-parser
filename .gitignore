@@ -1,5 +1,6 @@
 .idea/
 *.iml
-target/
+build/
+.gradle/
 *.class
 TestMain.java

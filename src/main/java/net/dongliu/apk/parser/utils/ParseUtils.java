@@ -174,7 +174,7 @@ public class ParseUtils {
                 break;
             case ResValue.ResType.STRING:
                 int strRef = buffer.getInt();
-                if (strRef > 0) {
+                if (strRef >= 0) {
                     resValue.setData(new ResourceEntity(stringPool.get(strRef)));
                 }
                 break;

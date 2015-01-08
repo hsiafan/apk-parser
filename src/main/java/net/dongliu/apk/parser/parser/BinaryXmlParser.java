@@ -3,10 +3,7 @@ package net.dongliu.apk.parser.parser;
 import net.dongliu.apk.parser.bean.AttributeValues;
 import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.struct.ChunkHeader;
-import net.dongliu.apk.parser.struct.ChunkType;
-import net.dongliu.apk.parser.struct.StringPool;
-import net.dongliu.apk.parser.struct.StringPoolHeader;
+import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.xml.*;
 import net.dongliu.apk.parser.utils.Buffers;
@@ -228,8 +225,9 @@ public class BinaryXmlParser {
         if (rawValueRef > 0) {
             attribute.setRawValue(stringPool.get(rawValueRef));
         }
-        attribute.setTypedValue(ParseUtils.readResValue(buffer, stringPool,
-                "style".equals(attribute.getName()) || "theme".equals(attribute.getName())));
+        ResourceEntity resValue = ParseUtils.readResValue(buffer, stringPool,
+                "style".equals(attribute.getName()) || "theme".equals(attribute.getName()));
+        attribute.setTypedValue(resValue);
 
         return attribute;
     }

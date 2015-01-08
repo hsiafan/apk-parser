@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * common parent class for activity, service, receiver
  *
- * @author Dong Liu dongliu@wandoujia.com
+ * @author Dong Liu dongliu@live.cn
  */
 public abstract class AndroidComponent {
     private String name;
