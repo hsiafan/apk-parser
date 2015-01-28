@@ -16,7 +16,7 @@ With maven, you can add apk-parser as dependency by:
     <version>2.0.5</version>
 </dependency>
 ```
-From version 2.0, apk-parser requires java8. The last version support java6 is 1.7.4.
+From version 2.0, apk-parser requires java7. The last version support java6 is 1.7.4.
 
 #### Usage
 The easiest way is to use the ApkParser class, which contains convenient methods to get AndroidManifest.xml, apk meta infos, etc.
