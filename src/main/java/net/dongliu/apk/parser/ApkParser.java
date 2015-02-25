@@ -1,9 +1,6 @@
 package net.dongliu.apk.parser;
 
-import net.dongliu.apk.parser.bean.ApkMeta;
-import net.dongliu.apk.parser.bean.ApkSignStatus;
-import net.dongliu.apk.parser.bean.CertificateMeta;
-import net.dongliu.apk.parser.bean.DexClass;
+import net.dongliu.apk.parser.bean.*;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
@@ -42,10 +39,12 @@ public class ApkParser implements Closeable {
     private final ZipFile zf;
     private File apkFile;
 
+    private static final Locale defaultLocale = Locale.forLanguageTag("");
+
     /**
-     * default use system locale
+     * default use empty locale
      */
-    private Locale preferredLocale = Locale.getDefault();
+    private Locale preferredLocale = defaultLocale;
 
     public ApkParser(File apkFile) throws IOException {
         this.apkFile = apkFile;
@@ -175,6 +174,21 @@ public class ApkParser implements Closeable {
         XmlTranslator xmlTranslator = new XmlTranslator();
         transBinaryXml(path, xmlTranslator);
         return xmlTranslator.getXml();
+    }
+
+    /**
+     * get the apk icon file as bytes.
+     *
+     * @return the apk icon data,null if icon not found
+     * @throws IOException
+     */
+    public Icon getIconFile() throws IOException {
+        ApkMeta apkMeta = getApkMeta();
+        String iconPath = apkMeta.getIcon();
+        if (iconPath == null) {
+            return null;
+        }
+        return new Icon(iconPath, getFileData(iconPath));
     }
 
 

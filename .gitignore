@@ -4,3 +4,4 @@ build/
 .gradle/
 *.class
 TestMain.java
+apks/
