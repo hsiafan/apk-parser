@@ -13,7 +13,7 @@ With maven, you can add apk-parser as dependency by:
 <dependency>
     <groupId>net.dongliu</groupId>
     <artifactId>apk-parser</artifactId>
-    <version>2.0.6</version>
+    <version>2.0.7</version>
 </dependency>
 ```
 From version 2.0, apk-parser requires java7. The last version support java6 is 1.7.4.
@@ -62,11 +62,12 @@ try(ApkParser apkParser = new ApkParser(new File(filePath))) {
 
 #####5. Locales
 Apk may appear different infos(title, icon, etc.) for different region and language, which is determined by Locales.
-If locale is not set, the empty locale(<code>Locale.forLanguageTag("")</code>) is used. You can set locale like this:
+If locale is not set, the "en_US" locale(<code>Locale.US</code>) is used. You can set locale like this:
 ```java
-ApkParser apkParser = new ApkParser(new File(filePath));
-apkParser.setPreferredLocale(Locale.ENGLISH);
-ApkMeta apkMeta = apkParser.getApkMeta();
+try(ApkParser apkParser = new ApkParser(new File(filePath))) {
+    apkParser.setPreferredLocale(Locale.ENGLISH);
+    ApkMeta apkMeta = apkParser.getApkMeta();
+}
 ```
 The PreferredLocale parameter work for getApkMeta, getManifestXml, and other binary xmls.
 Apk parser will find best match languages with locale you specified.

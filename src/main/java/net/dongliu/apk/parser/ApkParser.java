@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -39,7 +40,7 @@ public class ApkParser implements Closeable {
     private final ZipFile zf;
     private File apkFile;
 
-    private static final Locale defaultLocale = Locale.forLanguageTag("");
+    private static final Locale defaultLocale = Locale.US;
 
     /**
      * default use empty locale
@@ -97,14 +98,14 @@ public class ApkParser implements Closeable {
      * get the apk's certificates.
      */
     public List<CertificateMeta> getCertificateMetaList() throws IOException,
-            CertificateEncodingException {
+            CertificateException {
         if (this.certificateMetaList == null) {
             parseCertificate();
         }
         return this.certificateMetaList;
     }
 
-    private void parseCertificate() throws IOException, CertificateEncodingException {
+    private void parseCertificate() throws IOException, CertificateException {
         ZipArchiveEntry entry = null;
         Enumeration<ZipArchiveEntry> enu = zf.getEntries();
         while (enu.hasMoreElements()) {

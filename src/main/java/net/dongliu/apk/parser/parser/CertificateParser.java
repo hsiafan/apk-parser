@@ -12,6 +12,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +40,11 @@ public class CertificateParser {
      * @throws IOException
      * @throws CertificateEncodingException
      */
-    public void parse() throws IOException, CertificateEncodingException {
+    public void parse() throws IOException, CertificateException {
 
         PKCS7 pkcs7 = new PKCS7(Utils.toByteArray(in));
         X509Certificate[] certificates = pkcs7.getCertificates();
-        certificateMetas = new ArrayList<CertificateMeta>();
+        certificateMetas = new ArrayList<>();
         for (X509Certificate certificate : certificates) {
             CertificateMeta certificateMeta = new CertificateMeta();
             certificateMetas.add(certificateMeta);
