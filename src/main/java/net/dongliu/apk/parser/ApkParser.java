@@ -109,12 +109,13 @@ public class ApkParser implements Closeable {
         ZipArchiveEntry entry = null;
         Enumeration<ZipArchiveEntry> enu = zf.getEntries();
         while (enu.hasMoreElements()) {
-            entry = enu.nextElement();
-            if (entry.isDirectory()) {
+            ZipArchiveEntry ne = enu.nextElement();
+            if (ne.isDirectory()) {
                 continue;
             }
-            if (entry.getName().toUpperCase().endsWith(".RSA")
-                    || entry.getName().toUpperCase().endsWith(".DSA")) {
+            if (ne.getName().toUpperCase().endsWith(".RSA")
+                    || ne.getName().toUpperCase().endsWith(".DSA")) {
+                entry = ne;
                 break;
             }
         }
