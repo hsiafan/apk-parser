@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -321,7 +320,7 @@ public class ApkParser implements Closeable {
      * The default value is from os default locale setting.
      */
     public void setPreferredLocale(Locale preferredLocale) {
-        if (Objects.equals(this.preferredLocale, preferredLocale)) {
+        if (!Objects.equals(this.preferredLocale, preferredLocale)) {
             this.preferredLocale = preferredLocale;
             this.manifestXml = null;
             this.apkMeta = null;
