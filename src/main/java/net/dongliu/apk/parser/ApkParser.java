@@ -39,12 +39,12 @@ public class ApkParser implements Closeable {
     private final ZipFile zf;
     private File apkFile;
 
-    private static final Locale defaultLocale = Locale.US;
+    private static final Locale DEFAULT_LOCALE = Locale.US;
 
     /**
      * default use empty locale
      */
-    private Locale preferredLocale = defaultLocale;
+    private Locale preferredLocale = DEFAULT_LOCALE;
 
     public ApkParser(File apkFile) throws IOException {
         this.apkFile = apkFile;
