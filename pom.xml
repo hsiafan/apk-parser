@@ -25,8 +25,8 @@
 
     <licenses>
         <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>The BSD 2-Clause License</name>
+            <url>https://github.com/xiaxiaocao/apk-parser/LICENSE.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>

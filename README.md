@@ -1,5 +1,6 @@
 A pure java apk parser, to read encoded xml file and get apk infos.
 
+[![Software License](https://img.shields.io/badge/license-BSD%202%20Clause-blue.svg)](LICENSE.txt) 
 #### Features
 * Retrieve basic apk metas, such as title, icon, package name, version, activities, etc.
 * Parse and convert binary xml file to text 
