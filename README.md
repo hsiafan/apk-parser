@@ -2,7 +2,7 @@ A pure java apk parser, to read encoded xml file and get apk infos.
 
 [![Software License](https://img.shields.io/badge/license-BSD%202%20Clause-blue.svg)](LICENSE.txt) 
 #### Features
-* Retrieve basic apk metas, such as title, icon, package name, version, activities, etc.
+* Retrieve basic apk metas, such as title, icon, package name, version, etc.
 * Parse and convert binary xml file to text 
 * Classes from dex file
 * Get certificate metas and verify apk signature
@@ -14,7 +14,7 @@ With maven, you can add apk-parser as dependency by:
 <dependency>
     <groupId>net.dongliu</groupId>
     <artifactId>apk-parser</artifactId>
-    <version>2.0.9</version>
+    <version>2.0.10</version>
 </dependency>
 ```
 From version 2.0, apk-parser requires java7. The last version support java6 is 1.7.4.
@@ -22,7 +22,7 @@ From version 2.0, apk-parser requires java7. The last version support java6 is 1
 #### Usage
 The easiest way is to use the ApkParser class, which contains convenient methods to get AndroidManifest.xml, apk meta infos, etc.
 #####1. Apk meta info
-ApkMeta contains name(label), packageName, version, sdk, used features, activities, services, receivers, intent-filters, etc.
+ApkMeta contains name(label), packageName, version, sdk, used features, etc.
 ```java
 try(ApkParser apkParser = new ApkParser(new File(filePath))) {
     System.out.println(apkMeta.getLabel());

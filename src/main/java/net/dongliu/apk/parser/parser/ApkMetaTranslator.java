@@ -1,6 +1,9 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.bean.*;
+import net.dongliu.apk.parser.bean.ApkMeta;
+import net.dongliu.apk.parser.bean.GlEsVersion;
+import net.dongliu.apk.parser.bean.Permission;
+import net.dongliu.apk.parser.bean.UseFeature;
 import net.dongliu.apk.parser.struct.xml.*;
 
 /**
@@ -12,9 +15,6 @@ public class ApkMetaTranslator implements XmlStreamer {
     private String[] tagStack = new String[100];
     private int depth = 0;
     private ApkMeta apkMeta = new ApkMeta();
-
-    private IntentFilter intentFilter;
-    private AndroidComponent component;
 
     @Override
     public void onStartTag(XmlNodeStartTag xmlNodeStartTag) {
@@ -80,93 +80,13 @@ public class ApkMetaTranslator implements XmlStreamer {
                 }
                 apkMeta.addPermission(permission);
                 break;
-            // below for server / activity / receiver
-            case "service":
-                Service service = new Service();
-                fillComponent(attributes, service);
-                component = service;
-                break;
-            case "activity-alias":
-                //TODO: activity-alias
-            case "activity":
-                Activity activity = new Activity();
-                fillComponent(attributes, activity);
-                component = activity;
-                break;
-            case "receiver":
-                Receiver receiver = new Receiver();
-                fillComponent(attributes, receiver);
-                component = receiver;
-                break;
-            // below is for intent filter
-            case "intent-filter":
-                if (matchLastTag("activity") || matchLastTag("receiver") || matchLastTag("service")
-                        || matchLastTag("activity-alias")) {
-                    intentFilter = new IntentFilter();
-                }
-                break;
-            case "action":
-                if (matchLastTag("intent-filter")) {
-                    intentFilter.addAction(attributes.get("name"));
-                }
-                break;
-            case "category":
-                if (matchLastTag("intent-filter")) {
-                    intentFilter.addCategory(attributes.get("name"));
-                }
-                break;
-            case "data":
-                if (matchLastTag("intent-filter")) {
-                    String scheme = attributes.get("scheme");
-                    String host = attributes.get("host");
-                    String pathPrefix = attributes.get("pathPrefix");
-                    String mimeType = attributes.get("mimeType");
-                    String type = attributes.get("type");
-                    IntentFilter.IntentData data = new IntentFilter.IntentData();
-                    data.setScheme(scheme);
-                    data.setMimeType(mimeType);
-                    data.setHost(host);
-                    data.setPathPrefix(pathPrefix);
-                    data.setType(type);
-                    intentFilter.addData(data);
-                }
-                break;
         }
         tagStack[depth++] = xmlNodeStartTag.getName();
-    }
-
-    private void fillComponent(Attributes attributes, AndroidComponent component) {
-        component.setName(attributes.get("name"));
-        component.setExported(attributes.getBoolean("exported", false));
-        component.setProcess(attributes.get("process"));
     }
 
     @Override
     public void onEndTag(XmlNodeEndTag xmlNodeEndTag) {
         depth--;
-        switch (xmlNodeEndTag.getName()) {
-            // below for server / activity / receiver
-            case "service":
-                apkMeta.addService((Service) component);
-                component = null;
-                break;
-            case "activity":
-                apkMeta.addActivity((Activity) component);
-                component = null;
-                break;
-            case "receiver":
-                apkMeta.addReceiver((Receiver) component);
-                component = null;
-                break;
-            case "intent-filter":
-                if (matchLastTag("activity") || matchLastTag("receiver") || matchLastTag("service")
-                        || matchLastTag("activity-alias")) {
-                    apkMeta.addIntentFilter(intentFilter);
-                    component.addIntentFilter(intentFilter);
-                    intentFilter = null;
-                }
-                break;
-        }
     }
 
     @Override

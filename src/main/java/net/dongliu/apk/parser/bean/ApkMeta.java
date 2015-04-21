@@ -1,7 +1,6 @@
 package net.dongliu.apk.parser.bean;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -27,14 +26,6 @@ public class ApkMeta {
     private List<String> usesPermissions = new ArrayList<>();
     private List<UseFeature> usesFeatures = new ArrayList<>();
     private List<Permission> permissions = new ArrayList<>();
-    private List<Service> services = new ArrayList<>();
-    private List<Activity> activities = new ArrayList<>();
-    private List<Receiver> receivers = new ArrayList<>();
-
-    /**
-     * all intent filters this apk register
-     */
-    private List<IntentFilter> intentFilters = new ArrayList<>();
 
     public String getPackageName() {
         return packageName;
@@ -185,42 +176,6 @@ public class ApkMeta {
 
     public List<Permission> getPermissions() {
         return this.permissions;
-    }
-
-    public List<Service> getServices() {
-        return services;
-    }
-
-    public void addService(Service service) {
-        this.services.add(service);
-    }
-
-    public List<Activity> getActivities() {
-        return activities;
-    }
-
-    public void addActivity(Activity activity) {
-        this.activities.add(activity);
-    }
-
-    public List<Receiver> getReceivers() {
-        return receivers;
-    }
-
-    public void addReceiver(Receiver receiver) {
-        this.receivers.add(receiver);
-    }
-
-    public List<IntentFilter> getIntentFilters() {
-        return intentFilters;
-    }
-
-    public void addIntentFilter(IntentFilter intentFilter) {
-        this.intentFilters.add(intentFilter);
-    }
-
-    public void addIntentFilters(Collection<IntentFilter> intentFilters) {
-        this.intentFilters.addAll(intentFilters);
     }
 
     @Override
