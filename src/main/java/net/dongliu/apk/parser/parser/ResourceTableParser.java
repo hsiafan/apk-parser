@@ -7,9 +7,8 @@ import net.dongliu.apk.parser.struct.StringPool;
 import net.dongliu.apk.parser.struct.StringPoolHeader;
 import net.dongliu.apk.parser.struct.resource.*;
 import net.dongliu.apk.parser.utils.Buffers;
+import net.dongliu.apk.parser.utils.Pair;
 import net.dongliu.apk.parser.utils.ParseUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -65,7 +64,7 @@ public class ResourceTableParser {
 
     // read one package
     private Pair<ResourcePackage, PackageHeader> readPackage(PackageHeader packageHeader) {
-        MutablePair<ResourcePackage, PackageHeader> pair = new MutablePair<>();
+        Pair<ResourcePackage, PackageHeader> pair = new Pair<>();
         //read packageHeader
         ResourcePackage resourcePackage = new ResourcePackage(packageHeader);
         pair.setLeft(resourcePackage);

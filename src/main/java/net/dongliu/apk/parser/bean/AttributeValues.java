@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.bean;
 
-import org.apache.commons.lang3.StringUtils;
+import net.dongliu.apk.parser.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +104,7 @@ public class AttributeValues {
         } else if ((value & 0x00000200) != 0) {
             list.add("uiMode");
         }
-        return StringUtils.join(list, "|");
+        return Utils.join(list, "|");
     }
 
     public static String getWindowSoftInputMode(int value) {
@@ -149,7 +149,7 @@ public class AttributeValues {
             default:
                 list.add("WindowInputModeState:" + Integer.toHexString(state));
         }
-        return StringUtils.join(list, "|");
+        return Utils.join(list, "|");
         //isForwardNavigation(0x00000100),
         //mode_changed(0x00000200),
     }
@@ -181,7 +181,7 @@ public class AttributeValues {
             default:
                 levels.add("ProtectionLevel:" + Integer.toHexString(value));
         }
-        return StringUtils.join(levels, "|");
+        return Utils.join(levels, "|");
     }
 
 

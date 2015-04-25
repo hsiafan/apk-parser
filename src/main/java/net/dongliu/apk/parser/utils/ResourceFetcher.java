@@ -1,9 +1,6 @@
 package net.dongliu.apk.parser.utils;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -64,7 +61,7 @@ public class ResourceFetcher {
                         idStr = idStr.substring(2);
                     }
                     int id = Integer.parseInt(idStr, 16);
-                    attrIds.add(new ImmutablePair<>(id, name));
+                    attrIds.add(new Pair<>(id, name));
                 }
             }
         };
@@ -90,8 +87,8 @@ public class ResourceFetcher {
         for (String line : lines) {
             line = line.trim();
             if (line.startsWith("field public static final")) {
-                line = StringUtils.substringBefore(line, ";").replace("deprecated ", "")
-                .substring("field public static final int ".length()).replace("_", ".");
+                line = Utils.substringBefore(line, ";").replace("deprecated ", "")
+                        .substring("field public static final int ".length()).replace("_", ".");
                 System.out.println(line);
             }
         }

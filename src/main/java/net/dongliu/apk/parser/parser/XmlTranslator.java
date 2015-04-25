@@ -1,7 +1,7 @@
 package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.struct.xml.*;
-import org.apache.commons.lang3.StringEscapeUtils;
+import net.dongliu.apk.parser.utils.xml.XmlEscaper;
 
 import java.util.List;
 
@@ -63,7 +63,7 @@ public class XmlTranslator implements XmlStreamer {
         if (namespace != null && !namespace.isEmpty()) {
             sb.append(namespace).append(':');
         }
-        String escapedFinalValue = StringEscapeUtils.escapeXml10(attribute.getValue());
+        String escapedFinalValue = XmlEscaper.escapeXml10(attribute.getValue());
         sb.append(attribute.getName()).append('=').append('"')
                 .append(escapedFinalValue).append('"');
     }

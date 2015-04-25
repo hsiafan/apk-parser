@@ -8,7 +8,7 @@ import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.xml.*;
 import net.dongliu.apk.parser.utils.Buffers;
 import net.dongliu.apk.parser.utils.ParseUtils;
-import org.apache.commons.lang3.StringUtils;
+import net.dongliu.apk.parser.utils.Utils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -163,7 +163,7 @@ public class BinaryXmlParser {
             Attribute attribute = readAttribute();
             if (xmlStreamer != null) {
                 String value = attribute.toStringValue(resourceTable, locale);
-                if (intAttributes.contains(attribute.getName()) && StringUtils.isNumeric(value)) {
+                if (intAttributes.contains(attribute.getName()) && Utils.isNumeric(value)) {
                     try {
                         value = getFinalValueAsString(attribute.getName(), value);
                     } catch (Exception ignore) {
