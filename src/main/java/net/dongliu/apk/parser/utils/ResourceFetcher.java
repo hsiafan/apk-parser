@@ -1,6 +1,5 @@
 package net.dongliu.apk.parser.utils;
 
-import org.apache.commons.compress.utils.IOUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -101,7 +100,7 @@ public class ResourceFetcher {
             conn.setRequestMethod("GET");
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(10000);
-            byte[] bytes = IOUtils.toByteArray(conn.getInputStream());
+            byte[] bytes = Utils.toByteArray(conn.getInputStream());
             return new String(bytes, StandardCharsets.UTF_8);
         } finally {
             conn.disconnect();

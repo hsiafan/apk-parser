@@ -14,7 +14,7 @@ With maven, you can add apk-parser as dependency by:
 <dependency>
     <groupId>net.dongliu</groupId>
     <artifactId>apk-parser</artifactId>
-    <version>2.0.11</version>
+    <version>2.0.12</version>
 </dependency>
 ```
 From version 2.0, apk-parser requires java7. The last version support java6 is 1.7.4.
