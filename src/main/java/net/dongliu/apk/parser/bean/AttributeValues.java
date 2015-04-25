@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * attribute value constant
  *
- * @author Dong Liu
+ * @author Liu Dong
  */
 public class AttributeValues {
 

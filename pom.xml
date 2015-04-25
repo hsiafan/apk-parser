@@ -18,8 +18,8 @@
     <developers>
         <developer>
             <id>xiaxiaocao</id>
-            <name>Dong Liu</name>
-            <email>dongliu@live.cn</email>
+            <name>Liu Dong</name>
+            <email>im@dongliu.net</email>
         </developer>
     </developers>
 
@@ -100,8 +100,20 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5</version>
             </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>net.dongliu.apk.parser.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
         </plugins>
-
     </build>
 
     <profiles>

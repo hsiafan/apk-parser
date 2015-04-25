@@ -9,7 +9,7 @@ import net.dongliu.apk.parser.struct.xml.*;
 /**
  * trans binary xml to text
  *
- * @author Dong Liu dongliu@live.cn
+ * @author Liu Dong im@dongliu.net
  */
 public class ApkMetaTranslator implements XmlStreamer {
     private String[] tagStack = new String[100];

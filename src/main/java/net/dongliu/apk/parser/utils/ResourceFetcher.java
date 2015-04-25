@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 /**
  * fetch dependency resource file from android source
  *
- * @author Dong Liu dongliu@live.cn
+ * @author Liu Dong im@dongliu.net
  */
 public class ResourceFetcher {
 

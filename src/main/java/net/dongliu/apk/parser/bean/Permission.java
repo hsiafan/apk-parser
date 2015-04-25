@@ -3,7 +3,7 @@ package net.dongliu.apk.parser.bean;
 /**
  * permission provided by the app
  *
- * @author Dong Liu
+ * @author Liu Dong
  */
 public class Permission {
     private String name;

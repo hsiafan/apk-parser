@@ -3,7 +3,7 @@ package net.dongliu.apk.parser.bean;
 import java.util.Date;
 
 /**
- * basic certificate infos.
+ * basic certificate info.
  *
  * @author dongliu
  */
@@ -108,9 +108,8 @@ public class CertificateMeta {
 
     @Override
     public String toString() {
-        return "sign algorithm:\t" + signAlgorithm + "\n" +
-                "startDate:\t" + startDate + "\n" +
-                "endDate:\t" + endDate + "\n" +
+        return "signAlgorithm:\t" + signAlgorithm + '\n' +
+                "certBase64Md5:\t" + certBase64Md5 + '\n' +
                 "certMd5:\t" + certMd5;
     }
 }

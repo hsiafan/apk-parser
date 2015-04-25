@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * The apk icon file path, and data
  *
- * @author Dong Liu
+ * @author Liu Dong
  */
 public class Icon {
 
