@@ -33,7 +33,7 @@ try(ApkParser apkParser = new ApkParser(new File(filePath))) {
     }
 }
 ```
-#####2. Get binary xml and menifest xml file
+#####2. Get binary xml and manifest xml file
 ```java
 try(ApkParser apkParser = new ApkParser(new File(filePath))) {
     String manifestXml = apkParser.getManifestXml();
