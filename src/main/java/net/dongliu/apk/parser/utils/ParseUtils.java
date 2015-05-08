@@ -310,12 +310,16 @@ public class ParseUtils {
                 continue;
             }
             ref = resource.getKey();
-            int level = Locales.match(locale, type.getLocale());
-            if (level == 2) {
-                result = resource.toStringValue(resourceTable, locale);
+            if (typeSpec.getName().equals("string")) {
+                int level = Locales.match(locale, type.getLocale());
+                if (level == 2) {
+                    result = resource.toStringValue(resourceTable, locale);
+                    break;
+                } else if (level > currentLevel) {
+                    result = resource.toStringValue(resourceTable, locale);
+                }
+            } else {
                 break;
-            } else if (level > currentLevel) {
-                result = resource.toStringValue(resourceTable, locale);
             }
         }
         if (locale == null || result == null) {
