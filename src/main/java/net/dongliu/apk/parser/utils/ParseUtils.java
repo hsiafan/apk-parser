@@ -316,6 +316,7 @@ public class ParseUtils {
                 break;
             } else if (level > currentLevel) {
                 result = resource.toStringValue(resourceTable, locale);
+                currentLevel = level;
             }
         }
         if (locale == null || result == null) {

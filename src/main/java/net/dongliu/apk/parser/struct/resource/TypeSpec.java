@@ -40,4 +40,12 @@ public class TypeSpec {
     public void setId(short id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "TypeSpec{" +
+                "name='" + name + '\'' +
+                ", id=" + id +
+                '}';
+    }
 }

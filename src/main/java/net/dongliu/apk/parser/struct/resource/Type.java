@@ -145,4 +145,13 @@ public class Type {
     public void setStringPool(StringPool stringPool) {
         this.stringPool = stringPool;
     }
+
+    @Override
+    public String toString() {
+        return "Type{" +
+                "name='" + name + '\'' +
+                ", id=" + id +
+                ", locale=" + locale +
+                '}';
+    }
 }
