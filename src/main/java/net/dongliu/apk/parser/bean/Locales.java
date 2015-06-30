@@ -17,11 +17,15 @@ public class Locales {
             return -1;
         }
         if (locale.getLanguage().equals(targetLocale.getLanguage())) {
-            if (locale.getCountry().isEmpty() || locale.getCountry().equals(locale.getCountry())) {
+            if (locale.getCountry().equals(targetLocale.getCountry())) {
+                return 3;
+            } else if (targetLocale.getCountry().isEmpty()) {
                 return 2;
             } else {
-                return 1;
+                return 0;
             }
+        } else if (targetLocale.getCountry().isEmpty() || targetLocale.getLanguage().isEmpty()) {
+            return 1;
         } else {
             return 0;
         }
