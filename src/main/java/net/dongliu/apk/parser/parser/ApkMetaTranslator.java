@@ -6,6 +6,8 @@ import net.dongliu.apk.parser.bean.Permission;
 import net.dongliu.apk.parser.bean.UseFeature;
 import net.dongliu.apk.parser.struct.xml.*;
 
+import java.util.HashMap;
+
 /**
  * trans binary xml to text
  *
@@ -23,6 +25,11 @@ public class ApkMetaTranslator implements XmlStreamer {
             case "application":
                 apkMeta.setLabel(attributes.get("label"));
                 apkMeta.setIcon(attributes.get("icon"));
+                HashMap<String, String> appProps = new HashMap<>();
+                apkMeta.setApplicationProperties(appProps);
+                for (Attribute attribute : attributes.value()) {
+                    appProps.put(attribute.getName(), attribute.getValue());
+                }
                 break;
             case "manifest":
                 apkMeta.setPackageName(attributes.get("package"));
