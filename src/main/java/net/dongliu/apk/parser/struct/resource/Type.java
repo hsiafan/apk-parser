@@ -60,8 +60,7 @@ public class Type {
             buffer.position((int) (beginPos + resourceEntry.getSize()));
 
             //An individual complex Resource entry comprises an entry immediately followed by one or more fields.
-            ResourceTableMap[] resourceTableMaps =
-                    new ResourceTableMap[(int) resourceMapEntry.getCount()];
+            ResourceTableMap[] resourceTableMaps = new ResourceTableMap[(int) resourceMapEntry.getCount()];
             for (int i = 0; i < resourceMapEntry.getCount(); i++) {
                 resourceTableMaps[i] = readResourceTableMap();
             }

@@ -33,16 +33,6 @@ public class Attribute {
         }
     }
 
-    @Override
-    public String toString() {
-        return "Attribute{" +
-                "namespace='" + namespace + '\'' +
-                ", name='" + name + '\'' +
-                ", rawValue='" + rawValue + '\'' +
-                ", typedValue=" + typedValue +
-                '}';
-    }
-
     /**
      * These are attribute resource constants for the platform; as found in android.R.attr
      *
@@ -100,5 +90,13 @@ public class Attribute {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "Attribute{" +
+                "name='" + name + '\'' +
+                ", namespace='" + namespace + '\'' +
+                '}';
     }
 }

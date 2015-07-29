@@ -27,6 +27,6 @@ public class Icon {
 
     @Override
     public String toString() {
-        return "Icon{path='" + path + '\'' + ", size=" + data.length + '}';
+        return "Icon{path='" + path + '\'' + ", size=" + (data == null ? 0 : data.length) + '}';
     }
 }

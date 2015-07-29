@@ -23,6 +23,9 @@ public class ResourceLoader {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] items = line.trim().split("=");
+                if (items.length != 2) {
+                    continue;
+                }
                 String name = items[0].trim();
                 Integer id = Integer.valueOf(items[1].trim());
                 map.put(id, name);
@@ -40,6 +43,9 @@ public class ResourceLoader {
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
                 String[] items = line.split("=");
+                if (items.length != 2) {
+                    continue;
+                }
                 Integer id = Integer.valueOf(items[1].trim());
                 String name = items[0].trim();
                 map.put(id, name);

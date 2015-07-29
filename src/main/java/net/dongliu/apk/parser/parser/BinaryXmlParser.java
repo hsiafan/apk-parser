@@ -31,6 +31,7 @@ public class BinaryXmlParser {
      */
     private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
     private StringPool stringPool;
+    // some attribute name stored by resource id
     private String[] resourceMap;
     private ByteBuffer buffer;
     private XmlStreamer xmlStreamer;
@@ -51,6 +52,9 @@ public class BinaryXmlParser {
      */
     public void parse() {
         ChunkHeader chunkHeader = readChunkHeader();
+        if (chunkHeader == null) {
+            return;
+        }
         if (chunkHeader.getChunkType() != ChunkType.XML) {
             //TODO: may be a plain xml file.
             return;
@@ -59,11 +63,17 @@ public class BinaryXmlParser {
 
         // read string pool chunk
         chunkHeader = readChunkHeader();
+        if (chunkHeader == null) {
+            return;
+        }
         ParseUtils.checkChunkType(ChunkType.STRING_POOL, chunkHeader.getChunkType());
         stringPool = ParseUtils.readStringPool(buffer, (StringPoolHeader) chunkHeader);
 
         // read on chunk, check if it was an optional XMLResourceMap chunk
         chunkHeader = readChunkHeader();
+        if (chunkHeader == null) {
+            return;
+        }
         if (chunkHeader.getChunkType() == ChunkType.XML_RESOURCE_MAP) {
             long[] resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
             resourceMap = new String[resourceIds.length];
@@ -185,6 +195,7 @@ public class BinaryXmlParser {
     private static final Set<String> intAttributes = new HashSet<>(
             Arrays.asList("screenOrientation", "configChanges", "windowSoftInputMode",
                     "launchMode", "installLocation", "protectionLevel"));
+
     //trans int attr value to string
     private String getFinalValueAsString(String attributeName, String str) {
         int value = Integer.parseInt(str);
@@ -225,8 +236,7 @@ public class BinaryXmlParser {
         if (rawValueRef > 0) {
             attribute.setRawValue(stringPool.get(rawValueRef));
         }
-        ResourceEntity resValue = ParseUtils.readResValue(buffer, stringPool,
-                "style".equals(attribute.getName()) || "theme".equals(attribute.getName()));
+        ResourceEntity resValue = ParseUtils.readResValue(buffer, stringPool);
         attribute.setTypedValue(resValue);
 
         return attribute;
@@ -283,8 +293,7 @@ public class BinaryXmlParser {
             case ChunkType.XML:
                 return new XmlHeader(chunkType, headerSize, chunkSize);
             case ChunkType.STRING_POOL:
-                StringPoolHeader stringPoolHeader = new StringPoolHeader(chunkType, headerSize,
-                        chunkSize);
+                StringPoolHeader stringPoolHeader = new StringPoolHeader(chunkType, headerSize, chunkSize);
                 stringPoolHeader.setStringCount(Buffers.readUInt(buffer));
                 stringPoolHeader.setStyleCount(Buffers.readUInt(buffer));
                 stringPoolHeader.setFlags(Buffers.readUInt(buffer));

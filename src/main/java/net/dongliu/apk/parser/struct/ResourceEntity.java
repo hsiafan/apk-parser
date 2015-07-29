@@ -19,11 +19,6 @@ public class ResourceEntity {
     private long resourceId;
 
     /**
-     * if is style resource. just translate this into "@style/xxx/xx"
-     */
-    boolean isStyle;
-
-    /**
      * the resource's value
      */
     private String value;
@@ -40,9 +35,8 @@ public class ResourceEntity {
         this.value = String.valueOf(b);
     }
 
-    public ResourceEntity(long resourceId, boolean isStype) {
+    public ResourceEntity(long resourceId) {
         this.resourceId = resourceId;
-        this.isStyle = isStype;
     }
 
     public long getResourceId() {
@@ -68,14 +62,15 @@ public class ResourceEntity {
         if (this.value != null) {
             return this.value;
         }
-        return ParseUtils.getResourceById(this.resourceId, isStyle, resourceTable, locale);
+        String value = ParseUtils.getResourceById(this.resourceId, resourceTable, locale);
+        this.value = value;
+        return value;
     }
 
     @Override
     public String toString() {
         return "ResourceEntity{" +
                 "resourceId=" + resourceId +
-                ", isStyle=" + isStyle +
                 ", value='" + value + '\'' +
                 '}';
     }

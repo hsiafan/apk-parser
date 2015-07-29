@@ -182,6 +182,7 @@ public class ApkMeta {
     public String toString() {
         return "packageName: \t" + packageName + "\n"
                 + "label: \t" + label + "\n"
+                + "icon: \t" + icon + "\n"
                 + "versionName: \t" + versionName + "\n"
                 + "versionCode: \t" + versionCode + "\n"
                 + "minSdkVersion: \t" + minSdkVersion + "\n"

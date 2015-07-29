@@ -32,7 +32,6 @@ public class ParseUtils {
             // zero
             int trailling = Buffers.readUByte(buffer);
             return str;
-
         } else {
             // The length is encoded as either one or two 16-bit integers as per the commentRef...
             int strLen = readLen16(buffer);
@@ -160,8 +159,7 @@ public class ParseUtils {
     /**
      * read res value, convert from different types to string.
      */
-    public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool,
-                                              boolean isStyle) {
+    public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool) {
         ResValue resValue = new ResValue();
         resValue.setSize(Buffers.readUShort(buffer));
         resValue.setRes0(Buffers.readUByte(buffer));
@@ -180,7 +178,7 @@ public class ParseUtils {
                 break;
             case ResValue.ResType.REFERENCE:
                 long resourceId = Buffers.readUInt(buffer);
-                resValue.setData(new ResourceEntity(resourceId, isStyle));
+                resValue.setData(new ResourceEntity(resourceId));
                 break;
             case ResValue.ResType.INT_BOOLEAN:
                 resValue.setData(new ResourceEntity(buffer.getInt() != 0));
@@ -267,15 +265,14 @@ public class ParseUtils {
     /**
      * get resource value by string-format via resourceId.
      */
-    public static String getResourceById(long resourceId, boolean isStyle,
-                                         ResourceTable resourceTable, Locale locale) {
+    public static String getResourceById(long resourceId, ResourceTable resourceTable, Locale locale) {
 //        An Android Resource id is a 32-bit integer. It comprises
 //        an 8-bit Package id [bits 24-31]
 //        an 8-bit Type id [bits 16-23]
 //        a 16-bit Entry index [bits 0-15]
 
         // android system styles.
-        if (isStyle && (resourceId & AndroidConstants.STYLE_ID_START) == AndroidConstants.STYLE_ID_START) {
+        if (resourceId > AndroidConstants.SYS_STYLE_ID_START && resourceId < AndroidConstants.SYS_STYLE_ID_END) {
             return "@android:style/" + ResourceTable.sysStyle.get((int) resourceId);
         }
 
@@ -301,34 +298,36 @@ public class ParseUtils {
         }
 
         // read from type resource
-        String result = null;
+        ResourceEntry resource = null;
         String ref = null;
         int currentLevel = -1;
         for (Type type : types) {
-            ResourceEntry resource = type.getResourceEntry(entryIndex);
-            if (resource == null) {
+            ResourceEntry curResource = type.getResourceEntry(entryIndex);
+            if (curResource == null) {
                 continue;
             }
-            ref = resource.getKey();
+            // not ResourceMapEntry and resource == 0. some resource entry do not have  effective resource id
+            if (curResource.getValue() != null && curResource.getValue().getResourceId() == 0
+                    && curResource.getValue().getValue() == null) {
+                continue;
+            }
+            ref = curResource.getKey();
             int level = Locales.match(locale, type.getLocale());
             if (level == 2) {
-                result = resource.toStringValue(resourceTable, locale);
+                resource = curResource;
                 break;
             } else if (level > currentLevel) {
-                result = resource.toStringValue(resourceTable, locale);
+                resource = curResource;
                 currentLevel = level;
             }
         }
-        if (locale == null || result == null) {
+        String result;
+        if (locale == null || resource == null) {
             result = "@" + typeSpec.getName() + "/" + ref;
+        } else {
+            result = resource.toStringValue(resourceTable, locale);
         }
         return result;
     }
 
-    /**
-     * read res value. for resource table parser
-     */
-    public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool) {
-        return readResValue(buffer, stringPool, false);
-    }
 }

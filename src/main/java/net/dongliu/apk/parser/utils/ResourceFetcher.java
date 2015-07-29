@@ -55,6 +55,9 @@ public class ResourceFetcher {
                 if (type.equals("attr")) {
                     //attr ids.
                     String idStr = attributes.getValue("id");
+                    if (idStr == null) {
+                        return;
+                    }
                     String name = attributes.getValue("name");
                     if (idStr.startsWith("0x")) {
                         idStr = idStr.substring(2);
@@ -91,7 +94,6 @@ public class ResourceFetcher {
                 System.out.println(line);
             }
         }
-
     }
 
     private String getUrl(String url) throws IOException {
@@ -121,7 +123,7 @@ public class ResourceFetcher {
     public static void main(String[] args)
             throws ParserConfigurationException, SAXException, IOException {
         ResourceFetcher fetcher = new ResourceFetcher();
-        //fetcher.fetchSystemAttrIds();
-        fetcher.fetchSystemStyle();
+        fetcher.fetchSystemAttrIds();
+        //fetcher.fetchSystemStyle();
     }
 }
