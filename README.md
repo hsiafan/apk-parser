@@ -66,7 +66,7 @@ Apk may appear different infos(title, icon, etc.) for different region and langu
 If locale is not set, the "en_US" locale(<code>Locale.US</code>) is used. You can set locale like this:
 ```java
 try(ApkParser apkParser = new ApkParser(new File(filePath))) {
-    apkParser.setPreferredLocale(Locale.ENGLISH);
+    apkParser.setPreferredLocale(Locale.SIMPLIFIED_CHINESE);
     ApkMeta apkMeta = apkParser.getApkMeta();
 }
 ```
