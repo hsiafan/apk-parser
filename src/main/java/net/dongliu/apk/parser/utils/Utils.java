@@ -12,7 +12,7 @@ public class Utils {
 
     public static byte[] toByteArray(InputStream in) throws IOException {
         try {
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[1024*8];
             try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                 int len;
                 while ((len = in.read(buf)) != -1) {
@@ -24,11 +24,6 @@ public class Utils {
             in.close();
         }
     }
-
-    public static ZipEntry getEntry(ZipFile zf, String path) {
-        return zf.getEntry(path);
-    }
-
 
     /**
      * Copied fom commons StringUtils
