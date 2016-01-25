@@ -26,12 +26,12 @@ import java.util.List;
  */
 public class CertificateParser {
 
-    private InputStream in;
+    private final byte[] data;
 
     private List<CertificateMeta> certificateMetas;
 
-    public CertificateParser(InputStream in) {
-        this.in = new BufferedInputStream(in);
+    public CertificateParser(byte[] data) {
+        this.data =data;
     }
 
     /**
@@ -42,7 +42,7 @@ public class CertificateParser {
      */
     public void parse() throws IOException, CertificateException {
 
-        PKCS7 pkcs7 = new PKCS7(Utils.toByteArray(in));
+        PKCS7 pkcs7 = new PKCS7(data);
         X509Certificate[] certificates = pkcs7.getCertificates();
         certificateMetas = new ArrayList<>();
         for (X509Certificate certificate : certificates) {
