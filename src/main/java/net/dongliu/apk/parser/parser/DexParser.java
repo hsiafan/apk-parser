@@ -174,7 +174,7 @@ public class DexParser {
     private String readString() {
         // the length is char len, not byte len
         int strLen = readVarInts();
-        return Buffers.readString(buffer, strLen);
+        return readString(strLen);
     }
 
     /**
@@ -182,7 +182,6 @@ public class DexParser {
      *
      * @param strLen the java-utf16-char len, not strLen nor bytes len.
      */
-    @Deprecated
     private String readString(int strLen) {
         char[] chars = new char[strLen];
 
