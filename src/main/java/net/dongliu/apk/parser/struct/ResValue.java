@@ -1,7 +1,10 @@
 package net.dongliu.apk.parser.struct;
 
+import javax.annotation.Nullable;
+
 /**
- * apk res value struct.
+ * Apk res value struct.
+ * Only for description now, The value is hold in ResourceValue
  *
  * @author dongliu
  */
@@ -25,41 +28,10 @@ public class ResValue {
      *     a composite value
      */
     /**
-     * the real data repesented by string
+     * the real data represented by string
      */
-    private ResourceEntity data;
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public short getRes0() {
-        return res0;
-    }
-
-    public void setRes0(short res0) {
-        this.res0 = res0;
-    }
-
-    public short getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(short dataType) {
-        this.dataType = dataType;
-    }
-
-    public ResourceEntity getData() {
-        return data;
-    }
-
-    public void setData(ResourceEntity data) {
-        this.data = data;
-    }
+    @Nullable
+    private ResourceValue data;
 
     @Override
     public String toString() {

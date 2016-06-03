@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.struct.xml;
 
-import net.dongliu.apk.parser.struct.ResourceEntity;
+import net.dongliu.apk.parser.struct.ResourceValue;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 
 import java.util.Locale;
@@ -17,7 +17,7 @@ public class XmlCData {
     private String data;
 
     // The typed value of the character data if this is a CDATA node.
-    private ResourceEntity typedData;
+    private ResourceValue typedData;
 
     // the final value as string
     private String value;
@@ -43,11 +43,11 @@ public class XmlCData {
         this.data = data;
     }
 
-    public ResourceEntity getTypedData() {
+    public ResourceValue getTypedData() {
         return typedData;
     }
 
-    public void setTypedData(ResourceEntity typedData) {
+    public void setTypedData(ResourceValue typedData) {
         this.typedData = typedData;
     }
 

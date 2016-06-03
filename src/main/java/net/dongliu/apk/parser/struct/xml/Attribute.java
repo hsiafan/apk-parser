@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.struct.xml;
 
-import net.dongliu.apk.parser.struct.ResourceEntity;
+import net.dongliu.apk.parser.struct.ResourceValue;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.utils.ResourceLoader;
 
@@ -18,7 +18,7 @@ public class Attribute {
     // The original raw string value of this 
     private String rawValue;
     // Processed typed value of this
-    private ResourceEntity typedValue;
+    private ResourceValue typedValue;
     // the final value as string
     private String value;
 
@@ -76,11 +76,11 @@ public class Attribute {
         this.rawValue = rawValue;
     }
 
-    public ResourceEntity getTypedValue() {
+    public ResourceValue getTypedValue() {
         return typedValue;
     }
 
-    public void setTypedValue(ResourceEntity typedValue) {
+    public void setTypedValue(ResourceValue typedValue) {
         this.typedValue = typedValue;
     }
 

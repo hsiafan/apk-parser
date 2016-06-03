@@ -48,7 +48,8 @@ public class Type {
         resourceEntry.setSize(Buffers.readUShort(buffer));
         resourceEntry.setFlags(Buffers.readUShort(buffer));
         long keyRef = buffer.getInt();
-        resourceEntry.setKey(keyStringPool.get((int) keyRef));
+        String key = keyStringPool.get((int) keyRef);
+        resourceEntry.setKey(key);
 
         if ((resourceEntry.getFlags() & ResourceEntry.FLAG_COMPLEX) != 0) {
             ResourceMapEntry resourceMapEntry = new ResourceMapEntry(resourceEntry);

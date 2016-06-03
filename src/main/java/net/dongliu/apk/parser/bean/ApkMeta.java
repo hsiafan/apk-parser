@@ -1,5 +1,6 @@
 package net.dongliu.apk.parser.bean;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class ApkMeta {
     private String installLocation;
     private String minSdkVersion;
     private String targetSdkVersion;
+    @Nullable
     private String maxSdkVersion;
     private GlEsVersion glEsVersion;
     private boolean anyDensity;
@@ -67,11 +69,12 @@ public class ApkMeta {
         this.targetSdkVersion = targetSdkVersion;
     }
 
+    @Nullable
     public String getMaxSdkVersion() {
         return maxSdkVersion;
     }
 
-    public void setMaxSdkVersion(String maxSdkVersion) {
+    public void setMaxSdkVersion(@Nullable String maxSdkVersion) {
         this.maxSdkVersion = maxSdkVersion;
     }
 

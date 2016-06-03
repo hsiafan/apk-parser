@@ -6,6 +6,7 @@ import net.dongliu.apk.parser.parser.StringPoolEntry;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.*;
 
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -145,114 +146,46 @@ public class ParseUtils {
     }
 
     /**
-     * method to read resource value RGB/ARGB type.
-     */
-    public static String readRGBs(ByteBuffer buffer, int strLen) {
-        long l = Buffers.readUInt(buffer);
-        StringBuilder sb = new StringBuilder();
-        for (int i = strLen / 2 - 1; i >= 0; i--) {
-            sb.append(Integer.toHexString((int) ((l >> i * 8) & 0xff)));
-        }
-        return sb.toString();
-    }
-
-    /**
      * read res value, convert from different types to string.
      */
-    public static ResourceEntity readResValue(ByteBuffer buffer, StringPool stringPool) {
-        ResValue resValue = new ResValue();
-        resValue.setSize(Buffers.readUShort(buffer));
-        resValue.setRes0(Buffers.readUByte(buffer));
-        resValue.setDataType(Buffers.readUByte(buffer));
+    @Nullable
+    public static ResourceValue readResValue(ByteBuffer buffer, StringPool stringPool) {
+//        ResValue resValue = new ResValue();
+        int size = Buffers.readUShort(buffer);
+        short res0 = Buffers.readUByte(buffer);
+        short dataType = Buffers.readUByte(buffer);
 
-        switch (resValue.getDataType()) {
+        switch (dataType) {
             case ResValue.ResType.INT_DEC:
+                return ResourceValue.decimal(buffer.getInt());
             case ResValue.ResType.INT_HEX:
-                resValue.setData(new ResourceEntity(buffer.getInt()));
-                break;
+                return ResourceValue.hexadecimal(buffer.getInt());
             case ResValue.ResType.STRING:
                 int strRef = buffer.getInt();
                 if (strRef >= 0) {
-                    resValue.setData(new ResourceEntity(stringPool.get(strRef)));
+                    return ResourceValue.string(strRef, stringPool);
+                } else {
+                    return null;
                 }
-                break;
             case ResValue.ResType.REFERENCE:
-                long resourceId = Buffers.readUInt(buffer);
-                resValue.setData(new ResourceEntity(resourceId));
-                break;
+                return ResourceValue.reference(buffer.getInt());
             case ResValue.ResType.INT_BOOLEAN:
-                resValue.setData(new ResourceEntity(buffer.getInt() != 0));
-                break;
+                return ResourceValue.bool(buffer.getInt());
             case ResValue.ResType.NULL:
-                resValue.setData(new ResourceEntity(""));
-                break;
+                return ResourceValue.nullValue();
             case ResValue.ResType.INT_COLOR_RGB8:
             case ResValue.ResType.INT_COLOR_RGB4:
-                resValue.setData(new ResourceEntity(readRGBs(buffer, 6)));
-                break;
+                return ResourceValue.rgb(buffer.getInt(), 6);
             case ResValue.ResType.INT_COLOR_ARGB8:
             case ResValue.ResType.INT_COLOR_ARGB4:
-                resValue.setData(new ResourceEntity(readRGBs(buffer, 8)));
-                break;
+                return ResourceValue.rgb(buffer.getInt(), 8);
             case ResValue.ResType.DIMENSION:
-                resValue.setData(new ResourceEntity(getDimension(buffer)));
-                break;
+                return ResourceValue.dimension(buffer.getInt());
             case ResValue.ResType.FRACTION:
-                resValue.setData(new ResourceEntity(getFraction(buffer)));
-                break;
+                return ResourceValue.fraction(buffer.getInt());
             default:
-                resValue.setData(new ResourceEntity("{" + resValue.getDataType() + ":"
-                        + Buffers.readUInt(buffer) + "}"));
+                return ResourceValue.raw(buffer.getInt(), dataType);
         }
-        return resValue.getData();
-    }
-
-    private static String getDimension(ByteBuffer buffer) {
-        long l = Buffers.readUInt(buffer);
-        short unit = (short) (l & 0xff);
-        String unitStr;
-        switch (unit) {
-            case ResValue.ResDataCOMPLEX.UNIT_MM:
-                unitStr = "mm";
-                break;
-            case ResValue.ResDataCOMPLEX.UNIT_PX:
-                unitStr = "px";
-                break;
-            case ResValue.ResDataCOMPLEX.UNIT_DIP:
-                unitStr = "dp";
-                break;
-            case ResValue.ResDataCOMPLEX.UNIT_SP:
-                unitStr = "sp";
-                break;
-            case ResValue.ResDataCOMPLEX.UNIT_PT:
-                unitStr = "pt";
-                break;
-            case ResValue.ResDataCOMPLEX.UNIT_IN:
-                unitStr = "in";
-                break;
-            default:
-                unitStr = "unknown unit:0x" + Integer.toHexString(unit);
-        }
-        return (l >> 8) + unitStr;
-    }
-
-    private static String getFraction(ByteBuffer buffer) {
-        long l = Buffers.readUInt(buffer);
-        // The low-order 4 bits of the data value specify the type of the fraction
-        short type = (short) (l & 0xf);
-        String pstr;
-        switch (type) {
-            case ResValue.ResDataCOMPLEX.UNIT_FRACTION:
-                pstr = "%";
-                break;
-            case ResValue.ResDataCOMPLEX.UNIT_FRACTION_PARENT:
-                pstr = "%p";
-                break;
-            default:
-                pstr = "unknown type:0x" + Integer.toHexString(type);
-        }
-        float value = Float.intBitsToFloat((int) (l >> 4));
-        return value + pstr;
     }
 
     public static void checkChunkType(int expected, int real) {
@@ -306,12 +239,13 @@ public class ParseUtils {
             if (curResource == null) {
                 continue;
             }
-            // not ResourceMapEntry and resource == 0. some resource entry do not have  effective resource id
-            if (curResource.getValue() != null && curResource.getValue().getResourceId() == 0
-                    && curResource.getValue().getValue() == null) {
+            ref = curResource.getKey();
+
+            ResourceValue currentResourceValue = curResource.getValue();
+            if (currentResourceValue == null) {
                 continue;
             }
-            ref = curResource.getKey();
+
             int level = Locales.match(locale, type.getLocale());
             if (level == 2) {
                 resource = curResource;

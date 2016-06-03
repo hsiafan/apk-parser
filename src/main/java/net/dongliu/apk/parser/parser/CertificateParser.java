@@ -1,19 +1,15 @@
 package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.bean.CertificateMeta;
-import net.dongliu.apk.parser.utils.Utils;
 import sun.security.pkcs.PKCS7;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;

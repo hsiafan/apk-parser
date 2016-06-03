@@ -236,7 +236,7 @@ public class BinaryXmlParser {
         if (rawValueRef > 0) {
             attribute.setRawValue(stringPool.get(rawValueRef));
         }
-        ResourceEntity resValue = ParseUtils.readResValue(buffer, stringPool);
+        ResourceValue resValue = ParseUtils.readResValue(buffer, stringPool);
         attribute.setTypedValue(resValue);
 
         return attribute;

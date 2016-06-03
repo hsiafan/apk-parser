@@ -1,7 +1,8 @@
 package net.dongliu.apk.parser.struct.resource;
 
-import net.dongliu.apk.parser.struct.ResourceEntity;
+import net.dongliu.apk.parser.struct.ResourceValue;
 
+import javax.annotation.Nullable;
 import java.util.Locale;
 
 /**
@@ -29,7 +30,7 @@ public class ResourceEntry {
     private String key;
 
     // the resvalue following this resource entry.
-    private ResourceEntity value;
+    private ResourceValue value;
 
     /**
      * get value as string
@@ -68,11 +69,13 @@ public class ResourceEntry {
         this.key = key;
     }
 
-    public ResourceEntity getValue() {
+    @Nullable
+    public ResourceValue getValue() {
         return value;
     }
 
-    public void setValue(ResourceEntity value) {
+    @Nullable
+    public void setValue(@Nullable ResourceValue value) {
         this.value = value;
     }
 

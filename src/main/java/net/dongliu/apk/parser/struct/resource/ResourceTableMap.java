@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.struct.resource;
 
-import net.dongliu.apk.parser.struct.ResourceEntity;
+import net.dongliu.apk.parser.struct.ResourceValue;
 
 /**
  * @author dongliu
@@ -10,7 +10,7 @@ public class ResourceTableMap {
     // ResTable_ref; unit32
     private long nameRef;
 
-    private ResourceEntity resValue;
+    private ResourceValue resValue;
     private String data;
 
     public long getNameRef() {
@@ -21,11 +21,11 @@ public class ResourceTableMap {
         this.nameRef = nameRef;
     }
 
-    public ResourceEntity getResValue() {
+    public ResourceValue getResValue() {
         return resValue;
     }
 
-    public void setResValue(ResourceEntity resValue) {
+    public void setResValue(ResourceValue resValue) {
         this.resValue = resValue;
     }
 
