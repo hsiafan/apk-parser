@@ -37,12 +37,24 @@ public class Attributes {
 
     public Integer getInt(String name) {
         String value = get(name);
-        return value == null ? null : Integer.valueOf(value);
+        if (value == null) {
+            return null;
+        }
+        if (value.startsWith("0x")) {
+            return Integer.valueOf(value.substring(2), 16);
+        }
+        return Integer.valueOf(value);
     }
 
     public Long getLong(String name) {
         String value = get(name);
-        return value == null ? null : Long.valueOf(value);
+        if (value == null) {
+            return null;
+        }
+        if (value.startsWith("0x")) {
+            return Long.valueOf(value.substring(2), 16);
+        }
+        return Long.valueOf(value);
     }
 
     public Attribute[] value() {

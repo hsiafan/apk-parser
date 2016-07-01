@@ -118,7 +118,8 @@ public abstract class ResourceValue {
         }
     }
 
-    private static class ReferenceResourceValue extends ResourceValue {
+    // make public for cyclic reference detect
+    public static class ReferenceResourceValue extends ResourceValue {
 
         private ReferenceResourceValue(int value) {
             super(value);
@@ -126,7 +127,12 @@ public abstract class ResourceValue {
 
         @Override
         public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            return ParseUtils.getResourceById(value & 0xFFFFFFFFL, resourceTable, locale);
+            long resourceId = getReferenceResourceId();
+            return ParseUtils.getResourceById(resourceId, resourceTable, locale);
+        }
+
+        public long getReferenceResourceId() {
+            return value & 0xFFFFFFFFL;
         }
     }
 

@@ -235,23 +235,31 @@ public class ParseUtils {
         String ref = null;
         int currentLevel = -1;
         for (Type type : types) {
-            ResourceEntry curResource = type.getResourceEntry(entryIndex);
-            if (curResource == null) {
+            ResourceEntry curResourceEntry = type.getResourceEntry(entryIndex);
+            if (curResourceEntry == null) {
                 continue;
             }
-            ref = curResource.getKey();
+            ref = curResourceEntry.getKey();
 
-            ResourceValue currentResourceValue = curResource.getValue();
+            ResourceValue currentResourceValue = curResourceEntry.getValue();
             if (currentResourceValue == null) {
                 continue;
             }
 
+            // cyclic reference detect
+            if (currentResourceValue instanceof ResourceValue.ReferenceResourceValue) {
+                if (resourceId == ((ResourceValue.ReferenceResourceValue) currentResourceValue)
+                        .getReferenceResourceId()) {
+                    continue;
+                }
+            }
+
             int level = Locales.match(locale, type.getLocale());
             if (level == 2) {
-                resource = curResource;
+                resource = curResourceEntry;
                 break;
             } else if (level > currentLevel) {
-                resource = curResource;
+                resource = curResourceEntry;
                 currentLevel = level;
             }
         }
