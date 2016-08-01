@@ -7,9 +7,15 @@ import net.dongliu.apk.parser.struct.ChunkHeader;
  */
 public class PackageHeader extends ChunkHeader {
 
-    // If this is a base package, its ID.  ResourcePackage IDs start at 1 (corresponding to the value of
-    // the package bits in a resource identifier).  0 means this is not a base package.
+    // ResourcePackage IDs start at 1 (corresponding to the value of the package bits in a resource identifier).
+    // 0 means this is not a base package.
     // uint32_t
+    // 0 framework-res.apk
+    // 2-9 other framework files
+    // 127 application package
+
+    // Anroid 5.0+: Shared libraries will be assigned a package ID of 0x00 at build-time.
+    // At runtime, all loaded shared libraries will be assigned a new package ID.
     private long id;
 
     // Actual name of this package, -terminated.
@@ -45,6 +51,9 @@ public class PackageHeader extends ChunkHeader {
     }
 
     public void setId(long id) {
+//        if (id == 0) {
+//            id = 2;
+//        }
         this.id = id;
     }
 

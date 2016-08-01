@@ -1,6 +1,9 @@
 package net.dongliu.apk.parser.struct;
 
 /**
+ * Resource type
+ * see https://github.com/android/platform_frameworks_base/blob/master/include/androidfw/ResourceTypes.h
+ *
  * @author dongliu
  */
 public class ChunkType {
@@ -25,4 +28,7 @@ public class ChunkType {
     public static final int TABLE_PACKAGE = 0x0200;
     public static final int TABLE_TYPE = 0x0201;
     public static final int TABLE_TYPE_SPEC = 0x0202;
+    // android5.0+
+    // DynamicRefTable
+    public static final int TABLE_LIBRARY = 0x0203;
 }

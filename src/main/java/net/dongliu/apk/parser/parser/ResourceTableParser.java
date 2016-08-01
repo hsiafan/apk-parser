@@ -19,6 +19,7 @@ import java.util.Set;
 /**
  * parse android resource table file.
  * see http://justanapplication.wordpress.com/category/android/android-resources/
+ * see https://github.com/android/platform_frameworks_base/blob/6f4b5661696355d230c515a45aca2dddd8fe99b1/libs/androidfw/ResourceTypes.cpp
  *
  * @author dongliu
  */
@@ -90,9 +91,9 @@ public class ResourceTableParser {
         outer:
         while (buffer.hasRemaining()) {
             ChunkHeader chunkHeader = readChunkHeader();
+            long chunkBegin = buffer.position();
             switch (chunkHeader.getChunkType()) {
                 case ChunkType.TABLE_TYPE_SPEC:
-                    long typeSpecChunkBegin = buffer.position();
                     TypeSpecHeader typeSpecHeader = (TypeSpecHeader) chunkHeader;
                     long[] entryFlags = new long[(int) typeSpecHeader.getEntryCount()];
                     for (int i = 0; i < typeSpecHeader.getEntryCount(); i++) {
@@ -102,17 +103,15 @@ public class ResourceTableParser {
                     TypeSpec typeSpec = new TypeSpec(typeSpecHeader);
 
 
-
                     typeSpec.setEntryFlags(entryFlags);
                     //id start from 1
                     typeSpec.setName(resourcePackage.getTypeStringPool()
                             .get(typeSpecHeader.getId() - 1));
 
                     resourcePackage.addTypeSpec(typeSpec);
-                    buffer.position((int) (typeSpecChunkBegin + typeSpecHeader.getBodySize()));
+                    buffer.position((int) (chunkBegin + typeSpecHeader.getBodySize()));
                     break;
                 case ChunkType.TABLE_TYPE:
-                    long typeChunkBegin = buffer.position();
                     TypeHeader typeHeader = (TypeHeader) chunkHeader;
                     // read offsets table
                     long[] offsets = new long[(int) typeHeader.getEntryCount()];
@@ -122,8 +121,7 @@ public class ResourceTableParser {
 
                     Type type = new Type(typeHeader);
                     type.setName(resourcePackage.getTypeStringPool().get(typeHeader.getId() - 1));
-                    long entryPos = typeChunkBegin + typeHeader.getEntriesStart()
-                            - typeHeader.getHeaderSize();
+                    long entryPos = chunkBegin + typeHeader.getEntriesStart() - typeHeader.getHeaderSize();
                     buffer.position((int) entryPos);
                     ByteBuffer b = buffer.slice();
                     b.order(byteOrder);
@@ -133,14 +131,25 @@ public class ResourceTableParser {
                     type.setStringPool(stringPool);
                     resourcePackage.addType(type);
                     locales.add(type.getLocale());
-                    buffer.position((int) (typeChunkBegin + typeHeader.getBodySize()));
+                    buffer.position((int) (chunkBegin + typeHeader.getBodySize()));
                     break;
                 case ChunkType.TABLE_PACKAGE:
                     // another package. we should read next package here
                     pair.setRight((PackageHeader) chunkHeader);
                     break outer;
+                case ChunkType.TABLE_LIBRARY:
+                    // read entries
+                    LibraryHeader libraryHeader = (LibraryHeader) chunkHeader;
+                    for (long i = 0; i < libraryHeader.getCount(); i++) {
+                        int packageId = buffer.getInt();
+                        String name = Buffers.readZeroTerminatedString(buffer, 128);
+                        LibraryEntry entry = new LibraryEntry(packageId, name);
+                        //TODO: now just skip it..
+                    }
+                    buffer.position((int) (chunkBegin + chunkHeader.getBodySize()));
+                    break;
                 default:
-                    throw new ParserException("unexpected chunk type:" + chunkHeader.getChunkType());
+                    throw new ParserException("unexpected chunk type: 0x" + chunkHeader.getChunkType());
             }
         }
 
@@ -200,10 +209,17 @@ public class ResourceTableParser {
                 typeHeader.setConfig(readResTableConfig());
                 buffer.position((int) (begin + headerSize));
                 return typeHeader;
+            case ChunkType.TABLE_LIBRARY:
+                //DynamicRefTable
+                LibraryHeader libraryHeader = new LibraryHeader(chunkType, headerSize, chunkSize);
+                libraryHeader.setCount(Buffers.readUInt(buffer));
+                buffer.position((int) (begin + headerSize));
+                return libraryHeader;
+
             case ChunkType.NULL:
                 //buffer.skip((int) (chunkSize - headerSize));
             default:
-                throw new ParserException("Unexpected chunk Type:" + Integer.toHexString(chunkType));
+                throw new ParserException("Unexpected chunk Type: 0x" + Integer.toHexString(chunkType));
         }
     }
 

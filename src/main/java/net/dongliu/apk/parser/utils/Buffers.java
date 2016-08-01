@@ -45,13 +45,27 @@ public class Buffers {
 
     /**
      * read utf16 strings, use strLen, not ending 0 char.
-     *
-     * @param strLen
      */
     public static String readString(ByteBuffer buffer, int strLen) {
         StringBuilder sb = new StringBuilder(strLen);
         for (int i = 0; i < strLen; i++) {
             sb.append(buffer.getChar());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * read utf16 strings, ending with 0 char.
+     */
+    public static String readZeroTerminatedString(ByteBuffer buffer, int strLen) {
+        StringBuilder sb = new StringBuilder(strLen);
+        for (int i = 0; i < strLen; i++) {
+            char c = buffer.getChar();
+            if (c == '\0') {
+                skip(buffer, (strLen - i - 1) * 2);
+                break;
+            }
+            sb.append(c);
         }
         return sb.toString();
     }
