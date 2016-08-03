@@ -3,6 +3,7 @@ package net.dongliu.apk.parser.bean;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author dongliu
@@ -28,6 +29,8 @@ public class ApkMeta {
     private List<String> usesPermissions = new ArrayList<>();
     private List<UseFeature> usesFeatures = new ArrayList<>();
     private List<Permission> permissions = new ArrayList<>();
+
+    private Map<String, String> applicationProperties;
 
     public String getPackageName() {
         return packageName;
@@ -179,6 +182,14 @@ public class ApkMeta {
 
     public List<Permission> getPermissions() {
         return this.permissions;
+    }
+
+    public Map<String, String> getApplicationProperties() {
+        return applicationProperties;
+    }
+
+    public void setApplicationProperties(Map<String, String> applicationProperties) {
+        this.applicationProperties = applicationProperties;
     }
 
     @Override
