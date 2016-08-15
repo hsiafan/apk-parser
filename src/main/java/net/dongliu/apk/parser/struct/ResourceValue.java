@@ -110,7 +110,7 @@ public abstract class ResourceValue {
 
         @Override
         public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            if (value > 0) {
+            if (value >= 0) {
                 return stringPool.get(value);
             } else {
                 return null;
