@@ -1,4 +1,4 @@
-A pure java apk parser, to read encoded xml file and get apk infos.
+Apk parser with java, for decoding xml file and getting meta infos from apk file.
 
 #### Features
 * Retrieve basic apk metas, such as title, icon, package name, version, etc.
