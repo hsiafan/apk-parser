@@ -96,7 +96,7 @@ public abstract class ResourceValue {
 
         @Override
         public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            return String.valueOf(value != 1);
+            return String.valueOf(value == 1);
         }
     }
 
