@@ -25,9 +25,9 @@ import java.util.Set;
  */
 public class BinaryXmlParser {
 
-
     /**
-     * By default the data buffer Chunks is buffer little-endian byte order both at runtime and when stored buffer files.
+     * By default the data buffer Chunks is buffer little-endian byte order both at runtime and when stored buffer
+     * files.
      */
     private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
     private StringPool stringPool;
@@ -55,11 +55,11 @@ public class BinaryXmlParser {
         if (chunkHeader == null) {
             return;
         }
-        if (chunkHeader.getChunkType() != ChunkType.XML) {
-            //TODO: may be a plain xml file.
+        if (chunkHeader.getChunkType() != ChunkType.XML && chunkHeader.getChunkType() != ChunkType.NULL) {
+            // notice that some apk mark xml header type as 0, really weird
+            // see https://github.com/clearthesky/apk-parser/issues/49#issuecomment-256852727
             return;
         }
-        XmlHeader xmlHeader = (XmlHeader) chunkHeader;
 
         // read string pool chunk
         chunkHeader = readChunkHeader();
@@ -315,8 +315,7 @@ public class BinaryXmlParser {
                 buffer.position((int) (begin + headerSize));
                 return header;
             case ChunkType.NULL:
-                //buffer.advanceTo(begin + headerSize);
-                //buffer.skip((int) (chunkSize - headerSize));
+                return new NullHeader(chunkType, headerSize, chunkSize);
             default:
                 throw new ParserException("Unexpected chunk type:" + chunkType);
         }
