@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -44,14 +45,22 @@ public class CertificateParser {
         for (X509Certificate certificate : certificates) {
             CertificateMeta certificateMeta = new CertificateMeta();
             certificateMetas.add(certificateMeta);
+            Principal subjectDN = certificate.getSubjectDN();
+            if (subjectDN != null) {
+                certificateMeta.setOwner(subjectDN.getName());
+            }
 
             byte[] bytes = certificate.getEncoded();
             String certMd5 = md5Digest(bytes);
+            String certSha1 = sha1Digest(bytes);
+            String certSha256 = sha256Digest(bytes);
             String publicKeyString = byteToHexString(bytes);
             String certBase64Md5 = md5Digest(publicKeyString);
             certificateMeta.setData(bytes);
             certificateMeta.setCertBase64Md5(certBase64Md5);
             certificateMeta.setCertMd5(certMd5);
+            certificateMeta.setCertSha1(certSha1);
+            certificateMeta.setCertSha256(certSha256);
             certificateMeta.setStartDate(certificate.getNotBefore());
             certificateMeta.setEndDate(certificate.getNotAfter());
             certificateMeta.setSignAlgorithm(certificate.getSigAlgName());
@@ -69,6 +78,18 @@ public class CertificateParser {
     private String md5Digest(String input) throws IOException {
         MessageDigest digest = getDigest("Md5");
         digest.update(input.getBytes(StandardCharsets.UTF_8));
+        return getHexString(digest.digest());
+    }
+
+    private String sha1Digest(byte[] input) throws IOException {
+        MessageDigest digest = getDigest("SHA1");
+        digest.update(input);
+        return getHexString(digest.digest());
+    }
+
+    private String sha256Digest(byte[] input) throws IOException {
+        MessageDigest digest = getDigest("SHA-256");
+        digest.update(input);
         return getHexString(digest.digest());
     }
 

@@ -50,6 +50,18 @@ public class CertificateMeta {
      */
     private String certMd5;
 
+    /**
+     * use sha1 to calculate certificate's certSha1.
+     */
+    private String certSha1;
+
+    /**
+     * use sha256 to calculate certificate's certSha256.
+     */
+    private String certSha256;
+
+    private String owner;
+
     public byte[] getData() {
         return data;
     }
@@ -106,11 +118,38 @@ public class CertificateMeta {
         this.signAlgorithmOID = signAlgorithmOID;
     }
 
+    public String getCertSha1() {
+        return certSha1;
+    }
+
+    public void setCertSha1(String certSha1) {
+        this.certSha1 = certSha1;
+    }
+
+    public String getCertSha256() {
+        return certSha256;
+    }
+
+    public void setCertSha256(String certSha256) {
+        this.certSha256 = certSha256;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     @Override
     public String toString() {
         return "signAlgorithm:\t" + signAlgorithm + '\n' +
                 "certBase64Md5:\t" + certBase64Md5 + '\n' +
-                "certMd5:\t" + certMd5;
+                "certMd5:\t" + certMd5 + '\n' +
+                "certSha1:\t" + certSha1 + '\n' +
+                "certSha256:\t" + certSha256 + '\n' +
+                "owner:\t" + owner;
     }
 }
 
