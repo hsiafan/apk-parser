@@ -1,7 +1,7 @@
 package net.dongliu.apk.parser.utils;
 
 /**
- * @author Liu Dong {@literal <im@dongliu.net>}
+ * @author Liu Dong {@literal <dongliu@live.cn>}
  */
 public class Pair<K, V> {
     private K left;

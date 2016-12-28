@@ -5,7 +5,7 @@ import net.dongliu.apk.parser.utils.*;
 /**
  * Utils method to escape xml string, copied from apache commons lang3
  *
- * @author Liu Dong {@literal <im@dongliu.net>}
+ * @author Liu Dong {@literal <dongliu@live.cn>}
  */
 public class XmlEscaper {
 

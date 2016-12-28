@@ -1,29 +1,38 @@
 Apk parser with java, for decoding xml file and getting meta infos from apk file.
 
 #### Features
-* Retrieve basic apk metas, such as title, icon, package name, version, etc.
+
+* Retrieve basic apk meta info, such as title, icon, package name, version, etc.
 * Parse and convert binary xml file to text 
-* Classes from dex file
-* Get certificate metas and verify apk signature
+* Get classes names from dex file
+* Get certificate meta info and verify apk signature
 
 #### Get apk-parser
-Apk-parser has been submited to maven central repo, maven, gradle, ivy and other build tools can be used to get this lib.
-With maven, you can add apk-parser as dependency by:
+
+Apk-parser has been submitted to maven central repo. With maven, you can add apk-parser as dependency by:
 ```xml
 <dependency>
     <groupId>net.dongliu</groupId>
     <artifactId>apk-parser</artifactId>
-    <version>2.1.7</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 From version 2.0, apk-parser requires java7. The last version support java6 is 1.7.4.
 
 #### Usage
-The easiest way is to use the ApkParser class, which contains convenient methods to get AndroidManifest.xml, apk meta infos, etc.
+
+The ordinary way is using the ApkFile class, which contains convenient methods to get AndroidManifest.xml, apk meta info, etc.
+There is also a ByteArrayApkFile class for reading apk file from byte array.
+ApkFile need to be closed when no longer used. If you need to get info more than once for one apk file, you can reuse the same ApkFile instance.
+
+If only want to get meta info or manifest xml file, you can use a utils class ApkParsers.
+
 #####1. Apk meta info
+
 ApkMeta contains name(label), packageName, version, sdk, used features, etc.
+
 ```java
-try(ApkParser apkParser = new ApkParser(new File(filePath))) {
+try (ApkFile apkFile = new ApkFile(new File(filePath))) {
     System.out.println(apkMeta.getLabel());
     System.out.println(apkMeta.getPackageName());
     System.out.println(apkMeta.getVersionCode());
@@ -33,16 +42,19 @@ try(ApkParser apkParser = new ApkParser(new File(filePath))) {
 }
 ```
 #####2. Get binary xml and manifest xml file
+
 ```java
-try(ApkParser apkParser = new ApkParser(new File(filePath))) {
-    String manifestXml = apkParser.getManifestXml();
-    String xml = apkParser.transBinaryXml("res/menu/main.xml");
+try (ApkFile apkFile = new ApkFile(new File(filePath))) {
+    String manifestXml = apkFile.getManifestXml();
+    String xml = apkFile.transBinaryXml("res/menu/main.xml");
 }
 ```
+
 #####3. Get dex classes
+
 ```java
-try(ApkParser apkParser = new ApkParser(new File(filePath))) {
-    DexClass[] classes = apkParser.getDexClasses();
+try(ApkFile apkFile = new ApkFile(new File(filePath))) {
+    DexClass[] classes = apkFile.getDexClasses();
     for (DexClass dexClass : classes) {
         System.out.println(dexClass);
     }
@@ -50,10 +62,11 @@ try(ApkParser apkParser = new ApkParser(new File(filePath))) {
 ```
 
 #####4. Get certificate and verify apk signature
+
 ```java
-try(ApkParser apkParser = new ApkParser(new File(filePath))) {
-    ApkSignStatus signStatus = apkParser.verifyApk();
-    List<CertificateMeta> certs = apkParser.getCertificateMetas();
+try(ApkFile apkFile = new ApkFile(new File(filePath))) {
+    ApkSignStatus signStatus = apkFile.verifyApk();
+    List<CertificateMeta> certs = apkFile.getCertificateMetas();
     for (CertificateMeta certificateMeta : certs) {
         System.out.println(certificateMeta.getSignAlgorithm());
     }
@@ -61,16 +74,18 @@ try(ApkParser apkParser = new ApkParser(new File(filePath))) {
 ```
 
 #####5. Locales
-Apk may appear different infos(title, icon, etc.) for different region and language, which is determined by Locales.
-If locale is not set, the "en_US" locale(<code>Locale.US</code>) is used. You can set locale like this:
+
+Apk may appear different info(title, icon, etc.) for different regions and languages——or we can called it Locales.
+If locale is not set, the "en_US" locale(<code>Locale.US</code>) is used. You can set locale as blow:
+
 ```java
-try(ApkParser apkParser = new ApkParser(new File(filePath))) {
-    apkParser.setPreferredLocale(Locale.SIMPLIFIED_CHINESE);
-    ApkMeta apkMeta = apkParser.getApkMeta();
+try (ApkFile apkFile = new ApkFile(new File(filePath))) {
+    apkFile.setPreferredLocale(Locale.SIMPLIFIED_CHINESE);
+    ApkMeta apkMeta = apkFile.getApkMeta();
 }
 ```
-The PreferredLocale parameter work for getApkMeta, getManifestXml, and other binary xmls.
+
 Apk parser will find best match languages with locale you specified.
 
-If locale is set to null, ApkParser will not translate resource tag, just give the resource id.
+If locale is set to null, ApkFile will not translate resource tag, just give the resource id.
 For example, apk title will be '@string/app_name' instead of 'WeChat'.

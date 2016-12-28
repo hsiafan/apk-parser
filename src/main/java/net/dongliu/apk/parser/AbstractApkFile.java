@@ -18,7 +18,7 @@ import java.util.*;
  *
  * @author Liu Dong
  */
-public abstract class AbstractApkParser implements Closeable {
+public abstract class AbstractApkFile implements Closeable {
     private DexClass[] dexClasses;
     private ResourceTable resourceTable;
 
@@ -88,7 +88,7 @@ public abstract class AbstractApkParser implements Closeable {
 
         byte[] data = getCertificateData();
         if (data == null) {
-            throw new ParserException("ApkParser certificate not found");
+            throw new ParserException("ApkFile certificate not found");
         }
         CertificateParser parser = new CertificateParser(data);
         parser.parse();

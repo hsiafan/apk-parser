@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 /**
  * utils method for byte buffer
  *
- * @author Liu Dong im@dongliu.net
+ * @author Liu Dong dongliu@live.cn
  */
 public class Buffers {
 

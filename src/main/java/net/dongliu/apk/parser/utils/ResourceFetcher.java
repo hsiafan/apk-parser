@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * fetch dependency resource file from android source
  *
- * @author Liu Dong im@dongliu.net
+ * @author Liu Dong dongliu@live.cn
  */
 public class ResourceFetcher {
 
