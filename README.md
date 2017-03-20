@@ -27,7 +27,7 @@ ApkFile need to be closed when no longer used. If you need to get info more than
 
 If only want to get meta info or manifest xml file, you can use a utils class ApkParsers.
 
-#####1. Apk meta info
+##### 1. Apk meta info
 
 ApkMeta contains name(label), packageName, version, sdk, used features, etc.
 
@@ -41,7 +41,7 @@ try (ApkFile apkFile = new ApkFile(new File(filePath))) {
     }
 }
 ```
-#####2. Get binary xml and manifest xml file
+##### 2. Get binary xml and manifest xml file
 
 ```java
 try (ApkFile apkFile = new ApkFile(new File(filePath))) {
@@ -50,7 +50,7 @@ try (ApkFile apkFile = new ApkFile(new File(filePath))) {
 }
 ```
 
-#####3. Get dex classes
+##### 3. Get dex classes
 
 ```java
 try(ApkFile apkFile = new ApkFile(new File(filePath))) {
@@ -61,7 +61,7 @@ try(ApkFile apkFile = new ApkFile(new File(filePath))) {
 }
 ```
 
-#####4. Get certificate and verify apk signature
+##### 4. Get certificate and verify apk signature
 
 ```java
 try(ApkFile apkFile = new ApkFile(new File(filePath))) {
@@ -73,7 +73,7 @@ try(ApkFile apkFile = new ApkFile(new File(filePath))) {
 }
 ```
 
-#####5. Locales
+##### 5. Locales
 
 Apk may appear different info(title, icon, etc.) for different regions and languages——or we can called it Locales.
 If locale is not set, the "en_US" locale(<code>Locale.US</code>) is used. You can set locale as blow:
