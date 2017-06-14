@@ -33,6 +33,7 @@ ApkMeta contains name(label), packageName, version, sdk, used features, etc.
 
 ```java
 try (ApkFile apkFile = new ApkFile(new File(filePath))) {
+    ApkMeta apkMeta = apkFile.getApkMeta();
     System.out.println(apkMeta.getLabel());
     System.out.println(apkMeta.getPackageName());
     System.out.println(apkMeta.getVersionCode());
