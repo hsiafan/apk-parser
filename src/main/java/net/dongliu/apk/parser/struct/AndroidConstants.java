@@ -13,6 +13,8 @@ public class AndroidConstants {
 
     public static final String DEX_FILE = "classes.dex";
 
+    public static final String DEX_ADDITIONAL = "classes%d.dex";
+
     public static final String RES_PREFIX = "res/";
 
     public static final String ASSETS_PREFIX = "assets/";

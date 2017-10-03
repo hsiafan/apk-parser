@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.cert.CertificateException;
 import java.util.*;
+import static java.lang.System.arraycopy;
 
 /**
  * Common Apk Parser methods.
@@ -184,20 +185,41 @@ public abstract class AbstractApkFile implements Closeable {
      */
     public DexClass[] getDexClasses() throws IOException {
         if (this.dexClasses == null) {
-            parseDexFile();
+            parseDexFiles();
         }
         return this.dexClasses;
     }
 
-    private void parseDexFile() throws IOException {
-        byte[] data = getFileData(AndroidConstants.DEX_FILE);
+    private DexClass[] mergeDexClasses(DexClass[] first, DexClass[] second) {
+        DexClass[] result = new DexClass[first.length + second.length];
+        arraycopy(first, 0, result, 0, first.length);
+        arraycopy(second, 0, result, first.length, second.length);
+        return result;
+    }
+
+    private DexClass[] parseDexFile(String path) throws IOException {
+        byte[] data = getFileData(path);
         if (data == null) {
-            throw new ParserException("Dex file not found");
+            String msg = String.format("Dex file %s not found", path);
+            throw new ParserException(msg);
         }
         ByteBuffer buffer = ByteBuffer.wrap(data);
         DexParser dexParser = new DexParser(buffer);
         dexParser.parse();
-        this.dexClasses = dexParser.getDexClasses();
+        return dexParser.getDexClasses();
+    }
+
+    private void parseDexFiles() throws IOException {
+        this.dexClasses = parseDexFile(AndroidConstants.DEX_FILE);
+        for (int i = 2; i < 1000; i++) {
+            String path = String.format(AndroidConstants.DEX_ADDITIONAL, i);
+            try {
+                DexClass[] classes = parseDexFile(path);
+                this.dexClasses = mergeDexClasses(this.dexClasses, classes);
+            } catch (ParserException e){
+                break;
+            }
+        }
     }
 
     /**
