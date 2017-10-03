@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
- * Static utils method for parse apk file
+ * Convenient utils method for parse apk file
  *
  * @author Liu Dong
  */

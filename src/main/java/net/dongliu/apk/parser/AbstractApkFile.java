@@ -15,7 +15,7 @@ import static java.lang.System.arraycopy;
 
 /**
  * Common Apk Parser methods.
- * This Class is not thread-safe
+ * This Class is not thread-safe.
  *
  * @author Liu Dong
  */

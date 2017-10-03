@@ -75,23 +75,24 @@ public class ApkFile extends AbstractApkFile implements Closeable {
             return ApkSignStatus.notSigned;
         }
 
-        JarFile jarFile = new JarFile(this.apkFile);
-        Enumeration<JarEntry> entries = jarFile.entries();
-        byte[] buffer = new byte[8192];
+        try (JarFile jarFile = new JarFile(this.apkFile)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            byte[] buffer = new byte[8192];
 
-        while (entries.hasMoreElements()) {
-            JarEntry e = entries.nextElement();
-            if (e.isDirectory()) {
-                continue;
-            }
-            try (InputStream in = jarFile.getInputStream(e)) {
-                // Read in each jar entry. A security exception will be thrown if a signature/digest check fails.
-                int count;
-                while ((count = in.read(buffer, 0, buffer.length)) != -1) {
-                    // Don't care
+            while (entries.hasMoreElements()) {
+                JarEntry e = entries.nextElement();
+                if (e.isDirectory()) {
+                    continue;
                 }
-            } catch (SecurityException se) {
-                return ApkSignStatus.incorrect;
+                try (InputStream in = jarFile.getInputStream(e)) {
+                    // Read in each jar entry. A security exception will be thrown if a signature/digest check fails.
+                    int count;
+                    while ((count = in.read(buffer, 0, buffer.length)) != -1) {
+                        // Don't care
+                    }
+                } catch (SecurityException se) {
+                    return ApkSignStatus.incorrect;
+                }
             }
         }
         return ApkSignStatus.signed;

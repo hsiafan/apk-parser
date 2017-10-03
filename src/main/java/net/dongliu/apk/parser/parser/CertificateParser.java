@@ -61,13 +61,13 @@ public class CertificateParser {
 
 
     private String md5Digest(byte[] input) throws IOException {
-        MessageDigest digest = getDigest("Md5");
+        MessageDigest digest = getDigest("md5");
         digest.update(input);
         return getHexString(digest.digest());
     }
 
     private String md5Digest(String input) throws IOException {
-        MessageDigest digest = getDigest("Md5");
+        MessageDigest digest = getDigest("md5");
         digest.update(input.getBytes(StandardCharsets.UTF_8));
         return getHexString(digest.digest());
     }
