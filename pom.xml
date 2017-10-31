@@ -82,7 +82,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>net.dongliu.apk.parser</Automatic-Module-Name>
+                            <Automatic-Module-Name>net.dongliu.apkparser</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
