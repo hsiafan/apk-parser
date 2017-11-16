@@ -5,12 +5,14 @@ import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
+import org.bouncycastle.cms.CMSException;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.cert.CertificateException;
 import java.util.*;
+
 import static java.lang.System.arraycopy;
 
 /**
@@ -216,7 +218,7 @@ public abstract class AbstractApkFile implements Closeable {
             try {
                 DexClass[] classes = parseDexFile(path);
                 this.dexClasses = mergeDexClasses(this.dexClasses, classes);
-            } catch (ParserException e){
+            } catch (ParserException e) {
                 break;
             }
         }

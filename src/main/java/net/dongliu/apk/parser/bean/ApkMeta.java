@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Apk meta info
+ *
  * @author dongliu
  */
 public class ApkMeta {

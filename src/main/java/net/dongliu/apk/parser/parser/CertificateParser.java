@@ -1,17 +1,26 @@
 package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.bean.CertificateMeta;
-import sun.security.pkcs.PKCS7;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.cms.SignerInformationStore;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.Store;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -26,8 +35,12 @@ public class CertificateParser {
 
     private List<CertificateMeta> certificateMetas;
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     public CertificateParser(byte[] data) {
-        this.data =data;
+        this.data = data;
     }
 
     /**
@@ -38,8 +51,23 @@ public class CertificateParser {
      */
     public void parse() throws IOException, CertificateException {
 
-        PKCS7 pkcs7 = new PKCS7(data);
-        X509Certificate[] certificates = pkcs7.getCertificates();
+
+        CMSSignedData cmsSignedData;
+        try {
+            cmsSignedData = new CMSSignedData(data);
+        } catch (CMSException e) {
+            throw new CertificateException(e);
+        }
+        Store<X509CertificateHolder> certStore = cmsSignedData.getCertificates();
+        SignerInformationStore signerInfos = cmsSignedData.getSignerInfos();
+        Collection<SignerInformation> signers = signerInfos.getSigners();
+        List<X509Certificate> certificates = new ArrayList<>();
+        for (SignerInformation signer : signers) {
+            Collection<X509CertificateHolder> matches = certStore.getMatches(signer.getSID());
+            for (X509CertificateHolder holder : matches) {
+                certificates.add(new JcaX509CertificateConverter().setProvider("BC").getCertificate(holder));
+            }
+        }
         certificateMetas = new ArrayList<>();
         for (X509Certificate certificate : certificates) {
             CertificateMeta certificateMeta = new CertificateMeta();

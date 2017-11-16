@@ -2,7 +2,6 @@ package net.dongliu.apk.parser;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.util.Locale;
 
 /**
  * Main method for parser apk
@@ -11,8 +10,8 @@ import java.util.Locale;
  */
 public class Main {
     public static void main(String[] args) throws IOException, CertificateException {
-        String apkFile = args[0];
-        String xml = ApkParsers.getManifestXml(apkFile, Locale.getDefault());
-        System.out.println(xml);
+        try (ApkFile apkFile = new ApkFile(args[0])) {
+            System.out.println(apkFile.verifyApk());
+        }
     }
 }
