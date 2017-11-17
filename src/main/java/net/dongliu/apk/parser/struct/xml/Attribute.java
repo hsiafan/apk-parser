@@ -15,9 +15,9 @@ import java.util.Map;
 public class Attribute {
     private String namespace;
     private String name;
-    // The original raw string value of this 
+    // The original raw string value of Attribute
     private String rawValue;
-    // Processed typed value of this
+    // Processed typed value of Attribute
     private ResourceValue typedValue;
     // the final value as string
     private String value;

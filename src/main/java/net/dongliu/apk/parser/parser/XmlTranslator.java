@@ -49,7 +49,7 @@ public class XmlTranslator implements XmlStreamer {
         }
         isLastStartTag = true;
 
-        for (Attribute attribute : xmlNodeStartTag.getAttributes().value()) {
+        for (Attribute attribute : xmlNodeStartTag.getAttributes().values()) {
             onAttribute(attribute);
         }
     }

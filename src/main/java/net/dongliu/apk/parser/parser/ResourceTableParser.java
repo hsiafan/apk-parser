@@ -19,7 +19,8 @@ import java.util.Set;
 /**
  * parse android resource table file.
  * see http://justanapplication.wordpress.com/category/android/android-resources/
- * see https://github.com/android/platform_frameworks_base/blob/6f4b5661696355d230c515a45aca2dddd8fe99b1/libs/androidfw/ResourceTypes.cpp
+ * https://github.com/aosp-mirror/platform_frameworks_base/blob/master/libs/androidfw/include/androidfw/ResourceTypes.h
+ * https://github.com/aosp-mirror/platform_frameworks_base/blob/master/libs/androidfw/ResourceTypes.cpp
  *
  * @author dongliu
  */
@@ -227,11 +228,18 @@ public class ResourceTableParser {
         long beginPos = buffer.position();
         ResTableConfig config = new ResTableConfig();
         long size = Buffers.readUInt(buffer);
-        Buffers.skip(buffer, 4);
+
+        // imsi
+        config.setMcc(Buffers.readUShort(buffer));
+        config.setMnc(Buffers.readUShort(buffer));
         //read locale
         config.setLanguage(new String(Buffers.readBytes(buffer, 2)).replace("\0", ""));
         config.setCountry(new String(Buffers.readBytes(buffer, 2)).replace("\0", ""));
-
+        //screen type
+        config.setOrientation(Buffers.readUByte(buffer));
+        config.setTouchscreen(Buffers.readUByte(buffer));
+        config.setDensity(Buffers.readUShort(buffer));
+        // now just skip the others...
         long endPos = buffer.position();
         Buffers.skip(buffer, (int) (size - (endPos - beginPos)));
         return config;

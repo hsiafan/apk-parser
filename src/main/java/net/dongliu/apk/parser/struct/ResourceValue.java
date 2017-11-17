@@ -1,13 +1,16 @@
 package net.dongliu.apk.parser.struct;
 
+import net.dongliu.apk.parser.bean.Locales;
+import net.dongliu.apk.parser.struct.resource.ResourceEntry;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
-import net.dongliu.apk.parser.utils.ParseUtils;
+import net.dongliu.apk.parser.struct.resource.Type;
+import net.dongliu.apk.parser.struct.resource.TypeSpec;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
- * Resource entity, may be one entry in resource table, or string value
- * A apk only has one resource table.
+ * Resource entity, contains the resource id, should retrieve the value from resource table, or string pool if it is a string resource.
  *
  * @author dongliu
  */
@@ -19,7 +22,7 @@ public abstract class ResourceValue {
     }
 
     /**
-     * get value as string
+     * get value as string.
      */
     public abstract String toStringValue(ResourceTable resourceTable, Locale locale);
 
@@ -118,7 +121,9 @@ public abstract class ResourceValue {
         }
     }
 
-    // make public for cyclic reference detect
+    /**
+     * ReferenceResource ref one another resources, and may has different value for different resource config(locale, density, etc)
+     */
     public static class ReferenceResourceValue extends ResourceValue {
 
         private ReferenceResourceValue(int value) {
@@ -128,12 +133,49 @@ public abstract class ResourceValue {
         @Override
         public String toStringValue(ResourceTable resourceTable, Locale locale) {
             long resourceId = getReferenceResourceId();
-            return ParseUtils.getResourceById(resourceId, resourceTable, locale);
+            // android system styles.
+            if (resourceId > AndroidConstants.SYS_STYLE_ID_START && resourceId < AndroidConstants.SYS_STYLE_ID_END) {
+                return "@android:style/" + ResourceTable.sysStyle.get((int) resourceId);
+            }
+
+            String raw = "resourceId:0x" + Long.toHexString(resourceId);
+            if (resourceTable == null) {
+                return raw;
+            }
+
+            List<ResourceTable.Resource> resources = resourceTable.getResourcesById(resourceId);
+            // read from type resource
+            ResourceEntry selected = null;
+            TypeSpec typeSpec = null;
+            int currentLevel = -1;
+            for (ResourceTable.Resource resource : resources) {
+                Type type = resource.getType();
+                typeSpec = resource.getTypeSpec();
+                ResourceEntry resourceEntry = resource.getResourceEntry();
+                int level = Locales.match(locale, type.getLocale());
+                if (level == 2) {
+                    selected = resourceEntry;
+                    break;
+                } else if (level > currentLevel) {
+                    selected = resourceEntry;
+                    currentLevel = level;
+                }
+            }
+            String result;
+            if (selected == null) {
+                result = raw;
+            } else if (locale == null) {
+                result = "@" + typeSpec.getName() + "/" + selected.getKey();
+            } else {
+                result = selected.toStringValue(resourceTable, locale);
+            }
+            return result;
         }
 
         public long getReferenceResourceId() {
             return value & 0xFFFFFFFFL;
         }
+
     }
 
     private static class NullResourceValue extends ResourceValue {

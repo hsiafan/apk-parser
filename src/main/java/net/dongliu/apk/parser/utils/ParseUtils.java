@@ -1,16 +1,15 @@
 package net.dongliu.apk.parser.utils;
 
-import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.StringPoolEntry;
-import net.dongliu.apk.parser.struct.*;
-import net.dongliu.apk.parser.struct.resource.*;
+import net.dongliu.apk.parser.struct.ResValue;
+import net.dongliu.apk.parser.struct.ResourceValue;
+import net.dongliu.apk.parser.struct.StringPool;
+import net.dongliu.apk.parser.struct.StringPoolHeader;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * @author dongliu
@@ -193,83 +192,6 @@ public class ParseUtils {
             throw new ParserException("Expect chunk type:" + Integer.toHexString(expected)
                     + ", but got:" + Integer.toHexString(real));
         }
-    }
-
-    /**
-     * get resource value by string-format via resourceId.
-     */
-    public static String getResourceById(long resourceId, ResourceTable resourceTable, Locale locale) {
-//        An Android Resource id is a 32-bit integer. It comprises
-//        an 8-bit Package id [bits 24-31]
-//        an 8-bit Type id [bits 16-23]
-//        a 16-bit Entry index [bits 0-15]
-
-        // android system styles.
-        if (resourceId > AndroidConstants.SYS_STYLE_ID_START && resourceId < AndroidConstants.SYS_STYLE_ID_END) {
-            return "@android:style/" + ResourceTable.sysStyle.get((int) resourceId);
-        }
-
-        String str = "resourceId:0x" + Long.toHexString(resourceId);
-        if (resourceTable == null) {
-            return str;
-        }
-
-        short packageId = (short) (resourceId >> 24 & 0xff);
-        short typeId = (short) ((resourceId >> 16) & 0xff);
-        int entryIndex = (int) (resourceId & 0xffff);
-        ResourcePackage resourcePackage = resourceTable.getPackage(packageId);
-        if (resourcePackage == null) {
-            return str;
-        }
-        TypeSpec typeSpec = resourcePackage.getTypeSpec(typeId);
-        List<Type> types = resourcePackage.getTypes(typeId);
-        if (typeSpec == null || types == null) {
-            return str;
-        }
-        if (!typeSpec.exists(entryIndex)) {
-            return str;
-        }
-
-        // read from type resource
-        ResourceEntry resource = null;
-        String ref = null;
-        int currentLevel = -1;
-        for (Type type : types) {
-            ResourceEntry curResourceEntry = type.getResourceEntry(entryIndex);
-            if (curResourceEntry == null) {
-                continue;
-            }
-            ref = curResourceEntry.getKey();
-
-            ResourceValue currentResourceValue = curResourceEntry.getValue();
-            if (currentResourceValue == null) {
-                continue;
-            }
-
-            // cyclic reference detect
-            if (currentResourceValue instanceof ResourceValue.ReferenceResourceValue) {
-                if (resourceId == ((ResourceValue.ReferenceResourceValue) currentResourceValue)
-                        .getReferenceResourceId()) {
-                    continue;
-                }
-            }
-
-            int level = Locales.match(locale, type.getLocale());
-            if (level == 2) {
-                resource = curResourceEntry;
-                break;
-            } else if (level > currentLevel) {
-                resource = curResourceEntry;
-                currentLevel = level;
-            }
-        }
-        String result;
-        if (locale == null || resource == null) {
-            result = "@" + typeSpec.getName() + "/" + ref;
-        } else {
-            result = resource.toStringValue(resourceTable, locale);
-        }
-        return result;
     }
 
 }

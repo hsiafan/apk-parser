@@ -1,10 +1,16 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.bean.ApkMeta;
-import net.dongliu.apk.parser.bean.GlEsVersion;
-import net.dongliu.apk.parser.bean.Permission;
-import net.dongliu.apk.parser.bean.UseFeature;
+import net.dongliu.apk.parser.bean.*;
+import net.dongliu.apk.parser.struct.ResourceValue;
+import net.dongliu.apk.parser.struct.resource.Densities;
+import net.dongliu.apk.parser.struct.resource.ResourceEntry;
+import net.dongliu.apk.parser.struct.resource.ResourceTable;
+import net.dongliu.apk.parser.struct.resource.Type;
 import net.dongliu.apk.parser.struct.xml.*;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * trans binary xml to text
@@ -15,34 +21,75 @@ public class ApkMetaTranslator implements XmlStreamer {
     private String[] tagStack = new String[100];
     private int depth = 0;
     private ApkMeta apkMeta = new ApkMeta();
+    private List<IconPath> iconPaths = Collections.emptyList();
+
+    @Nonnull
+    private ResourceTable resourceTable;
+    @Nullable
+    private Locale locale;
+
+    public ApkMetaTranslator(@Nonnull ResourceTable resourceTable, @Nullable Locale locale) {
+        this.resourceTable = Objects.requireNonNull(resourceTable);
+        this.locale = locale;
+    }
 
     @Override
     public void onStartTag(XmlNodeStartTag xmlNodeStartTag) {
         Attributes attributes = xmlNodeStartTag.getAttributes();
         switch (xmlNodeStartTag.getName()) {
             case "application":
-                String label = attributes.get("label");
+                String label = attributes.getString("label");
                 if (label != null) {
                     apkMeta.setLabel(label);
                 }
-                String icon = attributes.get("icon");
-                if (icon != null) {
-                    apkMeta.setIcon(icon);
+                Attribute iconAttr = attributes.get("icon");
+                if (iconAttr != null) {
+                    ResourceValue resourceValue = iconAttr.getTypedValue();
+                    if (resourceValue != null && resourceValue instanceof ResourceValue.ReferenceResourceValue) {
+                        long resourceId = ((ResourceValue.ReferenceResourceValue) resourceValue).getReferenceResourceId();
+                        List<ResourceTable.Resource> resources = this.resourceTable.getResourcesById(resourceId);
+                        if (!resources.isEmpty()) {
+                            List<IconPath> icons = new ArrayList<>();
+                            boolean hasDefault = false;
+                            for (ResourceTable.Resource resource : resources) {
+                                Type type = resource.getType();
+                                ResourceEntry resourceEntry = resource.getResourceEntry();
+                                String path = resourceEntry.toStringValue(resourceTable, locale);
+                                if (type.getDensity() == Densities.DEFAULT) {
+                                    hasDefault = true;
+                                    apkMeta.setIcon(path);
+                                }
+                                IconPath iconPath = new IconPath(path, type.getDensity());
+                                icons.add(iconPath);
+                            }
+                            if (!hasDefault) {
+                                apkMeta.setIcon(icons.get(0).getPath());
+                            }
+                            this.iconPaths = icons;
+                        }
+                    } else {
+                        String value = iconAttr.getValue();
+                        if (value != null) {
+                            apkMeta.setIcon(value);
+                            IconPath iconPath = new IconPath(value, Densities.DEFAULT);
+                            this.iconPaths = Collections.singletonList(iconPath);
+                        }
+                    }
                 }
                 break;
             case "manifest":
-                apkMeta.setPackageName(attributes.get("package"));
-                apkMeta.setVersionName(attributes.get("versionName"));
+                apkMeta.setPackageName(attributes.getString("package"));
+                apkMeta.setVersionName(attributes.getString("versionName"));
                 apkMeta.setVersionCode(attributes.getLong("versionCode"));
-                String installLocation = attributes.get("installLocation");
+                String installLocation = attributes.getString("installLocation");
                 if (installLocation != null) {
                     apkMeta.setInstallLocation(installLocation);
                 }
                 break;
             case "uses-sdk":
-                apkMeta.setMinSdkVersion(attributes.get("minSdkVersion"));
-                apkMeta.setTargetSdkVersion(attributes.get("targetSdkVersion"));
-                apkMeta.setMaxSdkVersion(attributes.get("maxSdkVersion"));
+                apkMeta.setMinSdkVersion(attributes.getString("minSdkVersion"));
+                apkMeta.setTargetSdkVersion(attributes.getString("targetSdkVersion"));
+                apkMeta.setMaxSdkVersion(attributes.getString("maxSdkVersion"));
                 break;
             case "supports-screens":
                 apkMeta.setAnyDensity(attributes.getBoolean("anyDensity", false));
@@ -51,7 +98,7 @@ public class ApkMetaTranslator implements XmlStreamer {
                 apkMeta.setLargeScreens(attributes.getBoolean("largeScreens", false));
                 break;
             case "uses-feature":
-                String name = attributes.get("name");
+                String name = attributes.getString("name");
                 boolean required = attributes.getBoolean("required", false);
                 if (name != null) {
                     UseFeature useFeature = new UseFeature();
@@ -71,16 +118,16 @@ public class ApkMetaTranslator implements XmlStreamer {
                 }
                 break;
             case "uses-permission":
-                apkMeta.addUsesPermission(attributes.get("name"));
+                apkMeta.addUsesPermission(attributes.getString("name"));
                 break;
             case "permission":
                 Permission permission = new Permission();
-                permission.setName(attributes.get("name"));
-                permission.setLabel(attributes.get("label"));
-                permission.setIcon(attributes.get("icon"));
-                permission.setGroup(attributes.get("group"));
-                permission.setDescription(attributes.get("description"));
-                String protectionLevel = attributes.get("android:protectionLevel");
+                permission.setName(attributes.getString("name"));
+                permission.setLabel(attributes.getString("label"));
+                permission.setIcon(attributes.getString("icon"));
+                permission.setGroup(attributes.getString("group"));
+                permission.setDescription(attributes.getString("description"));
+                String protectionLevel = attributes.getString("android:protectionLevel");
                 if (protectionLevel != null) {
                     permission.setProtectionLevel(protectionLevel);
                 }
@@ -110,8 +157,14 @@ public class ApkMetaTranslator implements XmlStreamer {
 
     }
 
+    @Nonnull
     public ApkMeta getApkMeta() {
         return apkMeta;
+    }
+
+    @Nonnull
+    public List<IconPath> getIconPaths() {
+        return iconPaths;
     }
 
     private boolean matchTagPath(String... tags) {

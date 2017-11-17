@@ -4,8 +4,8 @@ import net.dongliu.apk.parser.bean.*;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
+import net.dongliu.apk.parser.struct.resource.Densities;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
-import org.bouncycastle.cms.CMSException;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -23,11 +23,16 @@ import static java.lang.System.arraycopy;
  */
 public abstract class AbstractApkFile implements Closeable {
     private DexClass[] dexClasses;
-    private ResourceTable resourceTable;
 
+    private boolean resourceTableParsed;
+    private ResourceTable resourceTable;
+    private Set<Locale> locales;
+
+    private boolean manifestParsed;
     private String manifestXml;
     private ApkMeta apkMeta;
-    private Set<Locale> locales;
+    private List<IconPath> iconPaths;
+
     private List<CertificateMeta> certificateMetaList;
 
     private static final Locale DEFAULT_LOCALE = Locale.US;
@@ -43,9 +48,7 @@ public abstract class AbstractApkFile implements Closeable {
      * @return decoded AndroidManifest.xml
      */
     public String getManifestXml() throws IOException {
-        if (this.manifestXml == null) {
-            parseManifestXml();
-        }
+        parseManifest();
         return this.manifestXml;
     }
 
@@ -55,9 +58,7 @@ public abstract class AbstractApkFile implements Closeable {
      * @return decoded AndroidManifest.xml
      */
     public ApkMeta getApkMeta() throws IOException {
-        if (this.apkMeta == null) {
-            parseApkMeta();
-        }
+        parseManifest();
         return this.apkMeta;
     }
 
@@ -68,9 +69,7 @@ public abstract class AbstractApkFile implements Closeable {
      * @throws IOException
      */
     public Set<Locale> getLocales() throws IOException {
-        if (this.locales == null) {
-            parseResourceTable();
-        }
+        parseResourceTable();
         return this.locales;
     }
 
@@ -98,26 +97,14 @@ public abstract class AbstractApkFile implements Closeable {
         this.certificateMetaList = parser.getCertificateMetas();
     }
 
-    /**
-     * parse manifest.xml, get apkMeta.
-     *
-     * @throws IOException
-     */
-    private void parseApkMeta() throws IOException {
-        if (this.manifestXml == null) {
-            parseManifestXml();
+    private void parseManifest() throws IOException {
+        if (manifestParsed) {
+            return;
         }
-    }
-
-    /**
-     * parse manifest.xml, get manifestXml as xml text.
-     *
-     * @throws IOException
-     */
-    private void parseManifestXml() throws IOException {
+        parseResourceTable();
         XmlTranslator xmlTranslator = new XmlTranslator();
-        ApkMetaTranslator translator = new ApkMetaTranslator();
-        XmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator, translator);
+        ApkMetaTranslator apkTranslator = new ApkMetaTranslator(this.resourceTable, this.preferredLocale);
+        XmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator, apkTranslator);
 
         byte[] data = getFileData(AndroidConstants.MANIFEST_FILE);
         if (data == null) {
@@ -125,7 +112,9 @@ public abstract class AbstractApkFile implements Closeable {
         }
         transBinaryXml(data, xmlStreamer);
         this.manifestXml = xmlTranslator.getXml();
-        this.apkMeta = translator.getApkMeta();
+        this.apkMeta = apkTranslator.getApkMeta();
+        this.iconPaths = apkTranslator.getIconPaths();
+        manifestParsed = true;
     }
 
     /**
@@ -146,9 +135,7 @@ public abstract class AbstractApkFile implements Closeable {
         if (data == null) {
             return null;
         }
-        if (this.resourceTable == null) {
-            parseResourceTable();
-        }
+        parseResourceTable();
 
         XmlTranslator xmlTranslator = new XmlTranslator();
         transBinaryXml(data, xmlTranslator);
@@ -156,9 +143,7 @@ public abstract class AbstractApkFile implements Closeable {
     }
 
     private void transBinaryXml(byte[] data, XmlStreamer xmlStreamer) throws IOException {
-        if (this.resourceTable == null) {
-            parseResourceTable();
-        }
+        parseResourceTable();
 
         ByteBuffer buffer = ByteBuffer.wrap(data);
         BinaryXmlParser binaryXmlParser = new BinaryXmlParser(buffer, resourceTable);
@@ -168,10 +153,7 @@ public abstract class AbstractApkFile implements Closeable {
     }
 
     /**
-     * get the apk icon file as bytes.
-     *
-     * @return the apk icon data,null if icon not found
-     * @throws IOException
+     * Get the default apk icon file.
      */
     public Icon getIconFile() throws IOException {
         ApkMeta apkMeta = getApkMeta();
@@ -179,7 +161,28 @@ public abstract class AbstractApkFile implements Closeable {
         if (iconPath == null) {
             return null;
         }
-        return new Icon(iconPath, getFileData(iconPath));
+        return new Icon(iconPath, Densities.DEFAULT, getFileData(iconPath));
+    }
+
+    /**
+     * Get all the icon paths, for different densities.
+     */
+    public List<IconPath> getIconPaths() throws IOException {
+        parseManifest();
+        return this.iconPaths;
+    }
+
+    /**
+     * Get all the icons, for different densities.
+     */
+    public List<Icon> getIconFiles() throws IOException {
+        List<IconPath> iconPaths = getIconPaths();
+        List<Icon> icons = new ArrayList<>(iconPaths.size());
+        for (IconPath iconPath : iconPaths) {
+            Icon icon = new Icon(iconPath.getPath(), iconPath.getDensity(), getFileData(iconPath.getPath()));
+            icons.add(icon);
+        }
+        return icons;
     }
 
     /**
@@ -228,6 +231,10 @@ public abstract class AbstractApkFile implements Closeable {
      * parse resource table.
      */
     private void parseResourceTable() throws IOException {
+        if (resourceTableParsed) {
+            return;
+        }
+        resourceTableParsed = true;
         byte[] data = getFileData(AndroidConstants.RESOURCE_FILE);
         if (data == null) {
             // if no resource entry has been found, we assume it is not needed by this APK
@@ -235,9 +242,6 @@ public abstract class AbstractApkFile implements Closeable {
             this.locales = Collections.emptySet();
             return;
         }
-
-        this.resourceTable = new ResourceTable();
-        this.locales = Collections.emptySet();
 
         ByteBuffer buffer = ByteBuffer.wrap(data);
         ResourceTableParser resourceTableParser = new ResourceTableParser(buffer);
@@ -248,8 +252,6 @@ public abstract class AbstractApkFile implements Closeable {
 
     /**
      * check apk sign
-     *
-     * @throws IOException
      */
     public abstract ApkSignStatus verifyApk() throws IOException;
 
@@ -258,6 +260,7 @@ public abstract class AbstractApkFile implements Closeable {
         this.certificateMetaList = null;
         this.resourceTable = null;
         this.certificateMetaList = null;
+        this.iconPaths = null;
     }
 
     public Locale getPreferredLocale() {

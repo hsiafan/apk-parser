@@ -12,6 +12,9 @@ public class Locales {
      */
     public static final Locale any = new Locale("", "");
 
+    /**
+     * How much the given locale match the expected locale.
+     */
     public static int match(Locale locale, Locale targetLocale) {
         if (locale == null) {
             return -1;

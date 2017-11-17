@@ -22,9 +22,14 @@ public class Type {
     private long[] offsets;
     private StringPool stringPool;
 
+    // see Densities.java for values
+    private int density;
+
     public Type(TypeHeader header) {
         this.id = header.getId();
-        this.locale = new Locale(header.getConfig().getLanguage(), header.getConfig().getCountry());
+        ResTableConfig config = header.getConfig();
+        this.locale = new Locale(config.getLanguage(), config.getCountry());
+        this.density = config.getDensity();
     }
 
     public ResourceEntry getResourceEntry(int id) {
@@ -144,6 +149,10 @@ public class Type {
 
     public void setStringPool(StringPool stringPool) {
         this.stringPool = stringPool;
+    }
+
+    public int getDensity() {
+        return density;
     }
 
     @Override

@@ -22,11 +22,11 @@ public class ResTableConfig {
     // uint32_t locale;
 
     // uint8_t
-    private short orientation;
+    private byte orientation;
     // uint8_t
-    private short touchscreen;
+    private byte touchscreen;
     // uint16_t
-    private int density;
+    private short density;
     // uint32_t screenType;
 
     // uint8_t
@@ -71,20 +71,20 @@ public class ResTableConfig {
         this.size = size;
     }
 
-    public short getMcc() {
-        return mcc;
+    public int getMcc() {
+        return mcc & 0xffff;
     }
 
-    public void setMcc(short mcc) {
-        this.mcc = mcc;
+    public void setMcc(int mcc) {
+        this.mcc = (short) mcc;
     }
 
-    public short getMnc() {
-        return mnc;
+    public int getMnc() {
+        return mnc & 0xffff;
     }
 
-    public void setMnc(short mnc) {
-        this.mnc = mnc;
+    public void setMnc(int mnc) {
+        this.mnc = (short) mnc;
     }
 
     public String getLanguage() {
@@ -104,27 +104,27 @@ public class ResTableConfig {
     }
 
     public short getOrientation() {
-        return orientation;
+        return (short) (orientation & 0xff);
     }
 
     public void setOrientation(short orientation) {
-        this.orientation = orientation;
+        this.orientation = (byte) orientation;
     }
 
     public short getTouchscreen() {
-        return touchscreen;
+        return (short) (touchscreen & 0xff);
     }
 
     public void setTouchscreen(short touchscreen) {
-        this.touchscreen = touchscreen;
+        this.touchscreen = (byte) touchscreen;
     }
 
     public int getDensity() {
-        return density;
+        return density & 0xffff;
     }
 
     public void setDensity(int density) {
-        this.density = density;
+        this.density = (short) density;
     }
 
     public short getKeyboard() {
