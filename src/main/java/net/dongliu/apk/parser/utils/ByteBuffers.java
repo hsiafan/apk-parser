@@ -1,5 +1,6 @@
 package net.dongliu.apk.parser.utils;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 /**
@@ -7,7 +8,7 @@ import java.nio.ByteBuffer;
  *
  * @author Liu Dong dongliu@live.cn
  */
-public class Buffers {
+public class ByteBuffers {
 
     /**
      * get one unsigned byte as short type
@@ -74,6 +75,29 @@ public class Buffers {
      * skip count bytes
      */
     public static void skip(ByteBuffer buffer, int count) {
-        buffer.position(buffer.position() + count);
+        position(buffer, buffer.position() + count);
+    }
+
+    // Cast java.nio.ByteBuffer instances where necessary to java.nio.Buffer to avoid NoSuchMethodError
+    // when running on Java 6 to Java 8.
+    // The Java 9 ByteBuffer classes introduces overloaded methods with covariant return types the following methods:
+    // position, limit, flip, clear, mark, reset, rewind, etc.
+
+
+    /**
+     * set position
+     */
+    public static void position(ByteBuffer buffer, int position) {
+        ((Buffer) buffer).position(position);
+    }
+
+    /**
+     * set position
+     */
+    public static void position(ByteBuffer buffer, long position) {
+        if (position > Integer.MAX_VALUE) {
+            throw new ArithmeticException("position overflow int: " + position);
+        }
+        ((Buffer) buffer).position((int) position);
     }
 }

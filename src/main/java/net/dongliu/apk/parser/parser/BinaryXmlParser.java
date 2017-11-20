@@ -6,7 +6,7 @@ import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.xml.*;
-import net.dongliu.apk.parser.utils.Buffers;
+import net.dongliu.apk.parser.utils.ByteBuffers;
 import net.dongliu.apk.parser.utils.ParseUtils;
 import net.dongliu.apk.parser.utils.Utils;
 
@@ -109,12 +109,12 @@ public class BinaryXmlParser {
                 default:
                     if (chunkHeader.getChunkType() >= ChunkType.XML_FIRST_CHUNK &&
                             chunkHeader.getChunkType() <= ChunkType.XML_LAST_CHUNK) {
-                        Buffers.skip(buffer, chunkHeader.getBodySize());
+                        ByteBuffers.skip(buffer, chunkHeader.getBodySize());
                     } else {
                         throw new ParserException("Unexpected chunk type:" + chunkHeader.getChunkType());
                     }
             }
-            buffer.position((int) (beginPos + chunkHeader.getBodySize()));
+            ByteBuffers.position(buffer, beginPos + chunkHeader.getBodySize());
             chunkHeader = readChunkHeader();
         }
     }
@@ -160,12 +160,12 @@ public class BinaryXmlParser {
 
         // read attributes.
         // attributeStart and attributeSize are always 20 (0x14)
-        int attributeStart = Buffers.readUShort(buffer);
-        int attributeSize = Buffers.readUShort(buffer);
-        int attributeCount = Buffers.readUShort(buffer);
-        int idIndex = Buffers.readUShort(buffer);
-        int classIndex = Buffers.readUShort(buffer);
-        int styleIndex = Buffers.readUShort(buffer);
+        int attributeStart = ByteBuffers.readUShort(buffer);
+        int attributeSize = ByteBuffers.readUShort(buffer);
+        int attributeCount = ByteBuffers.readUShort(buffer);
+        int idIndex = ByteBuffers.readUShort(buffer);
+        int classIndex = ByteBuffers.readUShort(buffer);
+        int styleIndex = ByteBuffers.readUShort(buffer);
 
         // read attributes
         Attributes attributes = new Attributes(attributeCount);
@@ -272,7 +272,7 @@ public class BinaryXmlParser {
         int count = chunkHeader.getBodySize() / 4;
         long[] resourceIds = new long[count];
         for (int i = 0; i < count; i++) {
-            resourceIds[i] = Buffers.readUInt(buffer);
+            resourceIds[i] = ByteBuffers.readUInt(buffer);
         }
         return resourceIds;
     }
@@ -285,24 +285,24 @@ public class BinaryXmlParser {
         }
 
         long begin = buffer.position();
-        int chunkType = Buffers.readUShort(buffer);
-        int headerSize = Buffers.readUShort(buffer);
-        long chunkSize = Buffers.readUInt(buffer);
+        int chunkType = ByteBuffers.readUShort(buffer);
+        int headerSize = ByteBuffers.readUShort(buffer);
+        long chunkSize = ByteBuffers.readUInt(buffer);
 
         switch (chunkType) {
             case ChunkType.XML:
                 return new XmlHeader(chunkType, headerSize, chunkSize);
             case ChunkType.STRING_POOL:
                 StringPoolHeader stringPoolHeader = new StringPoolHeader(chunkType, headerSize, chunkSize);
-                stringPoolHeader.setStringCount(Buffers.readUInt(buffer));
-                stringPoolHeader.setStyleCount(Buffers.readUInt(buffer));
-                stringPoolHeader.setFlags(Buffers.readUInt(buffer));
-                stringPoolHeader.setStringsStart(Buffers.readUInt(buffer));
-                stringPoolHeader.setStylesStart(Buffers.readUInt(buffer));
-                buffer.position((int) (begin + headerSize));
+                stringPoolHeader.setStringCount(ByteBuffers.readUInt(buffer));
+                stringPoolHeader.setStyleCount(ByteBuffers.readUInt(buffer));
+                stringPoolHeader.setFlags(ByteBuffers.readUInt(buffer));
+                stringPoolHeader.setStringsStart(ByteBuffers.readUInt(buffer));
+                stringPoolHeader.setStylesStart(ByteBuffers.readUInt(buffer));
+                ByteBuffers.position(buffer, begin + headerSize);
                 return stringPoolHeader;
             case ChunkType.XML_RESOURCE_MAP:
-                buffer.position((int) (begin + headerSize));
+                ByteBuffers.position(buffer, begin + headerSize);
                 return new XmlResourceMapHeader(chunkType, headerSize, chunkSize);
             case ChunkType.XML_START_NAMESPACE:
             case ChunkType.XML_END_NAMESPACE:
@@ -310,9 +310,9 @@ public class BinaryXmlParser {
             case ChunkType.XML_END_ELEMENT:
             case ChunkType.XML_CDATA:
                 XmlNodeHeader header = new XmlNodeHeader(chunkType, headerSize, chunkSize);
-                header.setLineNum((int) Buffers.readUInt(buffer));
-                header.setCommentRef((int) Buffers.readUInt(buffer));
-                buffer.position((int) (begin + headerSize));
+                header.setLineNum((int) ByteBuffers.readUInt(buffer));
+                header.setCommentRef((int) ByteBuffers.readUInt(buffer));
+                ByteBuffers.position(buffer, begin + headerSize);
                 return header;
             case ChunkType.NULL:
                 return new NullHeader(chunkType, headerSize, chunkSize);

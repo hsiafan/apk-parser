@@ -5,7 +5,7 @@ import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.struct.StringPool;
 import net.dongliu.apk.parser.struct.dex.DexClassStruct;
 import net.dongliu.apk.parser.struct.dex.DexHeader;
-import net.dongliu.apk.parser.utils.Buffers;
+import net.dongliu.apk.parser.utils.ByteBuffers;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -36,7 +36,7 @@ public class DexParser {
 
     public void parse() {
         // read magic
-        String magic = new String(Buffers.readBytes(buffer, 8));
+        String magic = new String(ByteBuffers.readBytes(buffer, 8));
         if (!magic.startsWith("dex\n")) {
             return;
         }
@@ -88,7 +88,7 @@ public class DexParser {
      * read class info.
      */
     private DexClassStruct[] readClass(long classDefsOff, int classDefsSize) {
-        buffer.position((int) classDefsOff);
+        ByteBuffers.position(buffer, classDefsOff);
 
         DexClassStruct[] dexClassStructs = new DexClassStruct[classDefsSize];
         for (int i = 0; i < classDefsSize; i++) {
@@ -98,11 +98,11 @@ public class DexParser {
             dexClassStruct.setAccessFlags(buffer.getInt());
             dexClassStruct.setSuperclassIdx(buffer.getInt());
 
-            dexClassStruct.setInterfacesOff(Buffers.readUInt(buffer));
+            dexClassStruct.setInterfacesOff(ByteBuffers.readUInt(buffer));
             dexClassStruct.setSourceFileIdx(buffer.getInt());
-            dexClassStruct.setAnnotationsOff(Buffers.readUInt(buffer));
-            dexClassStruct.setClassDataOff(Buffers.readUInt(buffer));
-            dexClassStruct.setStaticValuesOff(Buffers.readUInt(buffer));
+            dexClassStruct.setAnnotationsOff(ByteBuffers.readUInt(buffer));
+            dexClassStruct.setClassDataOff(ByteBuffers.readUInt(buffer));
+            dexClassStruct.setStaticValuesOff(ByteBuffers.readUInt(buffer));
             dexClassStructs[i] = dexClassStruct;
         }
 
@@ -113,10 +113,10 @@ public class DexParser {
      * read types.
      */
     private int[] readTypes(long typeIdsOff, int typeIdsSize) {
-        buffer.position((int) typeIdsOff);
+        ByteBuffers.position(buffer, typeIdsOff);
         int[] typeIds = new int[typeIdsSize];
         for (int i = 0; i < typeIdsSize; i++) {
-            typeIds[i] = (int) Buffers.readUInt(buffer);
+            typeIds[i] = (int) ByteBuffers.readUInt(buffer);
         }
         return typeIds;
     }
@@ -146,7 +146,7 @@ public class DexParser {
                 stringpool.set(entry.getIdx(), lastStr);
                 continue;
             }
-            buffer.position((int) entry.getOffset());
+            ByteBuffers.position(buffer, entry.getOffset());
             lastOffset = entry.getOffset();
             String str = readString();
             lastStr = str;
@@ -159,10 +159,10 @@ public class DexParser {
      * read string identifiers list.
      */
     private long[] readStringPool(long stringIdsOff, int stringIdsSize) {
-        buffer.position((int) stringIdsOff);
+        ByteBuffers.position(buffer, stringIdsOff);
         long offsets[] = new long[stringIdsSize];
         for (int i = 0; i < stringIdsSize; i++) {
-            offsets[i] = Buffers.readUInt(buffer);
+            offsets[i] = ByteBuffers.readUInt(buffer);
         }
 
         return offsets;
@@ -186,17 +186,17 @@ public class DexParser {
         char[] chars = new char[strLen];
 
         for (int i = 0; i < strLen; i++) {
-            short a = Buffers.readUByte(buffer);
+            short a = ByteBuffers.readUByte(buffer);
             if ((a & 0x80) == 0) {
                 // ascii char
                 chars[i] = (char) a;
             } else if ((a & 0xe0) == 0xc0) {
                 // read one more
-                short b = Buffers.readUByte(buffer);
+                short b = ByteBuffers.readUByte(buffer);
                 chars[i] = (char) (((a & 0x1F) << 6) | (b & 0x3F));
             } else if ((a & 0xf0) == 0xe0) {
-                short b = Buffers.readUByte(buffer);
-                short c = Buffers.readUByte(buffer);
+                short b = ByteBuffers.readUByte(buffer);
+                short c = ByteBuffers.readUByte(buffer);
                 chars[i] = (char) (((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F));
             } else if ((a & 0xf0) == 0xf0) {
                 //throw new UTFDataFormatException();
@@ -227,7 +227,7 @@ public class DexParser {
             if (count > 4) {
                 throw new ParserException("read varints error.");
             }
-            s = Buffers.readUByte(buffer);
+            s = ByteBuffers.readUByte(buffer);
             i |= (s & 0x7f) << (count * 7);
             count++;
         } while ((s & 0x80) != 0);
@@ -241,44 +241,44 @@ public class DexParser {
         buffer.getInt();
 
         // signature skip
-        Buffers.readBytes(buffer, DexHeader.kSHA1DigestLen);
+        ByteBuffers.readBytes(buffer, DexHeader.kSHA1DigestLen);
 
         DexHeader header = new DexHeader();
-        header.setFileSize(Buffers.readUInt(buffer));
-        header.setHeaderSize(Buffers.readUInt(buffer));
+        header.setFileSize(ByteBuffers.readUInt(buffer));
+        header.setHeaderSize(ByteBuffers.readUInt(buffer));
 
         // skip?
-        Buffers.readUInt(buffer);
+        ByteBuffers.readUInt(buffer);
 
         // static link data
-        header.setLinkSize(Buffers.readUInt(buffer));
-        header.setLinkOff(Buffers.readUInt(buffer));
+        header.setLinkSize(ByteBuffers.readUInt(buffer));
+        header.setLinkOff(ByteBuffers.readUInt(buffer));
 
         // the map data is just the same as dex header.
-        header.setMapOff(Buffers.readUInt(buffer));
+        header.setMapOff(ByteBuffers.readUInt(buffer));
 
         header.setStringIdsSize(buffer.getInt());
-        header.setStringIdsOff(Buffers.readUInt(buffer));
+        header.setStringIdsOff(ByteBuffers.readUInt(buffer));
 
         header.setTypeIdsSize(buffer.getInt());
-        header.setTypeIdsOff(Buffers.readUInt(buffer));
+        header.setTypeIdsOff(ByteBuffers.readUInt(buffer));
 
         header.setProtoIdsSize(buffer.getInt());
-        header.setProtoIdsOff(Buffers.readUInt(buffer));
+        header.setProtoIdsOff(ByteBuffers.readUInt(buffer));
 
         header.setFieldIdsSize(buffer.getInt());
-        header.setFieldIdsOff(Buffers.readUInt(buffer));
+        header.setFieldIdsOff(ByteBuffers.readUInt(buffer));
 
         header.setMethodIdsSize(buffer.getInt());
-        header.setMethodIdsOff(Buffers.readUInt(buffer));
+        header.setMethodIdsOff(ByteBuffers.readUInt(buffer));
 
         header.setClassDefsSize(buffer.getInt());
-        header.setClassDefsOff(Buffers.readUInt(buffer));
+        header.setClassDefsOff(ByteBuffers.readUInt(buffer));
 
         header.setDataSize(buffer.getInt());
-        header.setDataOff(Buffers.readUInt(buffer));
+        header.setDataOff(ByteBuffers.readUInt(buffer));
 
-        buffer.position((int) header.getHeaderSize());
+        ByteBuffers.position(buffer, header.getHeaderSize());
 
         return header;
     }

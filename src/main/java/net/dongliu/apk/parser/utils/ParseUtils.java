@@ -27,17 +27,17 @@ public class ParseUtils {
             // but using 8-bit rather than 16-bit integers.
             int strLen = readLen(buffer);
             int bytesLen = readLen(buffer);
-            byte[] bytes = Buffers.readBytes(buffer, bytesLen);
+            byte[] bytes = ByteBuffers.readBytes(buffer, bytesLen);
             String str = new String(bytes, charsetUTF8);
             // zero
-            int trailling = Buffers.readUByte(buffer);
+            int trailling = ByteBuffers.readUByte(buffer);
             return str;
         } else {
             // The length is encoded as either one or two 16-bit integers as per the commentRef...
             int strLen = readLen16(buffer);
-            String str = Buffers.readString(buffer, strLen);
+            String str = ByteBuffers.readString(buffer, strLen);
             // zero
-            int trailling = Buffers.readUShort(buffer);
+            int trailling = ByteBuffers.readUShort(buffer);
             return str;
         }
     }
@@ -46,7 +46,7 @@ public class ParseUtils {
      * read utf-16 encoding str, use zero char to end str.
      */
     public static String readStringUTF16(ByteBuffer buffer, int strLen) {
-        String str = Buffers.readString(buffer, strLen);
+        String str = ByteBuffers.readString(buffer, strLen);
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
             if (c == 0) {
@@ -62,11 +62,11 @@ public class ParseUtils {
      */
     private static int readLen(ByteBuffer buffer) {
         int len = 0;
-        int i = Buffers.readUByte(buffer);
+        int i = ByteBuffers.readUByte(buffer);
         if ((i & 0x80) != 0) {
             //read one more byte.
             len |= (i & 0x7f) << 7;
-            len += Buffers.readUByte(buffer);
+            len += ByteBuffers.readUByte(buffer);
         } else {
             len = i;
         }
@@ -79,10 +79,10 @@ public class ParseUtils {
      */
     private static int readLen16(ByteBuffer buffer) {
         int len = 0;
-        int i = Buffers.readUShort(buffer);
+        int i = ByteBuffers.readUShort(buffer);
         if ((i & 0x8000) != 0) {
             len |= (i & 0x7fff) << 15;
-            len += Buffers.readUShort(buffer);
+            len += ByteBuffers.readUShort(buffer);
         } else {
             len = i;
         }
@@ -100,7 +100,7 @@ public class ParseUtils {
         // read strings offset
         if (stringPoolHeader.getStringCount() > 0) {
             for (int idx = 0; idx < stringPoolHeader.getStringCount(); idx++) {
-                offsets[idx] = Buffers.readUInt(buffer);
+                offsets[idx] = ByteBuffers.readUInt(buffer);
             }
         }
         // read flag
@@ -111,7 +111,7 @@ public class ParseUtils {
 
         // read strings. the head and metas have 28 bytes
         long stringPos = beginPos + stringPoolHeader.getStringsStart() - stringPoolHeader.getHeaderSize();
-        buffer.position((int) stringPos);
+        ByteBuffers.position(buffer, stringPos);
 
         StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
         for (int i = 0; i < offsets.length; i++) {
@@ -127,7 +127,7 @@ public class ParseUtils {
                 continue;
             }
 
-            buffer.position((int) entry.getOffset());
+            ByteBuffers.position(buffer, entry.getOffset());
             lastOffset = entry.getOffset();
             String str = ParseUtils.readString(buffer, utf8);
             lastStr = str;
@@ -139,7 +139,7 @@ public class ParseUtils {
             // now we just skip it
         }
 
-        buffer.position((int) (beginPos + stringPoolHeader.getBodySize()));
+        ByteBuffers.position(buffer, beginPos + stringPoolHeader.getBodySize());
 
         return stringPool;
     }
@@ -150,9 +150,9 @@ public class ParseUtils {
     @Nullable
     public static ResourceValue readResValue(ByteBuffer buffer, StringPool stringPool) {
 //        ResValue resValue = new ResValue();
-        int size = Buffers.readUShort(buffer);
-        short res0 = Buffers.readUByte(buffer);
-        short dataType = Buffers.readUByte(buffer);
+        int size = ByteBuffers.readUShort(buffer);
+        short res0 = ByteBuffers.readUByte(buffer);
+        short dataType = ByteBuffers.readUByte(buffer);
 
         switch (dataType) {
             case ResValue.ResType.INT_DEC:
