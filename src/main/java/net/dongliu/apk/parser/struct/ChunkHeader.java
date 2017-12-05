@@ -6,9 +6,9 @@ package net.dongliu.apk.parser.struct;
  * <pre>
  * chunk header struct.
  * struct ResChunk_header {
- * uint16_t type;
- * uint16_t headerSize;
- * uint32_t size;
+ *     uint16_t type;
+ *     uint16_t headerSize;
+ *     uint32_t size;
  * }
  * </pre>
  *

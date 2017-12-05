@@ -17,12 +17,11 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * parse android resource table file.
- * see http://justanapplication.wordpress.com/category/android/android-resources/
- * https://github.com/aosp-mirror/platform_frameworks_base/blob/master/libs/androidfw/include/androidfw/ResourceTypes.h
- * https://github.com/aosp-mirror/platform_frameworks_base/blob/master/libs/androidfw/ResourceTypes.cpp
+ * Parse android resource table file.
  *
  * @author dongliu
+ * @see <a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/master/libs/androidfw/include/androidfw/ResourceTypes.h">ResourceTypes.h</a>
+ * @see <a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/master/libs/androidfw/ResourceTypes.cpp">ResourceTypes.cpp</a>
  */
 public class ResourceTableParser {
 
@@ -147,6 +146,10 @@ public class ResourceTableParser {
                     }
                     ByteBuffers.position(buffer, chunkBegin + chunkHeader.getBodySize());
                     break;
+                case ChunkType.NULL:
+//                    ByteBuffers.position(buffer, chunkBegin + chunkHeader.getBodySize());
+                    ByteBuffers.position(buffer, buffer.position() + buffer.remaining());
+                    break;
                 default:
                     throw new ParserException("unexpected chunk type: 0x" + chunkHeader.getChunkType());
             }
@@ -216,7 +219,8 @@ public class ResourceTableParser {
                 return libraryHeader;
 
             case ChunkType.NULL:
-                //buffer.skip((int) (chunkSize - headerSize));
+                ByteBuffers.position(buffer, begin + headerSize);
+                return new NullHeader(chunkType, headerSize, chunkSize);
             default:
                 throw new ParserException("Unexpected chunk Type: 0x" + Integer.toHexString(chunkType));
         }
