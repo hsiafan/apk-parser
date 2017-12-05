@@ -1,5 +1,6 @@
 package net.dongliu.apk.parser.bean;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -19,7 +20,7 @@ public class CertificateMeta {
      * An OID is represented by a set of non-negative whole numbers separated by periods.
      * For example, the string "1.2.840.10040.4.3" identifies the SHA-1 with DSA signature algorithm defined in
      * <a href="http://www.ietf.org/rfc/rfc3279.txt">
-     *     RFC 3279: Algorithms and Identifiers for the Internet X.509 Public Key Infrastructure Certificate and CRL Profile
+     * RFC 3279: Algorithms and Identifiers for the Internet X.509 Public Key Infrastructure Certificate and CRL Profile
      * </a>.
      */
     private String signAlgorithmOID;
@@ -108,9 +109,10 @@ public class CertificateMeta {
 
     @Override
     public String toString() {
-        return "signAlgorithm:\t" + signAlgorithm + '\n' +
-                "certBase64Md5:\t" + certBase64Md5 + '\n' +
-                "certMd5:\t" + certMd5;
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return "{signAlgorithm=" + signAlgorithm + ", " +
+                "certBase64Md5=" + certBase64Md5 + ", " +
+                "startDate=" + df.format(startDate) + "," + "endDate=" + df.format(endDate) + "}";
     }
 }
 

@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -36,23 +38,20 @@ public class ApkFile extends AbstractApkFile implements Closeable {
     }
 
     @Override
-    protected byte[] getCertificateData() throws IOException {
-        ZipEntry entry = null;
+    protected Map<String, byte[]> getAllCertificateData() throws IOException {
         Enumeration<? extends ZipEntry> enu = zf.entries();
+        Map<String, byte[]> map = new LinkedHashMap<>();
         while (enu.hasMoreElements()) {
             ZipEntry ne = enu.nextElement();
             if (ne.isDirectory()) {
                 continue;
             }
-            if (ne.getName().toUpperCase().endsWith(".RSA") || ne.getName().toUpperCase().endsWith(".DSA")) {
-                entry = ne;
-                break;
+            String name = ne.getName().toUpperCase();
+            if (name.endsWith(".RSA") || name.endsWith(".DSA")) {
+                map.put(name, Utils.toByteArray(zf.getInputStream(ne)));
             }
         }
-        if (entry == null) {
-            return null;
-        }
-        return Utils.toByteArray(zf.getInputStream(entry));
+        return map;
     }
 
     @Override

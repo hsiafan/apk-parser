@@ -33,7 +33,7 @@ public abstract class AbstractApkFile implements Closeable {
     private ApkMeta apkMeta;
     private List<IconPath> iconPaths;
 
-    private List<CertificateMeta> certificateMetaList;
+    private Map<String, List<CertificateMeta>> certificateMetaMap;
 
     private static final Locale DEFAULT_LOCALE = Locale.US;
 
@@ -74,27 +74,40 @@ public abstract class AbstractApkFile implements Closeable {
     }
 
     /**
-     * get the apk's certificates.
+     * Get the apk's certificate meta. If have multi signature, return the certificate the first signature used.
      */
     public List<CertificateMeta> getCertificateMetaList() throws IOException,
             CertificateException {
-        if (this.certificateMetaList == null) {
-            parseCertificate();
+        if (certificateMetaMap == null) {
+            parseCertificates();
         }
-        return this.certificateMetaList;
-    }
-
-    protected abstract byte[] getCertificateData() throws IOException;
-
-    private void parseCertificate() throws IOException, CertificateException {
-
-        byte[] data = getCertificateData();
-        if (data == null) {
+        if (certificateMetaMap.isEmpty()) {
             throw new ParserException("ApkFile certificate not found");
         }
-        CertificateParser parser = new CertificateParser(data);
-        parser.parse();
-        this.certificateMetaList = parser.getCertificateMetas();
+        return certificateMetaMap.values().iterator().next();
+    }
+
+    /**
+     * Get the apk's all certificates.
+     * For each entry, the key is certificate file path in apk file, the value is the certificates info of the certificate file.
+     */
+    public Map<String, List<CertificateMeta>> getAllCertificateMetas() throws IOException, CertificateException {
+        if (certificateMetaMap == null) {
+            parseCertificates();
+        }
+        return this.certificateMetaMap;
+    }
+
+    protected abstract Map<String, byte[]> getAllCertificateData() throws IOException;
+
+    private void parseCertificates() throws IOException, CertificateException {
+        Map<String, byte[]> dataMap = getAllCertificateData();
+        certificateMetaMap = new LinkedHashMap<>();
+        for (Map.Entry<String, byte[]> entry : dataMap.entrySet()) {
+            CertificateParser parser = new CertificateParser(entry.getValue());
+            parser.parse();
+            certificateMetaMap.put(entry.getKey(), parser.getCertificateMetas());
+        }
     }
 
     private void parseManifest() throws IOException {
@@ -257,9 +270,8 @@ public abstract class AbstractApkFile implements Closeable {
 
     @Override
     public void close() throws IOException {
-        this.certificateMetaList = null;
+        this.certificateMetaMap = null;
         this.resourceTable = null;
-        this.certificateMetaList = null;
         this.iconPaths = null;
     }
 

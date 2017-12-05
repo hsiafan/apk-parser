@@ -7,6 +7,8 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -25,17 +27,19 @@ public class ByteArrayApkFile extends AbstractApkFile implements Closeable {
     }
 
     @Override
-    protected byte[] getCertificateData() throws IOException {
+    protected Map<String, byte[]> getAllCertificateData() throws IOException {
+        Map<String, byte[]> map = new LinkedHashMap<>();
         try (InputStream in = new ByteArrayInputStream(apkData);
              ZipInputStream zis = new ZipInputStream(in)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                if (entry.getName().toUpperCase().endsWith(".RSA") || entry.getName().toUpperCase().endsWith(".DSA")) {
-                    return Utils.toByteArray(zis);
+                String name = entry.getName();
+                if (name.toUpperCase().endsWith(".RSA") || name.toUpperCase().endsWith(".DSA")) {
+                    map.put(name, Utils.toByteArray(zis));
                 }
             }
         }
-        return null;
+        return map;
     }
 
     @Override
