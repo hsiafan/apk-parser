@@ -1,5 +1,7 @@
 package net.dongliu.apk.parser.struct.resource;
 
+import net.dongliu.apk.parser.utils.Unsigned;
+
 /**
  * used by resource Type.
  *
@@ -7,7 +9,7 @@ package net.dongliu.apk.parser.struct.resource;
  */
 public class ResTableConfig {
     // Number of bytes in this structure. uint32_t
-    private long size;
+    private int size;
 
     // Mobile country code (from SIM).  0 means "any". uint16_t
     private short mcc;
@@ -63,28 +65,28 @@ public class ResTableConfig {
     //uint32_t screenConfig;
 
 
-    public long getSize() {
+    public int getSize() {
         return size;
     }
 
     public void setSize(long size) {
-        this.size = size;
+        this.size = Unsigned.ensureUInt(size);
     }
 
-    public int getMcc() {
-        return mcc & 0xffff;
+    public short getMcc() {
+        return mcc;
     }
 
-    public void setMcc(int mcc) {
-        this.mcc = (short) mcc;
+    public void setMcc(short mcc) {
+        this.mcc = mcc;
     }
 
-    public int getMnc() {
-        return mnc & 0xffff;
+    public short getMnc() {
+        return mnc;
     }
 
-    public void setMnc(int mnc) {
-        this.mnc = (short) mnc;
+    public void setMnc(short mnc) {
+        this.mnc = mnc;
     }
 
     public String getLanguage() {

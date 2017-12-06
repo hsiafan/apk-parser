@@ -82,6 +82,10 @@ public class ResourceFetcher {
         String url = "https://android.googlesource.com/platform/frameworks/base/+/master/api/current.txt";
         String html = getUrl(url);
         String code = retrieveCode(html);
+        if (code == null) {
+            System.err.println("code area not found");
+            return;
+        }
         int begin = code.indexOf("R.style");
         int end = code.indexOf("}", begin);
         String styleCode = code.substring(begin, end);
@@ -89,7 +93,7 @@ public class ResourceFetcher {
         for (String line : lines) {
             line = line.trim();
             if (line.startsWith("field public static final")) {
-                line = Utils.substringBefore(line, ";").replace("deprecated ", "")
+                line = Strings.substringBefore(line, ";").replace("deprecated ", "")
                         .substring("field public static final int ".length()).replace("_", ".");
                 System.out.println(line);
             }
@@ -102,7 +106,7 @@ public class ResourceFetcher {
             conn.setRequestMethod("GET");
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(10000);
-            byte[] bytes = Utils.toByteArray(conn.getInputStream());
+            byte[] bytes = Inputs.toByteArray(conn.getInputStream());
             return new String(bytes, StandardCharsets.UTF_8);
         } finally {
             conn.disconnect();

@@ -1,29 +1,9 @@
 package net.dongliu.apk.parser.utils;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
-public class Utils {
-
-    public static byte[] toByteArray(InputStream in) throws IOException {
-        try {
-            byte[] buf = new byte[1024*8];
-            try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                int len;
-                while ((len = in.read(buf)) != -1) {
-                    bos.write(buf, 0, len);
-                }
-                return bos.toByteArray();
-            }
-        } finally {
-            in.close();
-        }
-    }
+public class Strings {
 
     /**
      * Copied fom commons StringUtils
@@ -90,7 +70,7 @@ public class Utils {
     }
 
     public static String substringBefore(final String str, final String separator) {
-        if (Utils.isEmpty(str) || separator == null) {
+        if (Strings.isEmpty(str) || separator == null) {
             return str;
         }
         if (separator.isEmpty()) {

@@ -2,13 +2,14 @@ package net.dongliu.apk.parser.utils;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * utils method for byte buffer
  *
  * @author Liu Dong dongliu@live.cn
  */
-public class ByteBuffers {
+public class Buffers {
 
     /**
      * get one unsigned byte as short type
@@ -43,6 +44,14 @@ public class ByteBuffers {
         return bytes;
     }
 
+    /**
+     * Read ascii string ,by len
+     */
+    public static String readAsciiString(ByteBuffer buffer, int strLen) {
+        byte[] bytes = new byte[strLen];
+        buffer.get(bytes);
+        return new String(bytes);
+    }
 
     /**
      * read utf16 strings, use strLen, not ending 0 char.
@@ -95,9 +104,18 @@ public class ByteBuffers {
      * set position
      */
     public static void position(ByteBuffer buffer, long position) {
-        if (position > Integer.MAX_VALUE) {
-            throw new ArithmeticException("position overflow int: " + position);
-        }
-        ((Buffer) buffer).position((int) position);
+        position(buffer, Unsigned.ensureUInt(position));
+    }
+
+
+    /**
+     * Return one new ByteBuffer from current position, with size, the byte order of new buffer will be set to little endian;
+     * And advance the original buffer with size.
+     */
+    public static ByteBuffer slice(ByteBuffer buffer, int size) {
+        ByteBuffer buf = buffer.slice().order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer slice = (ByteBuffer) ((Buffer) buf).limit(buf.position() + size);
+        skip(buffer, size);
+        return slice;
     }
 }

@@ -27,17 +27,17 @@ public class ParseUtils {
             // but using 8-bit rather than 16-bit integers.
             int strLen = readLen(buffer);
             int bytesLen = readLen(buffer);
-            byte[] bytes = ByteBuffers.readBytes(buffer, bytesLen);
+            byte[] bytes = Buffers.readBytes(buffer, bytesLen);
             String str = new String(bytes, charsetUTF8);
             // zero
-            int trailling = ByteBuffers.readUByte(buffer);
+            int trailling = Buffers.readUByte(buffer);
             return str;
         } else {
             // The length is encoded as either one or two 16-bit integers as per the commentRef...
             int strLen = readLen16(buffer);
-            String str = ByteBuffers.readString(buffer, strLen);
+            String str = Buffers.readString(buffer, strLen);
             // zero
-            int trailling = ByteBuffers.readUShort(buffer);
+            int trailling = Buffers.readUShort(buffer);
             return str;
         }
     }
@@ -46,7 +46,7 @@ public class ParseUtils {
      * read utf-16 encoding str, use zero char to end str.
      */
     public static String readStringUTF16(ByteBuffer buffer, int strLen) {
-        String str = ByteBuffers.readString(buffer, strLen);
+        String str = Buffers.readString(buffer, strLen);
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
             if (c == 0) {
@@ -62,11 +62,11 @@ public class ParseUtils {
      */
     private static int readLen(ByteBuffer buffer) {
         int len = 0;
-        int i = ByteBuffers.readUByte(buffer);
+        int i = Buffers.readUByte(buffer);
         if ((i & 0x80) != 0) {
             //read one more byte.
             len |= (i & 0x7f) << 7;
-            len += ByteBuffers.readUByte(buffer);
+            len += Buffers.readUByte(buffer);
         } else {
             len = i;
         }
@@ -79,10 +79,10 @@ public class ParseUtils {
      */
     private static int readLen16(ByteBuffer buffer) {
         int len = 0;
-        int i = ByteBuffers.readUShort(buffer);
+        int i = Buffers.readUShort(buffer);
         if ((i & 0x8000) != 0) {
             len |= (i & 0x7fff) << 15;
-            len += ByteBuffers.readUShort(buffer);
+            len += Buffers.readUShort(buffer);
         } else {
             len = i;
         }
@@ -96,11 +96,11 @@ public class ParseUtils {
     public static StringPool readStringPool(ByteBuffer buffer, StringPoolHeader stringPoolHeader) {
 
         long beginPos = buffer.position();
-        long[] offsets = new long[(int) stringPoolHeader.getStringCount()];
+        int[] offsets = new int[stringPoolHeader.getStringCount()];
         // read strings offset
         if (stringPoolHeader.getStringCount() > 0) {
             for (int idx = 0; idx < stringPoolHeader.getStringCount(); idx++) {
-                offsets[idx] = ByteBuffers.readUInt(buffer);
+                offsets[idx] = Unsigned.toUInt(Buffers.readUInt(buffer));
             }
         }
         // read flag
@@ -111,23 +111,23 @@ public class ParseUtils {
 
         // read strings. the head and metas have 28 bytes
         long stringPos = beginPos + stringPoolHeader.getStringsStart() - stringPoolHeader.getHeaderSize();
-        ByteBuffers.position(buffer, stringPos);
+        Buffers.position(buffer, stringPos);
 
         StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
         for (int i = 0; i < offsets.length; i++) {
-            entries[i] = new StringPoolEntry(i, stringPos + offsets[i]);
+            entries[i] = new StringPoolEntry(i, stringPos + Unsigned.toLong(offsets[i]));
         }
 
         String lastStr = null;
         long lastOffset = -1;
-        StringPool stringPool = new StringPool((int) stringPoolHeader.getStringCount());
+        StringPool stringPool = new StringPool(stringPoolHeader.getStringCount());
         for (StringPoolEntry entry : entries) {
             if (entry.getOffset() == lastOffset) {
                 stringPool.set(entry.getIdx(), lastStr);
                 continue;
             }
 
-            ByteBuffers.position(buffer, entry.getOffset());
+            Buffers.position(buffer, entry.getOffset());
             lastOffset = entry.getOffset();
             String str = ParseUtils.readString(buffer, utf8);
             lastStr = str;
@@ -139,7 +139,7 @@ public class ParseUtils {
             // now we just skip it
         }
 
-        ByteBuffers.position(buffer, beginPos + stringPoolHeader.getBodySize());
+        Buffers.position(buffer, beginPos + stringPoolHeader.getBodySize());
 
         return stringPool;
     }
@@ -150,9 +150,9 @@ public class ParseUtils {
     @Nullable
     public static ResourceValue readResValue(ByteBuffer buffer, StringPool stringPool) {
 //        ResValue resValue = new ResValue();
-        int size = ByteBuffers.readUShort(buffer);
-        short res0 = ByteBuffers.readUByte(buffer);
-        short dataType = ByteBuffers.readUByte(buffer);
+        int size = Buffers.readUShort(buffer);
+        short res0 = Buffers.readUByte(buffer);
+        short dataType = Buffers.readUByte(buffer);
 
         switch (dataType) {
             case ResValue.ResType.INT_DEC:

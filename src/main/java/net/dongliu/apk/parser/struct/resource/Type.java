@@ -1,7 +1,7 @@
 package net.dongliu.apk.parser.struct.resource;
 
 import net.dongliu.apk.parser.struct.StringPool;
-import net.dongliu.apk.parser.utils.ByteBuffers;
+import net.dongliu.apk.parser.utils.Buffers;
 import net.dongliu.apk.parser.utils.ParseUtils;
 
 import java.nio.ByteBuffer;
@@ -42,7 +42,7 @@ public class Type {
         }
 
         // read Resource Entries
-        ByteBuffers.position(buffer, offsets[id]);
+        Buffers.position(buffer, offsets[id]);
         return readResourceEntry();
     }
 
@@ -50,8 +50,8 @@ public class Type {
         long beginPos = buffer.position();
         ResourceEntry resourceEntry = new ResourceEntry();
         // size is always 8(simple), or 16(complex)
-        resourceEntry.setSize(ByteBuffers.readUShort(buffer));
-        resourceEntry.setFlags(ByteBuffers.readUShort(buffer));
+        resourceEntry.setSize(Buffers.readUShort(buffer));
+        resourceEntry.setFlags(Buffers.readUShort(buffer));
         long keyRef = buffer.getInt();
         String key = keyStringPool.get((int) keyRef);
         resourceEntry.setKey(key);
@@ -60,10 +60,10 @@ public class Type {
             ResourceMapEntry resourceMapEntry = new ResourceMapEntry(resourceEntry);
 
             // Resource identifier of the parent mapping, or 0 if there is none.
-            resourceMapEntry.setParent(ByteBuffers.readUInt(buffer));
-            resourceMapEntry.setCount(ByteBuffers.readUInt(buffer));
+            resourceMapEntry.setParent(Buffers.readUInt(buffer));
+            resourceMapEntry.setCount(Buffers.readUInt(buffer));
 
-            ByteBuffers.position(buffer, beginPos + resourceEntry.getSize());
+            Buffers.position(buffer, beginPos + resourceEntry.getSize());
 
             //An individual complex Resource entry comprises an entry immediately followed by one or more fields.
             ResourceTableMap[] resourceTableMaps = new ResourceTableMap[(int) resourceMapEntry.getCount()];
@@ -74,7 +74,7 @@ public class Type {
             resourceMapEntry.setResourceTableMaps(resourceTableMaps);
             return resourceMapEntry;
         } else {
-            ByteBuffers.position(buffer, beginPos + resourceEntry.getSize());
+            Buffers.position(buffer, beginPos + resourceEntry.getSize());
             resourceEntry.setValue(ParseUtils.readResValue(buffer, stringPool));
             return resourceEntry;
         }
@@ -82,7 +82,7 @@ public class Type {
 
     private ResourceTableMap readResourceTableMap() {
         ResourceTableMap resourceTableMap = new ResourceTableMap();
-        resourceTableMap.setNameRef(ByteBuffers.readUInt(buffer));
+        resourceTableMap.setNameRef(Buffers.readUInt(buffer));
         resourceTableMap.setResValue(ParseUtils.readResValue(buffer, stringPool));
 
         if ((resourceTableMap.getNameRef() & 0x02000000) != 0) {

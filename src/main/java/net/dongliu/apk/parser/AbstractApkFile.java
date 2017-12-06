@@ -4,12 +4,17 @@ import net.dongliu.apk.parser.bean.*;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
+import net.dongliu.apk.parser.struct.ApkSigningBlock;
 import net.dongliu.apk.parser.struct.resource.Densities;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
+import net.dongliu.apk.parser.struct.zip.EOCD;
+import net.dongliu.apk.parser.utils.Buffers;
+import net.dongliu.apk.parser.utils.Unsigned;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.cert.CertificateException;
 import java.util.*;
 
@@ -134,6 +139,11 @@ public abstract class AbstractApkFile implements Closeable {
      * read file in apk into bytes
      */
     public abstract byte[] getFileData(String path) throws IOException;
+
+    /**
+     * return the whole apk file as ByteBuffer
+     */
+    protected abstract ByteBuffer fileData() throws IOException;
 
 
     /**
@@ -264,7 +274,8 @@ public abstract class AbstractApkFile implements Closeable {
     }
 
     /**
-     * check apk sign
+     * Check apk sign.
+     * TODO:Now only use jar-sign, apk-signing v2 not supported
      */
     public abstract ApkSignStatus verifyApk() throws IOException;
 
@@ -291,4 +302,94 @@ public abstract class AbstractApkFile implements Closeable {
             this.apkMeta = null;
         }
     }
+
+    private ApkSigningBlock findApkSignBlock() throws IOException {
+        ByteBuffer buffer = fileData().order(ByteOrder.LITTLE_ENDIAN);
+        int len = buffer.limit();
+
+        // first find zip end of central directory entry
+        if (len < 22) {
+            // should not happen
+            throw new RuntimeException("Not zip file");
+        }
+        int maxEOCDSize = 1024 * 100;
+        EOCD eocd = null;
+        for (int i = len - 22; i > Math.max(0, len - maxEOCDSize); i--) {
+            int v = buffer.getInt(i);
+            if (v == EOCD.SIGNATURE) {
+                Buffers.position(buffer, i + 4);
+                eocd = new EOCD();
+                eocd.setDiskNum(Buffers.readUShort(buffer));
+                eocd.setCdStartDisk(Buffers.readUShort(buffer));
+                eocd.setCdRecordNum(Buffers.readUShort(buffer));
+                eocd.setTotalCDRecordNum(Buffers.readUShort(buffer));
+                eocd.setCdSize(Buffers.readUInt(buffer));
+                eocd.setCdStart(Buffers.readUInt(buffer));
+                eocd.setCommentLen(Buffers.readUShort(buffer));
+            }
+        }
+
+        if (eocd == null) {
+            return null;
+        }
+
+        long cdStart = eocd.getCdStart();
+        // find apk sign block
+        Buffers.position(buffer, cdStart - 16);
+        String magic = Buffers.readAsciiString(buffer, 16);
+        if (!magic.equals(ApkSigningBlock.MAGIC)) {
+            return null;
+        }
+        Buffers.position(buffer, cdStart - 24);
+        int blockSize = Unsigned.ensureUInt(buffer.getLong());
+        Buffers.position(buffer, cdStart - blockSize - 8);
+        long size2 = Unsigned.ensureULong(buffer.getLong());
+        if (blockSize != size2) {
+            return null;
+        }
+        // now at the start of signing block
+        ByteBuffer signingBuffer = Buffers.slice(buffer, blockSize);
+        return readSigningBlock(signingBuffer);
+    }
+
+    private ApkSigningBlock readSigningBlock(ByteBuffer buffer) {
+        ApkSigningBlock block = new ApkSigningBlock();
+        block.setSize(buffer.limit());
+        // sign block found, read pairs
+        while (buffer.hasRemaining()) {
+            int id = buffer.getInt();
+            int size = Unsigned.ensureUInt(buffer.getInt());
+            if (id == ApkSigningBlock.SIGNING_V2_ID) {
+                ByteBuffer signingV2Buffer = Buffers.slice(buffer, size);
+                // now only care about apk signing v2 entry
+                readSigningV2(signingV2Buffer);
+
+                Buffers.position(buffer, buffer.position() + size);
+            } else {
+                Buffers.position(buffer, buffer.position() + size);
+            }
+        }
+        return block;
+    }
+
+    private void readSigningV2(ByteBuffer buffer) {
+        int singersLen = Unsigned.ensureUInt(buffer.getInt());
+        int singersEnd = buffer.position() + singersLen;
+
+        while (buffer.position() < singersEnd) {
+            int singerLen = Unsigned.ensureUInt(buffer.getInt());
+            int singerBegin = buffer.position();
+            int singerDataLen = Unsigned.ensureUInt(buffer.getInt());
+            Buffers.skip(buffer, singerDataLen);
+
+            singerLen = singerLen - singerDataLen - 4;
+            if (singerLen > 0) {
+                int signaturesLen = Unsigned.ensureUInt(buffer.getInt());
+                Buffers.skip(buffer, signaturesLen);
+                int publicKeyLen = Unsigned.ensureUInt(buffer.getInt());
+                Buffers.skip(buffer, publicKeyLen);
+            }
+        }
+    }
+
 }

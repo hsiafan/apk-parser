@@ -1,21 +1,23 @@
 package net.dongliu.apk.parser.struct;
 
+import net.dongliu.apk.parser.utils.Unsigned;
+
 /**
  * String pool chunk header.
  *
  * @author dongliu
  */
 public class StringPoolHeader extends ChunkHeader {
-    public StringPoolHeader(int chunkType, int headerSize, long chunkSize) {
-        super(chunkType, headerSize, chunkSize);
+    public StringPoolHeader(int headerSize, long chunkSize) {
+        super(ChunkType.STRING_POOL, headerSize, chunkSize);
     }
 
     // Number of style span arrays in the pool (number of uint32_t indices
     // follow the string indices).
-    private long stringCount;
+    private int stringCount;
     // Number of style span arrays in the pool (number of uint32_t indices
     // follow the string indices).
-    private long styleCount;
+    private int styleCount;
 
     // If set, the string index is sorted by the string values (based on strcmp16()).
     public static final int SORTED_FLAG = 1;
@@ -24,24 +26,24 @@ public class StringPoolHeader extends ChunkHeader {
     private long flags;
 
     // Index from header of the string data.
-    private long stringsStart;
+    private int stringsStart;
     // Index from header of the style data.
-    private long stylesStart;
+    private int stylesStart;
 
-    public long getStringCount() {
+    public int getStringCount() {
         return stringCount;
     }
 
     public void setStringCount(long stringCount) {
-        this.stringCount = stringCount;
+        this.stringCount = Unsigned.ensureUInt(stringCount);
     }
 
-    public long getStyleCount() {
+    public int getStyleCount() {
         return styleCount;
     }
 
     public void setStyleCount(long styleCount) {
-        this.styleCount = styleCount;
+        this.styleCount = Unsigned.ensureUInt(styleCount);
     }
 
     public long getFlags() {
@@ -57,7 +59,7 @@ public class StringPoolHeader extends ChunkHeader {
     }
 
     public void setStringsStart(long stringsStart) {
-        this.stringsStart = stringsStart;
+        this.stringsStart = Unsigned.ensureUInt(stringsStart);
     }
 
     public long getStylesStart() {
@@ -65,6 +67,6 @@ public class StringPoolHeader extends ChunkHeader {
     }
 
     public void setStylesStart(long stylesStart) {
-        this.stylesStart = stylesStart;
+        this.stylesStart = Unsigned.ensureUInt(stylesStart);
     }
 }

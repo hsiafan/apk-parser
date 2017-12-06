@@ -1,12 +1,11 @@
 package net.dongliu.apk.parser;
 
 import net.dongliu.apk.parser.bean.ApkSignStatus;
-import net.dongliu.apk.parser.utils.Utils;
+import net.dongliu.apk.parser.utils.Inputs;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class ApkFile extends AbstractApkFile implements Closeable {
             }
             String name = ne.getName().toUpperCase();
             if (name.endsWith(".RSA") || name.endsWith(".DSA")) {
-                map.put(name, Utils.toByteArray(zf.getInputStream(ne)));
+                map.put(name, Inputs.toByteArray(zf.getInputStream(ne)));
             }
         }
         return map;
@@ -62,7 +61,13 @@ public class ApkFile extends AbstractApkFile implements Closeable {
         }
 
         InputStream inputStream = zf.getInputStream(entry);
-        return Utils.toByteArray(inputStream);
+        return Inputs.toByteArray(inputStream);
+    }
+
+    @Override
+    protected ByteBuffer fileData() throws IOException {
+        FileChannel channel = new FileInputStream(apkFile).getChannel();
+        return channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
     }
 
 

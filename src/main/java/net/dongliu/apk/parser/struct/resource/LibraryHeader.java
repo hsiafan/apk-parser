@@ -1,6 +1,8 @@
 package net.dongliu.apk.parser.struct.resource;
 
 import net.dongliu.apk.parser.struct.ChunkHeader;
+import net.dongliu.apk.parser.struct.ChunkType;
+import net.dongliu.apk.parser.utils.Unsigned;
 
 /**
  * Table library chunk header
@@ -19,17 +21,17 @@ public class LibraryHeader extends ChunkHeader {
     /**
      * uint32 value, The number of shared libraries linked in this resource table.
      */
-    private long count;
+    private int count;
 
-    public LibraryHeader(int chunkType, int headerSize, long chunkSize) {
-        super(chunkType, headerSize, chunkSize);
+    public LibraryHeader(int headerSize, long chunkSize) {
+        super(ChunkType.TABLE_LIBRARY, headerSize, chunkSize);
     }
 
-    public long getCount() {
+    public int getCount() {
         return count;
     }
 
     public void setCount(long count) {
-        this.count = count;
+        this.count = Unsigned.ensureUInt(count);
     }
 }
