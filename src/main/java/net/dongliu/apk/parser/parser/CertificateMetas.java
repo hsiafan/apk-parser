@@ -33,7 +33,7 @@ public class CertificateMetas {
         certificateMeta.setCertMd5(certMd5);
         certificateMeta.setStartDate(certificate.getNotBefore());
         certificateMeta.setEndDate(certificate.getNotAfter());
-        certificateMeta.setSignAlgorithm(certificate.getSigAlgName());
+        certificateMeta.setSignAlgorithm(certificate.getSigAlgName().toUpperCase());
         certificateMeta.setSignAlgorithmOID(certificate.getSigAlgOID());
         return certificateMeta;
     }

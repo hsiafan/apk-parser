@@ -127,7 +127,7 @@ public abstract class AbstractApkFile implements Closeable {
     private void parseCertificates() throws IOException, CertificateException {
         this.apkSigners = new ArrayList<>();
         for (CertificateFile file : getAllCertificateData()) {
-            CertificateParser parser = new CertificateParser(file.getData());
+            CertificateParser parser = CertificateParser.getInstance(file.getData());
             List<CertificateMeta> certificateMetas = parser.parse();
             apkSigners.add(new ApkSigner(file.getPath(), certificateMetas));
         }
@@ -339,9 +339,11 @@ public abstract class AbstractApkFile implements Closeable {
     }
 
     /**
-     * Check apk sign.
-     * TODO:Now only use jar-sign, apk-signing v2 not supported
+     * Check apk sign. This method only use apk v1 scheme verifier
+     *
+     * @deprecated using google official ApkVerifier of apksig lib instead.
      */
+    @Deprecated
     public abstract ApkSignStatus verifyApk() throws IOException;
 
     @Override

@@ -71,7 +71,13 @@ public class ApkFile extends AbstractApkFile implements Closeable {
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated using google official ApkVerifier of apksig lib instead.
+     */
     @Override
+    @Deprecated
     public ApkSignStatus verifyApk() throws IOException {
         ZipEntry entry = zf.getEntry("META-INF/MANIFEST.MF");
         if (entry == null) {

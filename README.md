@@ -62,15 +62,14 @@ try(ApkFile apkFile = new ApkFile(new File(filePath))) {
 }
 ```
 
-##### 4. Get certificate and verify apk signature
+##### 4. Get Apk Sign info
+
+To get apk signer certificate info and other messages, using:
 
 ```java
 try(ApkFile apkFile = new ApkFile(new File(filePath))) {
-    ApkSignStatus signStatus = apkFile.verifyApk();
-    List<CertificateMeta> certs = apkFile.getCertificateMetas();
-    for (CertificateMeta certificateMeta : certs) {
-        System.out.println(certificateMeta.getSignAlgorithm());
-    }
+    List<ApkSigner> signers = apkFile.getApkSingers(); // apk v1 signers
+    List<ApkV2Signer> v2signers = apkFile.getApkV2Singers(); // apk v2 signers
 }
 ```
 
