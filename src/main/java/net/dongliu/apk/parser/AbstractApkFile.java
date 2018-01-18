@@ -4,9 +4,10 @@ import net.dongliu.apk.parser.bean.*;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.parser.*;
 import net.dongliu.apk.parser.struct.AndroidConstants;
-import net.dongliu.apk.parser.struct.ApkSigningBlock;
 import net.dongliu.apk.parser.struct.resource.Densities;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
+import net.dongliu.apk.parser.struct.signingv2.ApkSigningBlock;
+import net.dongliu.apk.parser.struct.signingv2.SignerBlock;
 import net.dongliu.apk.parser.struct.zip.EOCD;
 import net.dongliu.apk.parser.utils.Buffers;
 import net.dongliu.apk.parser.utils.Unsigned;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static java.lang.System.arraycopy;
@@ -38,7 +40,8 @@ public abstract class AbstractApkFile implements Closeable {
     private ApkMeta apkMeta;
     private List<IconPath> iconPaths;
 
-    private List<ApkCertificateFileInfo> apkCertificateFileInfos;
+    private List<ApkSigner> apkSigners;
+    private List<ApkV2Signer> apkV2Signers;
 
     private static final Locale DEFAULT_LOCALE = Locale.US;
 
@@ -79,44 +82,82 @@ public abstract class AbstractApkFile implements Closeable {
     }
 
     /**
-     * Get the apk's certificate meta. If have multi signature, return the certificate the first signature used.
+     * Get the apk's certificate meta. If have multi signer, return the certificate the first signer used.
+     *
+     * @deprecated use {{@link #getApkSingers()}} instead
      */
-    public List<CertificateMeta> getCertificateMetaList() throws IOException,
-            CertificateException {
-        if (apkCertificateFileInfos == null) {
+    @Deprecated
+    public List<CertificateMeta> getCertificateMetaList() throws IOException, CertificateException {
+        if (apkSigners == null) {
             parseCertificates();
         }
-        if (apkCertificateFileInfos.isEmpty()) {
+        if (apkSigners.isEmpty()) {
             throw new ParserException("ApkFile certificate not found");
         }
-        return apkCertificateFileInfos.get(0).getCertificateMetaList();
+        return apkSigners.get(0).getCertificateMetas();
     }
 
     /**
      * Get the apk's all certificates.
      * For each entry, the key is certificate file path in apk file, the value is the certificates info of the certificate file.
      *
-     * @deprecated use {{@link #getCertificateInfos()}} instead
+     * @deprecated use {{@link #getApkSingers()}} instead
      */
     @Deprecated
     public Map<String, List<CertificateMeta>> getAllCertificateMetas() throws IOException, CertificateException {
-        List<ApkCertificateFileInfo> certificateInfos = getCertificateInfos();
+        List<ApkSigner> apkSigners = getApkSingers();
         Map<String, List<CertificateMeta>> map = new LinkedHashMap<>();
-        for (ApkCertificateFileInfo certificateInfo : certificateInfos) {
-            map.put(certificateInfo.getPath(), certificateInfo.getCertificateMetaList());
+        for (ApkSigner apkSigner : apkSigners) {
+            map.put(apkSigner.getPath(), apkSigner.getCertificateMetas());
         }
         return map;
     }
 
     /**
-     * Get the apk's all certificates of all cert file.
-     * For each item, the key is cert file path in apk file, the value is the certificates info of the cert file.
+     * Get the apk's all cert file info, of apk v1 signing.
+     * If cert faile not exist, return empty list.
      */
-    public List<ApkCertificateFileInfo> getCertificateInfos() throws IOException, CertificateException {
-        if (apkCertificateFileInfos == null) {
+    public List<ApkSigner> getApkSingers() throws IOException, CertificateException {
+        if (apkSigners == null) {
             parseCertificates();
         }
-        return this.apkCertificateFileInfos;
+        return this.apkSigners;
+    }
+
+    private void parseCertificates() throws IOException, CertificateException {
+        this.apkSigners = new ArrayList<>();
+        for (CertificateFile file : getAllCertificateData()) {
+            CertificateParser parser = new CertificateParser(file.getData());
+            List<CertificateMeta> certificateMetas = parser.parse();
+            apkSigners.add(new ApkSigner(file.getPath(), certificateMetas));
+        }
+    }
+
+    /**
+     * Get the apk's all signer in apk sign block, using apk singing v2 scheme.
+     * If apk v2 signing block not exists, return empty list.
+     */
+    public List<ApkV2Signer> getApkV2Singers() throws IOException, CertificateException {
+        if (apkV2Signers == null) {
+            parseApkSigningBlock();
+        }
+        return this.apkV2Signers;
+    }
+
+    private void parseApkSigningBlock() throws IOException, CertificateException {
+        List<ApkV2Signer> list = new ArrayList<>();
+        ByteBuffer apkSignBlockBuf = findApkSignBlock();
+        if (apkSignBlockBuf != null) {
+            ApkSignBlockParser parser = new ApkSignBlockParser(apkSignBlockBuf);
+            ApkSigningBlock apkSigningBlock = parser.parse();
+            for (SignerBlock signerBlock : apkSigningBlock.getSignerBlocks()) {
+                List<X509Certificate> certificates = signerBlock.getCertificates();
+                List<CertificateMeta> certificateMetas = CertificateMetas.from(certificates);
+                ApkV2Signer apkV2Signer = new ApkV2Signer(certificateMetas);
+                list.add(apkV2Signer);
+            }
+        }
+        this.apkV2Signers = list;
     }
 
 
@@ -137,15 +178,6 @@ public abstract class AbstractApkFile implements Closeable {
 
         public byte[] getData() {
             return data;
-        }
-    }
-
-    private void parseCertificates() throws IOException, CertificateException {
-        this.apkCertificateFileInfos = new ArrayList<>();
-        for (CertificateFile file : getAllCertificateData()) {
-            CertificateParser parser = new CertificateParser(file.getData());
-            parser.parse();
-            apkCertificateFileInfos.add(new ApkCertificateFileInfo(file.getPath(), parser.getCertificateMetas()));
         }
     }
 
@@ -267,8 +299,7 @@ public abstract class AbstractApkFile implements Closeable {
         }
         ByteBuffer buffer = ByteBuffer.wrap(data);
         DexParser dexParser = new DexParser(buffer);
-        dexParser.parse();
-        return dexParser.getDexClasses();
+        return dexParser.parse();
     }
 
     private void parseDexFiles() throws IOException {
@@ -315,7 +346,7 @@ public abstract class AbstractApkFile implements Closeable {
 
     @Override
     public void close() throws IOException {
-        this.apkCertificateFileInfos = null;
+        this.apkSigners = null;
         this.resourceTable = null;
         this.iconPaths = null;
     }
@@ -337,7 +368,12 @@ public abstract class AbstractApkFile implements Closeable {
         }
     }
 
-    private ApkSigningBlock findApkSignBlock() throws IOException {
+    /**
+     * Create ApkSignBlockParser for this apk file.
+     *
+     * @return null if do not have sign block
+     */
+    protected ByteBuffer findApkSignBlock() throws IOException {
         ByteBuffer buffer = fileData().order(ByteOrder.LITTLE_ENDIAN);
         int len = buffer.limit();
 
@@ -367,10 +403,11 @@ public abstract class AbstractApkFile implements Closeable {
             return null;
         }
 
+        int magicStrLen = 16;
         long cdStart = eocd.getCdStart();
         // find apk sign block
-        Buffers.position(buffer, cdStart - 16);
-        String magic = Buffers.readAsciiString(buffer, 16);
+        Buffers.position(buffer, cdStart - magicStrLen);
+        String magic = Buffers.readAsciiString(buffer, magicStrLen);
         if (!magic.equals(ApkSigningBlock.MAGIC)) {
             return null;
         }
@@ -382,48 +419,7 @@ public abstract class AbstractApkFile implements Closeable {
             return null;
         }
         // now at the start of signing block
-        ByteBuffer signingBuffer = Buffers.slice(buffer, blockSize);
-        return readSigningBlock(signingBuffer);
-    }
-
-    private ApkSigningBlock readSigningBlock(ByteBuffer buffer) {
-        ApkSigningBlock block = new ApkSigningBlock();
-        block.setSize(buffer.limit());
-        // sign block found, read pairs
-        while (buffer.hasRemaining()) {
-            int id = buffer.getInt();
-            int size = Unsigned.ensureUInt(buffer.getInt());
-            if (id == ApkSigningBlock.SIGNING_V2_ID) {
-                ByteBuffer signingV2Buffer = Buffers.slice(buffer, size);
-                // now only care about apk signing v2 entry
-                readSigningV2(signingV2Buffer);
-
-                Buffers.position(buffer, buffer.position() + size);
-            } else {
-                Buffers.position(buffer, buffer.position() + size);
-            }
-        }
-        return block;
-    }
-
-    private void readSigningV2(ByteBuffer buffer) {
-        int singersLen = Unsigned.ensureUInt(buffer.getInt());
-        int singersEnd = buffer.position() + singersLen;
-
-        while (buffer.position() < singersEnd) {
-            int singerLen = Unsigned.ensureUInt(buffer.getInt());
-            int singerBegin = buffer.position();
-            int singerDataLen = Unsigned.ensureUInt(buffer.getInt());
-            Buffers.skip(buffer, singerDataLen);
-
-            singerLen = singerLen - singerDataLen - 4;
-            if (singerLen > 0) {
-                int signaturesLen = Unsigned.ensureUInt(buffer.getInt());
-                Buffers.skip(buffer, signaturesLen);
-                int publicKeyLen = Unsigned.ensureUInt(buffer.getInt());
-                Buffers.skip(buffer, publicKeyLen);
-            }
-        }
+        return Buffers.sliceAndSkip(buffer, blockSize - magicStrLen);
     }
 
 }

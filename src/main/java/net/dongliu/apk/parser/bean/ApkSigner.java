@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * ApkSignV1 certificate file.
  */
-public class ApkCertificateFileInfo {
+public class ApkSigner {
     /**
      * The cert file path in apk file
      */
@@ -13,19 +13,19 @@ public class ApkCertificateFileInfo {
     /**
      * The meta info of certificate contained in this cert file.
      */
-    private List<CertificateMeta> certificateMetaList;
+    private List<CertificateMeta> certificateMetas;
 
-    public ApkCertificateFileInfo(String path, List<CertificateMeta> certificateMetaList) {
+    public ApkSigner(String path, List<CertificateMeta> certificateMetas) {
         this.path = path;
-        this.certificateMetaList = certificateMetaList;
+        this.certificateMetas = certificateMetas;
     }
 
     public String getPath() {
         return path;
     }
 
-    public List<CertificateMeta> getCertificateMetaList() {
-        return certificateMetaList;
+    public List<CertificateMeta> getCertificateMetas() {
+        return certificateMetas;
     }
 
 }

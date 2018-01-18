@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 public class Inputs {
 
-    public static byte[] toByteArray(InputStream in) throws IOException {
+    public static byte[] readAll(InputStream in) throws IOException {
         try {
             byte[] buf = new byte[1024 * 8];
             try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {

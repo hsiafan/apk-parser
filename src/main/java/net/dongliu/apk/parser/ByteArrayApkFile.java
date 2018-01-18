@@ -36,7 +36,7 @@ public class ByteArrayApkFile extends AbstractApkFile implements Closeable {
             while ((entry = zis.getNextEntry()) != null) {
                 String name = entry.getName();
                 if (name.toUpperCase().endsWith(".RSA") || name.toUpperCase().endsWith(".DSA")) {
-                    list.add(new CertificateFile(name, Inputs.toByteArray(zis)));
+                    list.add(new CertificateFile(name, Inputs.readAll(zis)));
                 }
             }
         }
@@ -50,7 +50,7 @@ public class ByteArrayApkFile extends AbstractApkFile implements Closeable {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 if (path.equals(entry.getName())) {
-                    return Inputs.toByteArray(zis);
+                    return Inputs.readAll(zis);
                 }
             }
         }

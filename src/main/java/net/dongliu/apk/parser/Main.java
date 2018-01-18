@@ -11,7 +11,7 @@ import java.security.cert.CertificateException;
 public class Main {
     public static void main(String[] args) throws IOException, CertificateException {
         try (ApkFile apkFile = new ApkFile(args[0])) {
-            System.out.println(apkFile.getApkMeta());
+            System.out.println(apkFile.getApkV2Singers().get(0).getCertificateMetas());
         }
     }
 }

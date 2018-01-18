@@ -45,6 +45,13 @@ public class Buffers {
     }
 
     /**
+     * get all bytes remains
+     */
+    public static byte[] readBytes(ByteBuffer buffer) {
+        return readBytes(buffer, buffer.remaining());
+    }
+
+    /**
      * Read ascii string ,by len
      */
     public static String readAsciiString(ByteBuffer buffer, int strLen) {
@@ -112,7 +119,7 @@ public class Buffers {
      * Return one new ByteBuffer from current position, with size, the byte order of new buffer will be set to little endian;
      * And advance the original buffer with size.
      */
-    public static ByteBuffer slice(ByteBuffer buffer, int size) {
+    public static ByteBuffer sliceAndSkip(ByteBuffer buffer, int size) {
         ByteBuffer buf = buffer.slice().order(ByteOrder.LITTLE_ENDIAN);
         ByteBuffer slice = (ByteBuffer) ((Buffer) buf).limit(buf.position() + size);
         skip(buffer, size);

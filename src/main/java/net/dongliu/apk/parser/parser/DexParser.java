@@ -23,22 +23,19 @@ import java.nio.ByteOrder;
 public class DexParser {
 
     private ByteBuffer buffer;
-    private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
     private static final int NO_INDEX = 0xffffffff;
 
-    private DexClass[] dexClasses;
-
     public DexParser(ByteBuffer buffer) {
         this.buffer = buffer.duplicate();
-        this.buffer.order(byteOrder);
+        this.buffer.order(ByteOrder.LITTLE_ENDIAN);
     }
 
-    public void parse() {
+    public DexClass[] parse() {
         // read magic
         String magic = new String(Buffers.readBytes(buffer, 8));
         if (!magic.startsWith("dex\n")) {
-            return;
+            return new DexClass[0];
         }
         int version = Integer.parseInt(magic.substring(4, 7));
         // now the version is 035
@@ -69,7 +66,7 @@ public class DexParser {
             types[i] = stringpool.get(typeIds[i]);
         }
 
-        dexClasses = new DexClass[dexClassStructs.length];
+        DexClass[] dexClasses = new DexClass[dexClassStructs.length];
         for (int i = 0; i < dexClasses.length; i++) {
             dexClasses[i] = new DexClass();
         }
@@ -82,6 +79,7 @@ public class DexParser {
             }
             dexClass.setAccessFlags(dexClassStruct.getAccessFlags());
         }
+        return dexClasses;
     }
 
     /**
@@ -281,10 +279,6 @@ public class DexParser {
         Buffers.position(buffer, header.getHeaderSize());
 
         return header;
-    }
-
-    public DexClass[] getDexClasses() {
-        return dexClasses;
     }
 
 }
