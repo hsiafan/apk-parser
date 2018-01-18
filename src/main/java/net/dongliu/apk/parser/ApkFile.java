@@ -6,9 +6,9 @@ import net.dongliu.apk.parser.utils.Inputs;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -37,9 +37,9 @@ public class ApkFile extends AbstractApkFile implements Closeable {
     }
 
     @Override
-    protected Map<String, byte[]> getAllCertificateData() throws IOException {
+    protected List<CertificateFile> getAllCertificateData() throws IOException {
         Enumeration<? extends ZipEntry> enu = zf.entries();
-        Map<String, byte[]> map = new LinkedHashMap<>();
+        List<CertificateFile> list = new ArrayList<>();
         while (enu.hasMoreElements()) {
             ZipEntry ne = enu.nextElement();
             if (ne.isDirectory()) {
@@ -47,10 +47,10 @@ public class ApkFile extends AbstractApkFile implements Closeable {
             }
             String name = ne.getName().toUpperCase();
             if (name.endsWith(".RSA") || name.endsWith(".DSA")) {
-                map.put(name, Inputs.toByteArray(zf.getInputStream(ne)));
+                list.add(new CertificateFile(name, Inputs.toByteArray(zf.getInputStream(ne))));
             }
         }
-        return map;
+        return list;
     }
 
     @Override

@@ -7,9 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -28,19 +28,19 @@ public class ByteArrayApkFile extends AbstractApkFile implements Closeable {
     }
 
     @Override
-    protected Map<String, byte[]> getAllCertificateData() throws IOException {
-        Map<String, byte[]> map = new LinkedHashMap<>();
+    protected List<CertificateFile> getAllCertificateData() throws IOException {
+        List<CertificateFile> list = new ArrayList<>();
         try (InputStream in = new ByteArrayInputStream(apkData);
              ZipInputStream zis = new ZipInputStream(in)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 String name = entry.getName();
                 if (name.toUpperCase().endsWith(".RSA") || name.toUpperCase().endsWith(".DSA")) {
-                    map.put(name, Inputs.toByteArray(zis));
+                    list.add(new CertificateFile(name, Inputs.toByteArray(zis)));
                 }
             }
         }
-        return map;
+        return list;
     }
 
     @Override
@@ -58,12 +58,12 @@ public class ByteArrayApkFile extends AbstractApkFile implements Closeable {
     }
 
     @Override
-    protected ByteBuffer fileData() throws IOException {
+    protected ByteBuffer fileData() {
         return ByteBuffer.wrap(apkData).asReadOnlyBuffer();
     }
 
     @Override
-    public ApkSignStatus verifyApk() throws IOException {
+    public ApkSignStatus verifyApk() {
         throw new UnsupportedOperationException();
     }
 

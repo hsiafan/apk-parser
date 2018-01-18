@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * parser certificate info.
+ * Parser certificate info.
  * One apk may have multi certificates(certificate chain).
  *
  * @author dongliu
