@@ -1,15 +1,15 @@
-Apk parser with java, for decoding xml file and getting meta infos from apk file.
+Apk parser lib, for decoding binary xml file, getting apk meta info.
 
 #### Features
 
-* Retrieve basic apk meta info, such as title, icon, package name, version, etc.
+* Retrieve apk meta info, such as title, icon, package name, version, etc.
 * Parse and convert binary xml file to text 
-* Get classes names from dex file
-* Get certificate meta info and verify apk signature
+* Get classes from dex file
+* Get apk singer info
 
 #### Get apk-parser
 
-Apk-parser has been submitted to maven central repo. With maven, you can add apk-parser as dependency by:
+Get apk-parser from maven central repo:
 ```xml
 <dependency>
     <groupId>net.dongliu</groupId>
@@ -21,13 +21,10 @@ From version 2.0, apk-parser requires java7. The last version support java6 is 1
 
 #### Usage
 
-The ordinary way is using the ApkFile class, which contains convenient methods to get AndroidManifest.xml, apk meta info, etc.
+The ordinary way is using the ApkFile class, which contains convenient methods to get AndroidManifest.xml, apk info, etc.ApkFile need to be closed when no longer used. 
 There is also a ByteArrayApkFile class for reading apk file from byte array.
-ApkFile need to be closed when no longer used. If you need to get info more than once for one apk file, you can reuse the same ApkFile instance.
 
-If only want to get meta info or manifest xml file, you can use a utils class ApkParsers.
-
-##### 1. Apk meta info
+##### 1. Apk info
 
 ApkMeta contains name(label), packageName, version, sdk, used features, etc.
 
@@ -75,8 +72,8 @@ try(ApkFile apkFile = new ApkFile(new File(filePath))) {
 
 ##### 5. Locales
 
-Apk may appear different info(title, icon, etc.) for different regions and languages——or we can called it Locales.
-If locale is not set, the "en_US" locale(<code>Locale.US</code>) is used. You can set locale as blow:
+Apk may have different info(title, icon, etc.) for different regions and languages——or we can call it Locale.
+If locale is not set, the default "en_US" locale(<code>Locale.US</code>) is used. You can set one preferred locale by:
 
 ```java
 try (ApkFile apkFile = new ApkFile(new File(filePath))) {
@@ -88,4 +85,4 @@ try (ApkFile apkFile = new ApkFile(new File(filePath))) {
 Apk parser will find best match languages with locale you specified.
 
 If locale is set to null, ApkFile will not translate resource tag, just give the resource id.
-For example, apk title will be '@string/app_name' instead of 'WeChat'.
+For example, the title will be something like '@string/app_name' instead of the real name.
