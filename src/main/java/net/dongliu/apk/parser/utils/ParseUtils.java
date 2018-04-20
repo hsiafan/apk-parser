@@ -65,7 +65,7 @@ public class ParseUtils {
         int i = Buffers.readUByte(buffer);
         if ((i & 0x80) != 0) {
             //read one more byte.
-            len |= (i & 0x7f) << 7;
+            len |= (i & 0x7f) << 8;
             len += Buffers.readUByte(buffer);
         } else {
             len = i;
@@ -81,7 +81,7 @@ public class ParseUtils {
         int len = 0;
         int i = Buffers.readUShort(buffer);
         if ((i & 0x8000) != 0) {
-            len |= (i & 0x7fff) << 15;
+            len |= (i & 0x7fff) << 16;
             len += Buffers.readUShort(buffer);
         } else {
             len = i;
