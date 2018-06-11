@@ -242,8 +242,57 @@ public abstract class AbstractApkFile implements Closeable {
     }
 
     /**
-     * Get the default apk icon file.
+     * This method return icons specified in android manifest file, application.
+     * The icons could be file icon, color icon, or adaptive icon, etc.
+     *
+     * @return icon files.
      */
+    public List<IconFace> getAllIcons() throws IOException {
+        List<IconPath> iconPaths = getIconPaths();
+        if (iconPaths.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<IconFace> iconFaces = new ArrayList<>(iconPaths.size());
+        for (IconPath iconPath : iconPaths) {
+            String filePath = iconPath.getPath();
+            if (filePath.endsWith(".xml")) {
+                // adaptive icon?
+                byte[] data = getFileData(filePath);
+                if (data == null) {
+                    continue;
+                }
+                parseResourceTable();
+
+                AdaptiveIconParser iconParser = new AdaptiveIconParser();
+                transBinaryXml(data, iconParser);
+                Icon backgroundIcon = null;
+                if (iconParser.getBackground() != null) {
+                    backgroundIcon = newFileIcon(iconParser.getBackground(), iconPath.getDensity());
+                }
+                Icon foregroundIcon = null;
+                if (iconParser.getForeground() != null) {
+                    foregroundIcon = newFileIcon(iconParser.getForeground(), iconPath.getDensity());
+                }
+                AdaptiveIcon icon = new AdaptiveIcon(backgroundIcon, foregroundIcon);
+                iconFaces.add(icon);
+            } else {
+                Icon icon = newFileIcon(filePath, iconPath.getDensity());
+                iconFaces.add(icon);
+            }
+        }
+        return iconFaces;
+    }
+
+    private Icon newFileIcon(String filePath, int density) throws IOException {
+        return new Icon(filePath, density, getFileData(filePath));
+    }
+
+    /**
+     * Get the default apk icon file.
+     *
+     * @deprecated use {@link #getAllIcons()}
+     */
+    @Deprecated
     public Icon getIconFile() throws IOException {
         ApkMeta apkMeta = getApkMeta();
         String iconPath = apkMeta.getIcon();
@@ -255,7 +304,10 @@ public abstract class AbstractApkFile implements Closeable {
 
     /**
      * Get all the icon paths, for different densities.
+     *
+     * @deprecated using {@link #getAllIcons()} instead
      */
+    @Deprecated
     public List<IconPath> getIconPaths() throws IOException {
         parseManifest();
         return this.iconPaths;
@@ -263,12 +315,15 @@ public abstract class AbstractApkFile implements Closeable {
 
     /**
      * Get all the icons, for different densities.
+     *
+     * @deprecated using {@link #getAllIcons()} instead
      */
+    @Deprecated
     public List<Icon> getIconFiles() throws IOException {
         List<IconPath> iconPaths = getIconPaths();
         List<Icon> icons = new ArrayList<>(iconPaths.size());
         for (IconPath iconPath : iconPaths) {
-            Icon icon = new Icon(iconPath.getPath(), iconPath.getDensity(), getFileData(iconPath.getPath()));
+            Icon icon = newFileIcon(iconPath.getPath(), iconPath.getDensity());
             icons.add(icon);
         }
         return icons;
@@ -353,6 +408,9 @@ public abstract class AbstractApkFile implements Closeable {
         this.iconPaths = null;
     }
 
+    /**
+     * The local used to parse apk
+     */
     public Locale getPreferredLocale() {
         return preferredLocale;
     }

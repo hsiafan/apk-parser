@@ -1,5 +1,7 @@
 package net.dongliu.apk.parser.bean;
 
+import net.dongliu.apk.parser.AbstractApkFile;
+
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,11 +94,14 @@ public class ApkMeta {
      * the icon file path in apk
      *
      * @return null if not found
+     * @deprecated use {@link AbstractApkFile#getAllIcons()} instead.
      */
+    @Deprecated
     public String getIcon() {
         return icon;
     }
 
+    @Deprecated
     public void setIcon(String icon) {
         this.icon = icon;
     }

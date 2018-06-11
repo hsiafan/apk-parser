@@ -1,16 +1,18 @@
 package net.dongliu.apk.parser.bean;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 
 /**
- * The apk icon file path, and data
+ * The plain file apk icon.
  *
  * @author Liu Dong
  */
-public class Icon {
+public class Icon implements IconFace, Serializable {
 
+    private static final long serialVersionUID = 8680309892249769701L;
     private final String path;
-    private int density;
+    private final int density;
     private final byte[] data;
 
     public Icon(String path, int density, byte[] data) {
@@ -32,6 +34,11 @@ public class Icon {
      */
     public int getDensity() {
         return density;
+    }
+
+    @Override
+    public boolean isFile() {
+        return true;
     }
 
     /**
