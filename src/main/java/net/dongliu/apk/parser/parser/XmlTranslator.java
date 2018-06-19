@@ -77,7 +77,11 @@ public class XmlTranslator implements XmlStreamer {
             appendShift(shift);
             sb.append("</");
             if (xmlNodeEndTag.getNamespace() != null) {
-                sb.append(xmlNodeEndTag.getNamespace()).append(":");
+                String namespace = this.namespaces.getPrefixViaUri(xmlNodeEndTag.getNamespace());
+                if (namespace == null) {
+                    namespace = xmlNodeEndTag.getNamespace();
+                }
+                sb.append(namespace).append(":");
             }
             sb.append(xmlNodeEndTag.getName());
             sb.append(">\n");

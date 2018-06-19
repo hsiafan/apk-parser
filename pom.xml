@@ -14,8 +14,8 @@
     <artifactId>apk-parser</artifactId>
     <name>apk-parser</name>
     <packaging>jar</packaging>
-    <version>2.6.0</version>
-    <url>https://github.com/xiaxiaocao/apk-parser</url>
+    <version>2.6.1</version>
+    <url>https://github.com/hsiafan/apk-parser</url>
     <developers>
         <developer>
             <id>xiaxiaocao</id>
@@ -38,15 +38,15 @@
     <licenses>
         <license>
             <name>The BSD 2-Clause License</name>
-            <url>https://github.com/xiaxiaocao/apk-parser/blob/master/LICENSE.txt</url>
+            <url>https://github.com/hsiafan/apk-parser/blob/master/LICENSE.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:xiaxiaocao/apk-parser.git</connection>
-        <url>https://github.com/xiaxiaocao/apk-parser</url>
-        <developerConnection>scm:git:git@github.com:xiaxiaocao/apk-parser.git</developerConnection>
+        <connection>scm:git:git@github.com:hsiafan/apk-parser.git</connection>
+        <url>https://github.com/hsiafan/apk-parser</url>
+        <developerConnection>scm:git:git@github.com:hsiafan/apk-parser.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
