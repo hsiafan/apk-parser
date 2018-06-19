@@ -425,6 +425,7 @@ public abstract class AbstractApkFile implements Closeable {
             this.preferredLocale = preferredLocale;
             this.manifestXml = null;
             this.apkMeta = null;
+            this.manifestParsed = false;
         }
     }
 
