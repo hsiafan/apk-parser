@@ -23,6 +23,10 @@ public class ApkMeta {
     private String targetSdkVersion;
     @Nullable
     private String maxSdkVersion;
+    @Nullable
+    private String compileSdkVersion;
+    @Nullable
+    private String compileSdkVersionCodename;
     private GlEsVersion glEsVersion;
     private boolean anyDensity;
     private boolean smallScreens;
@@ -80,6 +84,24 @@ public class ApkMeta {
 
     public void setMaxSdkVersion(@Nullable String maxSdkVersion) {
         this.maxSdkVersion = maxSdkVersion;
+    }
+
+    @Nullable
+    public String getCompileSdkVersion() {
+        return compileSdkVersion;
+    }
+
+    public void setCompileSdkVersion(@Nullable String compileSdkVersion) {
+        this.compileSdkVersion = compileSdkVersion;
+    }
+
+    @Nullable
+    public String getCompileSdkVersionCodename() {
+        return compileSdkVersionCodename;
+    }
+
+    public void setCompileSdkVersionCodename(@Nullable String compileSdkVersionCodename) {
+        this.compileSdkVersionCodename = compileSdkVersionCodename;
     }
 
     public List<String> getUsesPermissions() {

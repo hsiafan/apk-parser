@@ -85,6 +85,8 @@ public class ApkMetaTranslator implements XmlStreamer {
                 if (installLocation != null) {
                     apkMeta.setInstallLocation(installLocation);
                 }
+                apkMeta.setCompileSdkVersion(attributes.getString("compileSdkVersion"));
+                apkMeta.setCompileSdkVersionCodename(attributes.getString("compileSdkVersionCodename"));
                 break;
             case "uses-sdk":
                 apkMeta.setMinSdkVersion(attributes.getString("minSdkVersion"));
