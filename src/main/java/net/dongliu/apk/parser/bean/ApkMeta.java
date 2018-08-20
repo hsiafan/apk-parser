@@ -27,6 +27,10 @@ public class ApkMeta {
     private String compileSdkVersion;
     @Nullable
     private String compileSdkVersionCodename;
+    @Nullable
+    private String platformBuildVersionCode;
+    @Nullable
+    private String platformBuildVersionName;
     private GlEsVersion glEsVersion;
     private boolean anyDensity;
     private boolean smallScreens;
@@ -102,6 +106,24 @@ public class ApkMeta {
 
     public void setCompileSdkVersionCodename(@Nullable String compileSdkVersionCodename) {
         this.compileSdkVersionCodename = compileSdkVersionCodename;
+    }
+
+    @Nullable
+    public String getPlatformBuildVersionCode() {
+        return platformBuildVersionCode;
+    }
+
+    public void setPlatformBuildVersionCode(@Nullable String platformBuildVersionCode) {
+        this.platformBuildVersionCode = platformBuildVersionCode;
+    }
+
+    @Nullable
+    public String getPlatformBuildVersionName() {
+        return platformBuildVersionName;
+    }
+
+    public void setPlatformBuildVersionName(@Nullable String platformBuildVersionName) {
+        this.platformBuildVersionName = platformBuildVersionName;
     }
 
     public List<String> getUsesPermissions() {
