@@ -51,29 +51,35 @@ public class BinaryXmlParser {
      * Parse binary xml.
      */
     public void parse() {
+        ChunkHeader firstChunkHeader = readChunkHeader();
+        if (firstChunkHeader == null) {
+            return;
+        }
+
+        switch (firstChunkHeader.getChunkType()) {
+            case ChunkType.XML:
+            case ChunkType.NULL:
+                break;
+            case ChunkType.STRING_POOL:
+            default:
+                // strange chunk header type, just skip this chunk header?
+        }
+
+        // read string pool chunk
+        ChunkHeader stringPoolChunkHeader = readChunkHeader();
+        if (stringPoolChunkHeader == null) {
+            return;
+        }
+
+        ParseUtils.checkChunkType(ChunkType.STRING_POOL, stringPoolChunkHeader.getChunkType());
+        stringPool = ParseUtils.readStringPool(buffer, (StringPoolHeader) stringPoolChunkHeader);
+
+        // read on chunk, check if it was an optional XMLResourceMap chunk
         ChunkHeader chunkHeader = readChunkHeader();
         if (chunkHeader == null) {
             return;
         }
-        if (chunkHeader.getChunkType() != ChunkType.XML && chunkHeader.getChunkType() != ChunkType.NULL) {
-            // notice that some apk mark xml header type as 0, really weird
-            // see https://github.com/clearthesky/apk-parser/issues/49#issuecomment-256852727
-            return;
-        }
 
-        // read string pool chunk
-        chunkHeader = readChunkHeader();
-        if (chunkHeader == null) {
-            return;
-        }
-        ParseUtils.checkChunkType(ChunkType.STRING_POOL, chunkHeader.getChunkType());
-        stringPool = ParseUtils.readStringPool(buffer, (StringPoolHeader) chunkHeader);
-
-        // read on chunk, check if it was an optional XMLResourceMap chunk
-        chunkHeader = readChunkHeader();
-        if (chunkHeader == null) {
-            return;
-        }
         if (chunkHeader.getChunkType() == ChunkType.XML_RESOURCE_MAP) {
             long[] resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
             resourceMap = new String[resourceIds.length];
