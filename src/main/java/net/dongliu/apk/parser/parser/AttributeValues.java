@@ -1,4 +1,4 @@
-package net.dongliu.apk.parser.bean;
+package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.utils.Strings;
 

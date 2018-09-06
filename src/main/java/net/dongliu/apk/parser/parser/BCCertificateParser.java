@@ -33,6 +33,7 @@ class BCCertificateParser extends CertificateParser {
     /**
      * get certificate info
      */
+    @SuppressWarnings("unchecked")
     public List<CertificateMeta> parse() throws CertificateException {
         CMSSignedData cmsSignedData;
         try {

@@ -1,12 +1,11 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.bean.AttributeValues;
-import net.dongliu.apk.parser.bean.Locales;
 import net.dongliu.apk.parser.exception.ParserException;
 import net.dongliu.apk.parser.struct.*;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.xml.*;
 import net.dongliu.apk.parser.utils.Buffers;
+import net.dongliu.apk.parser.utils.Locales;
 import net.dongliu.apk.parser.utils.ParseUtils;
 import net.dongliu.apk.parser.utils.Strings;
 

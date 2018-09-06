@@ -67,17 +67,16 @@ public class DexParser {
         }
 
         DexClass[] dexClasses = new DexClass[dexClassStructs.length];
-        for (int i = 0; i < dexClasses.length; i++) {
-            dexClasses[i] = new DexClass();
-        }
         for (int i = 0; i < dexClassStructs.length; i++) {
             DexClassStruct dexClassStruct = dexClassStructs[i];
-            DexClass dexClass = dexClasses[i];
-            dexClass.setClassType(types[dexClassStruct.getClassIdx()]);
+            String superClass = null;
             if (dexClassStruct.getSuperclassIdx() != NO_INDEX) {
-                dexClass.setSuperClass(types[dexClassStruct.getSuperclassIdx()]);
+                superClass = types[dexClassStruct.getSuperclassIdx()];
             }
-            dexClass.setAccessFlags(dexClassStruct.getAccessFlags());
+            dexClasses[i] = new DexClass(
+                    types[dexClassStruct.getClassIdx()],
+                    superClass,
+                    dexClassStruct.getAccessFlags());
         }
         return dexClasses;
     }

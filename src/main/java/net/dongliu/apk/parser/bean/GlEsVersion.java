@@ -6,24 +6,27 @@ package net.dongliu.apk.parser.bean;
  * @author dongliu
  */
 public class GlEsVersion {
-    private int major;
-    private int minor;
-    private boolean required = true;
+    private final int major;
+    private final int minor;
+    private final boolean required;
+
+    public GlEsVersion(int major, int minor, boolean required) {
+        this.major = major;
+        this.minor = minor;
+        this.required = required;
+    }
+
 
     public int getMajor() {
         return major;
-    }
-
-    public void setMajor(int major) {
-        this.major = major;
     }
 
     public int getMinor() {
         return minor;
     }
 
-    public void setMinor(int minor) {
-        this.minor = minor;
+    public boolean isRequired() {
+        return required;
     }
 
     @Override
@@ -31,11 +34,4 @@ public class GlEsVersion {
         return this.major + "." + this.minor;
     }
 
-    public boolean isRequired() {
-        return required;
-    }
-
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
 }

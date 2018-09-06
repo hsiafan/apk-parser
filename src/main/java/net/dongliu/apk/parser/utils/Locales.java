@@ -1,4 +1,4 @@
-package net.dongliu.apk.parser.bean;
+package net.dongliu.apk.parser.utils;
 
 import java.util.Locale;
 

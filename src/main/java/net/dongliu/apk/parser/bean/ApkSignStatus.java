@@ -1,8 +1,12 @@
 package net.dongliu.apk.parser.bean;
 
 /**
+ * Apk sign status.
  * @author dongliu
  */
 public enum ApkSignStatus {
-    notSigned, incorrect, signed
+    notSigned,
+    // invalid signing
+    incorrect,
+    signed
 }

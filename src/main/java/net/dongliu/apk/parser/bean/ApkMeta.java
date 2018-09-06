@@ -13,72 +13,80 @@ import java.util.List;
  */
 public class ApkMeta {
 
-    private String packageName;
-    private String label;
-    private String icon;
-    private String versionName;
-    private Long versionCode;
-    private String installLocation;
-    private String minSdkVersion;
-    private String targetSdkVersion;
+    private final String packageName;
+    private final String label;
+    private final String icon;
+    private final String versionName;
+    private final Long versionCode;
+    private final String installLocation;
+    private final String minSdkVersion;
+    private final String targetSdkVersion;
     @Nullable
-    private String maxSdkVersion;
+    private final String maxSdkVersion;
     @Nullable
-    private String compileSdkVersion;
+    private final String compileSdkVersion;
     @Nullable
-    private String compileSdkVersionCodename;
+    private final String compileSdkVersionCodename;
     @Nullable
-    private String platformBuildVersionCode;
+    private final String platformBuildVersionCode;
     @Nullable
-    private String platformBuildVersionName;
-    private GlEsVersion glEsVersion;
-    private boolean anyDensity;
-    private boolean smallScreens;
-    private boolean normalScreens;
-    private boolean largeScreens;
+    private final String platformBuildVersionName;
+    private final GlEsVersion glEsVersion;
+    private final boolean anyDensity;
+    private final boolean smallScreens;
+    private final boolean normalScreens;
+    private final boolean largeScreens;
 
-    private List<String> usesPermissions = new ArrayList<>();
-    private List<UseFeature> usesFeatures = new ArrayList<>();
-    private List<Permission> permissions = new ArrayList<>();
+    private final List<String> usesPermissions;
+    private final List<UseFeature> usesFeatures;
+    private final List<Permission> permissions;
+
+    private ApkMeta(Builder builder) {
+        packageName = builder.packageName;
+        label = builder.label;
+        icon = builder.icon;
+        versionName = builder.versionName;
+        versionCode = builder.versionCode;
+        installLocation = builder.installLocation;
+        minSdkVersion = builder.minSdkVersion;
+        targetSdkVersion = builder.targetSdkVersion;
+        maxSdkVersion = builder.maxSdkVersion;
+        compileSdkVersion = builder.compileSdkVersion;
+        compileSdkVersionCodename = builder.compileSdkVersionCodename;
+        platformBuildVersionCode = builder.platformBuildVersionCode;
+        platformBuildVersionName = builder.platformBuildVersionName;
+        glEsVersion = builder.glEsVersion;
+        anyDensity = builder.anyDensity;
+        smallScreens = builder.smallScreens;
+        normalScreens = builder.normalScreens;
+        largeScreens = builder.largeScreens;
+        usesPermissions = builder.usesPermissions;
+        usesFeatures = builder.usesFeatures;
+        permissions = builder.permissions;
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
 
     public String getPackageName() {
         return packageName;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
     }
 
     public String getVersionName() {
         return versionName;
     }
 
-    public void setVersionName(String versionName) {
-        this.versionName = versionName;
-    }
-
     public Long getVersionCode() {
         return versionCode;
-    }
-
-    public void setVersionCode(Long versionCode) {
-        this.versionCode = versionCode;
     }
 
     public String getMinSdkVersion() {
         return minSdkVersion;
     }
 
-    public void setMinSdkVersion(String minSdkVersion) {
-        this.minSdkVersion = minSdkVersion;
-    }
-
     public String getTargetSdkVersion() {
         return targetSdkVersion;
-    }
-
-    public void setTargetSdkVersion(String targetSdkVersion) {
-        this.targetSdkVersion = targetSdkVersion;
     }
 
     @Nullable
@@ -86,17 +94,9 @@ public class ApkMeta {
         return maxSdkVersion;
     }
 
-    public void setMaxSdkVersion(@Nullable String maxSdkVersion) {
-        this.maxSdkVersion = maxSdkVersion;
-    }
-
     @Nullable
     public String getCompileSdkVersion() {
         return compileSdkVersion;
-    }
-
-    public void setCompileSdkVersion(@Nullable String compileSdkVersion) {
-        this.compileSdkVersion = compileSdkVersion;
     }
 
     @Nullable
@@ -104,26 +104,14 @@ public class ApkMeta {
         return compileSdkVersionCodename;
     }
 
-    public void setCompileSdkVersionCodename(@Nullable String compileSdkVersionCodename) {
-        this.compileSdkVersionCodename = compileSdkVersionCodename;
-    }
-
     @Nullable
     public String getPlatformBuildVersionCode() {
         return platformBuildVersionCode;
     }
 
-    public void setPlatformBuildVersionCode(@Nullable String platformBuildVersionCode) {
-        this.platformBuildVersionCode = platformBuildVersionCode;
-    }
-
     @Nullable
     public String getPlatformBuildVersionName() {
         return platformBuildVersionName;
-    }
-
-    public void setPlatformBuildVersionName(@Nullable String platformBuildVersionName) {
-        this.platformBuildVersionName = platformBuildVersionName;
     }
 
     public List<String> getUsesPermissions() {
@@ -145,11 +133,6 @@ public class ApkMeta {
         return icon;
     }
 
-    @Deprecated
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
     /**
      * alias for getLabel
      */
@@ -164,48 +147,24 @@ public class ApkMeta {
         return label;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
     public boolean isAnyDensity() {
         return anyDensity;
-    }
-
-    public void setAnyDensity(boolean anyDensity) {
-        this.anyDensity = anyDensity;
     }
 
     public boolean isSmallScreens() {
         return smallScreens;
     }
 
-    public void setSmallScreens(boolean smallScreens) {
-        this.smallScreens = smallScreens;
-    }
-
     public boolean isNormalScreens() {
         return normalScreens;
-    }
-
-    public void setNormalScreens(boolean normalScreens) {
-        this.normalScreens = normalScreens;
     }
 
     public boolean isLargeScreens() {
         return largeScreens;
     }
 
-    public void setLargeScreens(boolean largeScreens) {
-        this.largeScreens = largeScreens;
-    }
-
     public GlEsVersion getGlEsVersion() {
         return glEsVersion;
-    }
-
-    public void setGlEsVersion(GlEsVersion glEsVersion) {
-        this.glEsVersion = glEsVersion;
     }
 
     public List<UseFeature> getUsesFeatures() {
@@ -220,10 +179,6 @@ public class ApkMeta {
         return installLocation;
     }
 
-    public void setInstallLocation(String installLocation) {
-        this.installLocation = installLocation;
-    }
-
     public void addPermission(Permission permission) {
         this.permissions.add(permission);
     }
@@ -231,6 +186,7 @@ public class ApkMeta {
     public List<Permission> getPermissions() {
         return this.permissions;
     }
+
 
     @Override
     public String toString() {
@@ -244,4 +200,139 @@ public class ApkMeta {
                 + "maxSdkVersion: \t" + maxSdkVersion;
     }
 
+    public static final class Builder {
+        private String packageName;
+        private String label;
+        private String icon;
+        private String versionName;
+        private Long versionCode;
+        private String installLocation;
+        private String minSdkVersion;
+        private String targetSdkVersion;
+        private String maxSdkVersion;
+        private String compileSdkVersion;
+        private String compileSdkVersionCodename;
+        private String platformBuildVersionCode;
+        private String platformBuildVersionName;
+        private GlEsVersion glEsVersion;
+        private boolean anyDensity;
+        private boolean smallScreens;
+        private boolean normalScreens;
+        private boolean largeScreens;
+        private List<String> usesPermissions = new ArrayList<>();
+        private List<UseFeature> usesFeatures = new ArrayList<>();
+        private List<Permission> permissions = new ArrayList<>();
+
+        private Builder() {
+        }
+
+        public Builder setPackageName(String packageName) {
+            this.packageName = packageName;
+            return this;
+        }
+
+        public Builder setLabel(String label) {
+            this.label = label;
+            return this;
+        }
+
+        public Builder setIcon(String icon) {
+            this.icon = icon;
+            return this;
+        }
+
+        public Builder setVersionName(String versionName) {
+            this.versionName = versionName;
+            return this;
+        }
+
+        public Builder setVersionCode(Long versionCode) {
+            this.versionCode = versionCode;
+            return this;
+        }
+
+        public Builder setInstallLocation(String installLocation) {
+            this.installLocation = installLocation;
+            return this;
+        }
+
+        public Builder setMinSdkVersion(String minSdkVersion) {
+            this.minSdkVersion = minSdkVersion;
+            return this;
+        }
+
+        public Builder setTargetSdkVersion(String targetSdkVersion) {
+            this.targetSdkVersion = targetSdkVersion;
+            return this;
+        }
+
+        public Builder setMaxSdkVersion(String maxSdkVersion) {
+            this.maxSdkVersion = maxSdkVersion;
+            return this;
+        }
+
+        public Builder setCompileSdkVersion(String compileSdkVersion) {
+            this.compileSdkVersion = compileSdkVersion;
+            return this;
+        }
+
+        public Builder setCompileSdkVersionCodename(String compileSdkVersionCodename) {
+            this.compileSdkVersionCodename = compileSdkVersionCodename;
+            return this;
+        }
+
+        public Builder setPlatformBuildVersionCode(String platformBuildVersionCode) {
+            this.platformBuildVersionCode = platformBuildVersionCode;
+            return this;
+        }
+
+        public Builder setPlatformBuildVersionName(String platformBuildVersionName) {
+            this.platformBuildVersionName = platformBuildVersionName;
+            return this;
+        }
+
+        public Builder setGlEsVersion(GlEsVersion glEsVersion) {
+            this.glEsVersion = glEsVersion;
+            return this;
+        }
+
+        public Builder setAnyDensity(boolean anyDensity) {
+            this.anyDensity = anyDensity;
+            return this;
+        }
+
+        public Builder setSmallScreens(boolean smallScreens) {
+            this.smallScreens = smallScreens;
+            return this;
+        }
+
+        public Builder setNormalScreens(boolean normalScreens) {
+            this.normalScreens = normalScreens;
+            return this;
+        }
+
+        public Builder setLargeScreens(boolean largeScreens) {
+            this.largeScreens = largeScreens;
+            return this;
+        }
+
+        public Builder addUsesPermission(String usesPermission) {
+            this.usesPermissions.add(usesPermission);
+            return this;
+        }
+
+        public Builder addUsesFeature(UseFeature usesFeature) {
+            this.usesFeatures.add(usesFeature);
+            return this;
+        }
+
+        public Builder addPermissions(Permission permission) {
+            this.permissions.add(permission);
+            return this;
+        }
+
+        public ApkMeta build() {
+            return new ApkMeta(this);
+        }
+    }
 }

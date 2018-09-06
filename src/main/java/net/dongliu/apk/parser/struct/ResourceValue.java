@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.struct;
 
-import net.dongliu.apk.parser.bean.Locales;
+import net.dongliu.apk.parser.utils.Locales;
 import net.dongliu.apk.parser.struct.resource.ResourceEntry;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.resource.Type;

@@ -13,7 +13,7 @@ public class CertificateMeta {
     /**
      * the sign algorithm name
      */
-    private String signAlgorithm;
+    private final String signAlgorithm;
 
     /**
      * the signature algorithm OID string.
@@ -23,96 +23,79 @@ public class CertificateMeta {
      * RFC 3279: Algorithms and Identifiers for the Internet X.509 Public Key Infrastructure Certificate and CRL Profile
      * </a>.
      */
-    private String signAlgorithmOID;
+    private final String signAlgorithmOID;
 
     /**
      * the start date of the validity period.
      */
-    private Date startDate;
+    private final Date startDate;
 
     /**
      * the end date of the validity period.
      */
-    private Date endDate;
+    private final Date endDate;
 
     /**
      * certificate binary data.
      */
-    private byte[] data;
+    private final byte[] data;
 
     /**
      * first use base64 to encode certificate binary data, and then calculate md5 of base64b string.
      * some programs use this as the certMd5 of certificate
      */
-    private String certBase64Md5;
+    private final String certBase64Md5;
 
     /**
      * use md5 to calculate certificate's certMd5.
      */
-    private String certMd5;
+    private final String certMd5;
+
+    public CertificateMeta(String signAlgorithm, String signAlgorithmOID, Date startDate, Date endDate,
+                           byte[] data, String certBase64Md5, String certMd5) {
+        this.signAlgorithm = signAlgorithm;
+        this.signAlgorithmOID = signAlgorithmOID;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.data = data;
+        this.certBase64Md5 = certBase64Md5;
+        this.certMd5 = certMd5;
+    }
 
     public byte[] getData() {
         return data;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
     }
 
     public String getCertBase64Md5() {
         return certBase64Md5;
     }
 
-    public void setCertBase64Md5(String certBase64Md5) {
-        this.certBase64Md5 = certBase64Md5;
-    }
-
     public String getCertMd5() {
         return certMd5;
-    }
-
-    public void setCertMd5(String certMd5) {
-        this.certMd5 = certMd5;
     }
 
     public String getSignAlgorithm() {
         return signAlgorithm;
     }
 
-    public void setSignAlgorithm(String signAlgorithm) {
-        this.signAlgorithm = signAlgorithm;
-    }
-
     public Date getStartDate() {
         return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
     }
 
     public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
     public String getSignAlgorithmOID() {
         return signAlgorithmOID;
-    }
-
-    public void setSignAlgorithmOID(String signAlgorithmOID) {
-        this.signAlgorithmOID = signAlgorithmOID;
     }
 
     @Override
     public String toString() {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return "{signAlgorithm=" + signAlgorithm + ", " +
+        return "CertificateMeta{signAlgorithm=" + signAlgorithm + ", " +
                 "certBase64Md5=" + certBase64Md5 + ", " +
-                "startDate=" + df.format(startDate) + "," + "endDate=" + df.format(endDate) + "}";
+                "startDate=" + df.format(startDate) + ", " + "endDate=" + df.format(endDate) + "}";
     }
 }
 

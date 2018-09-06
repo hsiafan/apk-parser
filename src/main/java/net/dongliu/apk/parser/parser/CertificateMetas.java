@@ -23,19 +23,16 @@ public class CertificateMetas {
     }
 
     public static CertificateMeta from(X509Certificate certificate) throws CertificateEncodingException {
-        CertificateMeta certificateMeta = new CertificateMeta();
         byte[] bytes = certificate.getEncoded();
         String certMd5 = md5Digest(bytes);
         String publicKeyString = byteToHexString(bytes);
         String certBase64Md5 = md5Digest(publicKeyString);
-        certificateMeta.setData(bytes);
-        certificateMeta.setCertBase64Md5(certBase64Md5);
-        certificateMeta.setCertMd5(certMd5);
-        certificateMeta.setStartDate(certificate.getNotBefore());
-        certificateMeta.setEndDate(certificate.getNotAfter());
-        certificateMeta.setSignAlgorithm(certificate.getSigAlgName().toUpperCase());
-        certificateMeta.setSignAlgorithmOID(certificate.getSigAlgOID());
-        return certificateMeta;
+        return new CertificateMeta(
+                certificate.getSigAlgName().toUpperCase(),
+                certificate.getSigAlgOID(),
+                certificate.getNotBefore(),
+                certificate.getNotAfter(),
+                bytes, certBase64Md5, certMd5);
     }
 
     private static String md5Digest(byte[] input) {
