@@ -273,7 +273,7 @@ public abstract class AbstractApkFile implements Closeable {
                 if (iconParser.getForeground() != null) {
                     foregroundIcon = newFileIcon(iconParser.getForeground(), iconPath.getDensity());
                 }
-                AdaptiveIcon icon = new AdaptiveIcon(backgroundIcon, foregroundIcon);
+                AdaptiveIcon icon = new AdaptiveIcon(foregroundIcon, backgroundIcon);
                 iconFaces.add(icon);
             } else {
                 Icon icon = newFileIcon(filePath, iconPath.getDensity());
