@@ -1,10 +1,7 @@
 package net.dongliu.apk.parser.struct;
 
+import net.dongliu.apk.parser.struct.resource.*;
 import net.dongliu.apk.parser.utils.Locales;
-import net.dongliu.apk.parser.struct.resource.ResourceEntry;
-import net.dongliu.apk.parser.struct.resource.ResourceTable;
-import net.dongliu.apk.parser.struct.resource.Type;
-import net.dongliu.apk.parser.struct.resource.TypeSpec;
 
 import java.util.List;
 import java.util.Locale;
@@ -119,6 +116,11 @@ public abstract class ResourceValue {
                 return null;
             }
         }
+
+        @Override
+        public String toString() {
+            return value + ":" + stringPool.get(value);
+        }
     }
 
     /**
@@ -147,18 +149,21 @@ public abstract class ResourceValue {
             // read from type resource
             ResourceEntry selected = null;
             TypeSpec typeSpec = null;
-            int currentLevel = -1;
+            int currentLocalMatchLevel = -1;
+            int currentDensityLevel = -1;
             for (ResourceTable.Resource resource : resources) {
                 Type type = resource.getType();
                 typeSpec = resource.getTypeSpec();
                 ResourceEntry resourceEntry = resource.getResourceEntry();
-                int level = Locales.match(locale, type.getLocale());
-                if (level == 2) {
+                int localMatchLevel = Locales.match(locale, type.getLocale());
+                int densityLevel = densityLevel(type.getDensity());
+                if (localMatchLevel > currentLocalMatchLevel) {
                     selected = resourceEntry;
-                    break;
-                } else if (level > currentLevel) {
+                    currentLocalMatchLevel = localMatchLevel;
+                    currentDensityLevel = densityLevel;
+                } else if (densityLevel > currentDensityLevel) {
                     selected = resourceEntry;
-                    currentLevel = level;
+                    currentDensityLevel = densityLevel;
                 }
             }
             String result;
@@ -176,6 +181,15 @@ public abstract class ResourceValue {
             return value & 0xFFFFFFFFL;
         }
 
+        private static int densityLevel(int density) {
+            if (density == Densities.ANY || density == Densities.NONE) {
+                return -1;
+            }
+            if (density == Densities.DEFAULT) {
+                return Densities.DEFAULT;
+            }
+            return density;
+        }
     }
 
     private static class NullResourceValue extends ResourceValue {
