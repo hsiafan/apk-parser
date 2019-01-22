@@ -62,6 +62,7 @@ public class ByteArrayApkFile extends AbstractApkFile implements Closeable {
         return ByteBuffer.wrap(apkData).asReadOnlyBuffer();
     }
 
+    @Deprecated
     @Override
     public ApkSignStatus verifyApk() {
         throw new UnsupportedOperationException();

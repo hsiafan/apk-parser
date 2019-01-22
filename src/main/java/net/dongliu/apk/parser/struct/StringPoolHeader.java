@@ -26,9 +26,9 @@ public class StringPoolHeader extends ChunkHeader {
     private long flags;
 
     // Index from header of the string data.
-    private int stringsStart;
+    private long stringsStart;
     // Index from header of the style data.
-    private int stylesStart;
+    private long stylesStart;
 
     public int getStringCount() {
         return stringCount;
@@ -59,7 +59,7 @@ public class StringPoolHeader extends ChunkHeader {
     }
 
     public void setStringsStart(long stringsStart) {
-        this.stringsStart = Unsigned.ensureUInt(stringsStart);
+        this.stringsStart = stringsStart;
     }
 
     public long getStylesStart() {
@@ -67,6 +67,6 @@ public class StringPoolHeader extends ChunkHeader {
     }
 
     public void setStylesStart(long stylesStart) {
-        this.stylesStart = Unsigned.ensureUInt(stylesStart);
+        this.stylesStart = stylesStart;
     }
 }
