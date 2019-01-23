@@ -1,5 +1,18 @@
 Apk parser lib, for decoding binary xml file, getting apk meta info.
 
+Table of Contents
+=================
+
+* [Features](#features)
+* [Get apk-parser](#get-apk-parser)
+* [Usage](#usage)
+    * [1. Apk info](#1-apk-info)
+    * [2. Get binary xml and manifest xml file](#2-get-binary-xml-and-manifest-xml-file)
+    * [3. Get dex classes](#3-get-dex-classes)
+    * [4. Get Apk Sign info](#4-get-apk-sign-info)
+    * [5. Locales](#5-locales)
+* [Open Issue](#open-issue)
+
 #### Features
 
 * Retrieve apk meta info, such as title, icon, package name, version, etc.
@@ -86,3 +99,7 @@ Apk parser will find best match languages with locale you specified.
 
 If locale is set to null, ApkFile will not translate resource tag, just give the resource id.
 For example, the title will be something like '@string/app_name' instead of the real name.
+
+
+#### Open Issue
+If this parser has any problem with a specific apk, open a new issue, **with the link to download the apk file**.
