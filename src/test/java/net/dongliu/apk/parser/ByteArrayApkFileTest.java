@@ -41,8 +41,6 @@ public class ByteArrayApkFileTest {
             assertEquals(1, certificateMetas.size());
             CertificateMeta certificateMeta = certificateMetas.get(0);
             assertEquals("69ee076cc84f4d94802d61907b07525f", certificateMeta.getCertMd5());
-
-            List<ApkV2Signer> apkV2Singers = apkFile.getApkV2Singers();
         }
     }
 }
