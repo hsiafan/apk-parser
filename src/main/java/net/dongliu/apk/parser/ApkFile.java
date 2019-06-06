@@ -3,6 +3,7 @@ package net.dongliu.apk.parser;
 import net.dongliu.apk.parser.bean.ApkSignStatus;
 import net.dongliu.apk.parser.utils.Inputs;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -25,6 +26,8 @@ public class ApkFile extends AbstractApkFile implements Closeable {
 
     private final ZipFile zf;
     private File apkFile;
+    @Nullable
+    private FileChannel fileChannel;
 
     public ApkFile(File apkFile) throws IOException {
         this.apkFile = apkFile;
@@ -66,8 +69,8 @@ public class ApkFile extends AbstractApkFile implements Closeable {
 
     @Override
     protected ByteBuffer fileData() throws IOException {
-        FileChannel channel = new FileInputStream(apkFile).getChannel();
-        return channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+        fileChannel = new FileInputStream(apkFile).getChannel();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
     }
 
 
@@ -110,8 +113,16 @@ public class ApkFile extends AbstractApkFile implements Closeable {
 
     @Override
     public void close() throws IOException {
-        super.close();
-        zf.close();
+        try (Closeable superClosable = new Closeable() {
+            @Override
+            public void close() throws IOException {
+                ApkFile.super.close();
+            }
+        };
+             Closeable zipFileClosable = zf;
+             Closeable fileChannelClosable = fileChannel) {
+
+        }
     }
 
 }
