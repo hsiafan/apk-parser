@@ -47,7 +47,7 @@ public class ApkFile extends AbstractApkFile implements Closeable {
             }
             String name = ne.getName().toUpperCase();
             if (name.endsWith(".RSA") || name.endsWith(".DSA")) {
-                list.add(new CertificateFile(name, Inputs.readAll(zf.getInputStream(ne))));
+                list.add(new CertificateFile(name, Inputs.readAllAndClose(zf.getInputStream(ne))));
             }
         }
         return list;
@@ -61,7 +61,7 @@ public class ApkFile extends AbstractApkFile implements Closeable {
         }
 
         InputStream inputStream = zf.getInputStream(entry);
-        return Inputs.readAll(inputStream);
+        return Inputs.readAllAndClose(inputStream);
     }
 
     @Override

@@ -14,13 +14,13 @@ public class BCCertificateParserTest {
 
     @Test
     public void parse() throws IOException, CertificateException {
-        byte[] data = Inputs.readAll(getClass().getResourceAsStream("/sign/63_CERT.RSA"));
+        byte[] data = Inputs.readAllAndClose(getClass().getResourceAsStream("/sign/63_CERT.RSA"));
         CertificateParser parser = new BCCertificateParser(data);
         List<CertificateMeta> certificateMetas = parser.parse();
         assertEquals("SHA1WITHRSA", certificateMetas.get(0).getSignAlgorithm());
 
 
-        data = Inputs.readAll(getClass().getResourceAsStream("/sign/gmail_CERT.RSA"));
+        data = Inputs.readAllAndClose(getClass().getResourceAsStream("/sign/gmail_CERT.RSA"));
         parser = new BCCertificateParser(data);
         certificateMetas = parser.parse();
         assertEquals(1, certificateMetas.size());

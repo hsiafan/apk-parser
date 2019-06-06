@@ -106,7 +106,7 @@ public class ResourceFetcher {
             conn.setRequestMethod("GET");
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(10000);
-            byte[] bytes = Inputs.readAll(conn.getInputStream());
+            byte[] bytes = Inputs.readAllAndClose(conn.getInputStream());
             return new String(bytes, StandardCharsets.UTF_8);
         } finally {
             conn.disconnect();
