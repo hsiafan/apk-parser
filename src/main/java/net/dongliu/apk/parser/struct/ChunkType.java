@@ -2,7 +2,7 @@ package net.dongliu.apk.parser.struct;
 
 /**
  * Resource type
- * see https://github.com/android/platform_frameworks_base/blob/master/include/androidfw/ResourceTypes.h
+ * see https://android.googlesource.com/platform/frameworks/base/+/master/libs/androidfw/include/androidfw/ResourceTypes.h
  *
  * @author dongliu
  */
@@ -31,4 +31,6 @@ public class ChunkType {
     // android5.0+
     // DynamicRefTable
     public static final int TABLE_LIBRARY = 0x0203;
+    //TODO: fix this later. Do not found definition for chunk type 0x0204 in android source yet...
+    public static final int UNKNOWN_YET = 0x0204;
 }

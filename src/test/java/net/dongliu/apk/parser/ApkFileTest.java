@@ -25,6 +25,16 @@ public class ApkFileTest {
     }
 
     @Test
+    public void testParserMeta_Type_0204() throws IOException {
+        String path = getClass().getClassLoader().getResource("apks/NetworkStack_210000000.apk").getPath();
+        try (ApkFile apkFile = new ApkFile(path)) {
+            apkFile.setPreferredLocale(Locale.ENGLISH);
+            ApkMeta apkMeta = apkFile.getApkMeta();
+            assertEquals("NetworkStack", apkMeta.getLabel());
+        }
+    }
+
+    @Test
     public void testGetSignature() throws IOException, CertificateException {
         String path = getClass().getClassLoader().getResource("apks/Twitter_v7.93.2.apk").getPath();
         try (ApkFile apkFile = new ApkFile(path)) {

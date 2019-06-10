@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import static net.dongliu.apk.parser.struct.ChunkType.UNKNOWN_YET;
+
 /**
  * Parse android resource table file.
  *
@@ -215,7 +217,7 @@ public class ResourceTableParser {
                 libraryHeader.setCount(Buffers.readUInt(buffer));
                 Buffers.position(buffer, begin + headerSize);
                 return libraryHeader;
-
+            case UNKNOWN_YET:
             case ChunkType.NULL:
                 Buffers.position(buffer, begin + headerSize);
                 return new NullHeader(headerSize, chunkSize);
