@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 /**
- * trans binary xml to text
+ * trans binary xml to apk meta info
  *
  * @author Liu Dong dongliu@live.cn
  */
@@ -90,9 +90,18 @@ public class ApkMetaTranslator implements XmlStreamer {
                 apkMetaBuilder.setPlatformBuildVersionName(attributes.getString("platformBuildVersionName"));
                 break;
             case "uses-sdk":
-                apkMetaBuilder.setMinSdkVersion(attributes.getString("minSdkVersion"));
-                apkMetaBuilder.setTargetSdkVersion(attributes.getString("targetSdkVersion"));
-                apkMetaBuilder.setMaxSdkVersion(attributes.getString("maxSdkVersion"));
+                String minSdkVersion = attributes.getString("minSdkVersion");
+                if (minSdkVersion != null) {
+                    apkMetaBuilder.setMinSdkVersion(minSdkVersion);
+                }
+                String targetSdkVersion = attributes.getString("targetSdkVersion");
+                if (targetSdkVersion != null) {
+                    apkMetaBuilder.setTargetSdkVersion(targetSdkVersion);
+                }
+                String maxSdkVersion = attributes.getString("maxSdkVersion");
+                if (maxSdkVersion != null) {
+                    apkMetaBuilder.setMaxSdkVersion(maxSdkVersion);
+                }
                 break;
             case "supports-screens":
                 apkMetaBuilder.setAnyDensity(attributes.getBoolean("anyDensity", false));
