@@ -32,7 +32,7 @@ public class ApkSignBlockParser {
     public ApkSigningBlock parse() throws CertificateException {
         // sign block found, read pairs
         List<SignerBlock> signerBlocks = new ArrayList<>();
-        while (data.hasRemaining()) {
+        while (data.remaining() >= 8) {
             int id = data.getInt();
             int size = Unsigned.ensureUInt(data.getInt());
             if (id == ApkSigningBlock.SIGNING_V2_ID) {
