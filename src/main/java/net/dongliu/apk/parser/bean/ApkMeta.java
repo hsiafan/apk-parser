@@ -18,6 +18,14 @@ public class ApkMeta {
     private final String icon;
     private final String versionName;
     private final Long versionCode;
+    private final Long revisionCode;
+    private String sharedUserId;
+    private String sharedUserLabel;
+    private final String split;
+    private final String configForSplit;
+    private final boolean isFeatureSplit;
+    private final boolean isSplitRequired;
+    private final boolean isolatedSplits;
     private final String installLocation;
     private final String minSdkVersion;
     private final String targetSdkVersion;
@@ -47,6 +55,14 @@ public class ApkMeta {
         icon = builder.icon;
         versionName = builder.versionName;
         versionCode = builder.versionCode;
+        revisionCode = builder.revisionCode;
+        sharedUserId = builder.sharedUserId;
+        sharedUserLabel = builder.sharedUserLabel;
+        split = builder.split;
+        configForSplit = builder.configForSplit;
+        isFeatureSplit = builder.isFeatureSplit;
+        isSplitRequired = builder.isSplitRequired;
+        isolatedSplits = builder.isolatedSplits;
         installLocation = builder.installLocation;
         minSdkVersion = builder.minSdkVersion;
         targetSdkVersion = builder.targetSdkVersion;
@@ -79,6 +95,38 @@ public class ApkMeta {
 
     public Long getVersionCode() {
         return versionCode;
+    }
+
+    public Long getRevisionCode() {
+        return revisionCode;
+    }
+
+    public String getSharedUserId() {
+        return sharedUserId;
+    }
+
+    public String getSharedUserLabel() {
+        return sharedUserLabel;
+    }
+
+    public String getSplit() {
+        return split;
+    }
+
+    public String getConfigForSplit() {
+        return configForSplit;
+    }
+
+    public boolean isFeatureSplit() {
+        return isFeatureSplit;
+    }
+
+    public boolean isSplitRequired() {
+        return isSplitRequired;
+    }
+
+    public boolean isIsolatedSplits() {
+        return isolatedSplits;
     }
 
     public String getMinSdkVersion() {
@@ -206,6 +254,14 @@ public class ApkMeta {
         private String icon;
         private String versionName;
         private Long versionCode;
+        private Long revisionCode;
+        private String sharedUserId;
+        private String sharedUserLabel;
+        private String split;
+        private String configForSplit;
+        private boolean isFeatureSplit;
+        private boolean isSplitRequired;
+        private boolean isolatedSplits;
         private String installLocation;
         private String minSdkVersion;
         private String targetSdkVersion;
@@ -248,6 +304,46 @@ public class ApkMeta {
 
         public Builder setVersionCode(Long versionCode) {
             this.versionCode = versionCode;
+            return this;
+        }
+
+        public Builder setRevisionCode(Long revisionCode) {
+            this.revisionCode = revisionCode;
+            return this;
+        }
+
+        public Builder setSharedUserId(String sharedUserId) {
+            this.sharedUserId = sharedUserId;
+            return this;
+        }
+
+        public Builder setSharedUserLabel(String sharedUserLabel) {
+            this.sharedUserLabel = sharedUserLabel;
+            return this;
+        }
+
+        public Builder setSplit(String split) {
+            this.split = split;
+            return this;
+        }
+
+        public Builder setConfigForSplit(String configForSplit) {
+            this.configForSplit = configForSplit;
+            return this;
+        }
+
+        public Builder setIsFeatureSplit(boolean isFeatureSplit) {
+            this.isFeatureSplit = isFeatureSplit;
+            return this;
+        }
+
+        public Builder setIsSplitRequired(boolean isSplitRequired) {
+            this.isSplitRequired = isSplitRequired;
+            return this;
+        }
+
+        public Builder setIsolatedSplits(boolean isolatedSplits) {
+            this.isolatedSplits = isolatedSplits;
             return this;
         }
 
