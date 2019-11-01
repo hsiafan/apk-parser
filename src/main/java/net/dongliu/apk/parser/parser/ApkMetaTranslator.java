@@ -79,7 +79,15 @@ public class ApkMetaTranslator implements XmlStreamer {
             case "manifest":
                 apkMetaBuilder.setPackageName(attributes.getString("package"));
                 apkMetaBuilder.setVersionName(attributes.getString("versionName"));
-                apkMetaBuilder.setVersionCode(attributes.getLong("versionCode"));
+                Long majorVersionCode = attributes.getLong("versionCodeMajor");
+                Long versionCode = attributes.getLong("versionCode");
+                if (majorVersionCode != null) {
+                    if (versionCode == null) {
+                        versionCode = 0L;
+                    }
+                    versionCode = (majorVersionCode << 32) | (versionCode & 0xFFFFFFFFL);
+                }
+                apkMetaBuilder.setVersionCode(versionCode);
                 String installLocation = attributes.getString("installLocation");
                 if (installLocation != null) {
                     apkMetaBuilder.setInstallLocation(installLocation);
