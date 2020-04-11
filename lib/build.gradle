@@ -1,0 +1,17 @@
+plugins {
+    id 'java-library'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    implementation 'org.jetbrains:annotations:18.0.0'
+    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
+//    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.65'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.65'
+    implementation 'junit:junit:4.12'
+}
