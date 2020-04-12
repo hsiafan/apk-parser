@@ -1,4 +1,4 @@
-package com.lb.apkparser
+package com.lb.apkparser.library
 
 import android.content.Context
 import org.xmlpull.v1.XmlPullParser

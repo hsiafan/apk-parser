@@ -3,6 +3,7 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
       <module name="apkParser.app" target="1.8" />
+      <module name="apkParser.app.apkParserLibrary" target="1.8" />
       <module name="apkParser.lib" target="1.8" />
     </bytecodeTargetLevel>
   </component>

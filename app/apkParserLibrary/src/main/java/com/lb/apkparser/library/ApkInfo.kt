@@ -1,4 +1,4 @@
-package com.lb.apkparser
+package com.lb.apkparser.library
 
 import net.dongliu.apk.parser.parser.*
 import net.dongliu.apk.parser.struct.AndroidConstants
@@ -14,25 +14,13 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
     companion object {
         @Suppress("SameParameterValue")
         fun getApkInfo(locale: Locale, zipInputStreamFilter: AbstractZipInputStreamFilter, requestParseManifestXmlTagForApkType: Boolean = false, requestParseResources: Boolean = false): ApkInfo? {
-            var manifestBytes: ByteArray? = null
-            var resourcesBytes: ByteArray? = null
-            while (true) {
-                val zipEntryName = zipInputStreamFilter.getNextEntryName() ?: break
-                when (zipEntryName) {
-                    AndroidConstants.MANIFEST_FILE -> {
-                        manifestBytes = zipInputStreamFilter.getBytesFromCurrentEntry()
-                        if (!requestParseResources || resourcesBytes != null)
-                            break
-                    }
-                    AndroidConstants.RESOURCE_FILE -> {
-                        if (!requestParseResources)
-                            continue
-                        resourcesBytes = zipInputStreamFilter.getBytesFromCurrentEntry()
-                        if (manifestBytes != null)
-                            break
-                    }
-                }
-            }
+            val mandatoryFilesToCheck = hashSetOf(AndroidConstants.MANIFEST_FILE)
+            val extraFilesToCheck = if (requestParseResources) hashSetOf(AndroidConstants.RESOURCE_FILE) else null
+            val byteArrayForEntries = zipInputStreamFilter.getByteArrayForEntries(mandatoryFilesToCheck, extraFilesToCheck)
+                    ?: return null
+            val manifestBytes: ByteArray? = byteArrayForEntries[AndroidConstants.MANIFEST_FILE]
+                    ?: return null
+            val resourcesBytes: ByteArray? = byteArrayForEntries[AndroidConstants.RESOURCE_FILE]
             if (manifestBytes == null) {
 //            Log.e("AppLog", "could not find manifest file for $apkFilePath")
                 return null
@@ -52,20 +40,20 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
             binaryXmlParser.locale = locale
             binaryXmlParser.xmlStreamer = CompositeXmlStreamer(xmlTranslator, apkMetaTranslator)
             binaryXmlParser.parse()
-            var apkType: ApkInfo.ApkType? = null
+            var apkType: ApkType? = null
             if (requestParseManifestXmlTagForApkType) {
                 val apkMeta = apkMetaTranslator.apkMeta
                 val isSplitApk = !apkMeta.split.isNullOrEmpty()
                 if (isSplitApk)
-                    apkType = ApkInfo.ApkType.SPLIT
+                    apkType = ApkType.SPLIT
                 else {
                     //standalone or base of split apks
                     val isDefinitelyBaseApkOfSplit = apkMeta.isSplitRequired
                     if (isDefinitelyBaseApkOfSplit)
-                        apkType = ApkInfo.ApkType.BASE_OF_SPLIT
+                        apkType = ApkType.BASE_OF_SPLIT
                     else {
                         val manifestXml = xmlTranslator.xml
-                        apkType = ApkInfo.ApkType.STANDALONE
+                        apkType = ApkType.STANDALONE
                         try {
                             XmlTag.getXmlFromString(manifestXml)?.innerTagsAndContent?.forEach { manifestXmlItem: Any ->
                                 if (manifestXmlItem is XmlTag && manifestXmlItem.tagName == "application") {
@@ -74,19 +62,19 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                                     for (applicationXmlItem: Any in innerTagsAndContent) {
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "com.android.vending.splits") {
-                                            apkType = ApkInfo.ApkType.BASE_OF_SPLIT_OR_STANDALONE
+                                            apkType = ApkType.BASE_OF_SPLIT_OR_STANDALONE
                                         }
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "instantapps.clients.allowed" &&
                                                 applicationXmlItem.tagAttributes!!["value"] != "false") {
-                                            apkType = ApkInfo.ApkType.BASE_OF_SPLIT_OR_STANDALONE
+                                            apkType = ApkType.BASE_OF_SPLIT_OR_STANDALONE
                                         }
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "com.android.vending.splits.required") {
                                             val isSplitRequired = applicationXmlItem.tagAttributes!!["value"] != "false"
 //                                        if (!isSplitRequired)
 //                                            Log.e("AppLog", "!isSplitRequired")
-                                            apkType = if (isSplitRequired) ApkInfo.ApkType.BASE_OF_SPLIT else ApkInfo.ApkType.BASE_OF_SPLIT_OR_STANDALONE
+                                            apkType = if (isSplitRequired) ApkType.BASE_OF_SPLIT else ApkType.BASE_OF_SPLIT_OR_STANDALONE
 //                                            apkType = ApkInfo.ApkType.BASE_OF_SPLIT
                                             break
                                         }

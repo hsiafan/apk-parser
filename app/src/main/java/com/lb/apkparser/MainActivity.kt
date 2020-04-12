@@ -6,9 +6,9 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import java.io.FileInputStream
+import com.lb.apkparser.library.ApkInfo
 import java.util.*
-import java.util.zip.ZipInputStream
+import java.util.zip.ZipFile
 import kotlin.concurrent.thread
 
 private const val VALIDATE_RESOURCES = true
@@ -17,6 +17,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        if (savedInstanceState == null)
+            performTest()
+    }
+
+    private fun performTest() {
         thread {
             val locale = Locale.getDefault()
             Log.d("AppLog", "getting all package infos:")
@@ -40,7 +45,8 @@ class MainActivity : AppCompatActivity() {
 //                        val manifestXml = it.manifestXml
 //                        Log.d("AppLog", "")
 //                    }
-                    ZipInputStreamFilter(ZipInputStream(FileInputStream(apkFilePath))).use {
+//                    ZipInputStreamFilter(ZipInputStream(FileInputStream(apkFilePath))).use {
+                    com.lb.apkparser.library.ZipFileFilter(ZipFile(apkFilePath)).use {
                         val apkInfo = ApkInfo.getApkInfo(locale, it, true, VALIDATE_RESOURCES)
                         when {
                             apkInfo == null -> Log.e("AppLog", "can't parse apk:$apkFilePath")
@@ -52,6 +58,7 @@ class MainActivity : AppCompatActivity() {
                                 val apkMeta = apkInfo.apkMetaTranslator.apkMeta
                                 val labelOfLibrary = apkMeta.label ?: apkMeta.packageName
                                 val apkMetaTranslator = apkInfo.apkMetaTranslator
+                                @Suppress("ConstantConditionIf")
                                 if (VALIDATE_RESOURCES) {
                                     val label = packageInfo.applicationInfo.loadLabel(packageManager)
                                     when {
@@ -72,8 +79,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     packageInfo.applicationInfo.splitPublicSourceDirs?.forEach { apkFilePath ->
-                        ZipInputStreamFilter(ZipInputStream(FileInputStream(apkFilePath))).use {
-                            val apkInfo = ApkInfo.getApkInfo(locale, it, true, false)
+                        com.lb.apkparser.library.ZipFileFilter(ZipFile(apkFilePath)).use {
+//                        ZipInputStreamFilter(ZipInputStream(FileInputStream(apkFilePath))).use {
+                            val apkInfo = ApkInfo.getApkInfo(locale, it, requestParseManifestXmlTagForApkType = true, requestParseResources = false)
                             when {
                                 apkInfo == null -> Log.e("AppLog", "can\'t parse apk:$apkFilePath")
                                 apkInfo.apkType == null -> Log.e("AppLog", "can\'t get apk type: $apkFilePath")
