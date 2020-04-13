@@ -13,10 +13,10 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
 
     companion object {
         @Suppress("SameParameterValue")
-        fun getApkInfo(locale: Locale, zipInputStreamFilter: AbstractZipInputStreamFilter, requestParseManifestXmlTagForApkType: Boolean = false, requestParseResources: Boolean = false): ApkInfo? {
+        fun getApkInfo(locale: Locale, zipFilter: AbstractZipFilter, requestParseManifestXmlTagForApkType: Boolean = false, requestParseResources: Boolean = false): ApkInfo? {
             val mandatoryFilesToCheck = hashSetOf(AndroidConstants.MANIFEST_FILE)
             val extraFilesToCheck = if (requestParseResources) hashSetOf(AndroidConstants.RESOURCE_FILE) else null
-            val byteArrayForEntries = zipInputStreamFilter.getByteArrayForEntries(mandatoryFilesToCheck, extraFilesToCheck)
+            val byteArrayForEntries = zipFilter.getByteArrayForEntries(mandatoryFilesToCheck, extraFilesToCheck)
                     ?: return null
             val manifestBytes: ByteArray? = byteArrayForEntries[AndroidConstants.MANIFEST_FILE]
                     ?: return null
@@ -51,14 +51,14 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                     val isDefinitelyBaseApkOfSplit = apkMeta.isSplitRequired
                     if (isDefinitelyBaseApkOfSplit)
                         apkType =
-                            ApkType.BASE_OF_SPLIT
+                                ApkType.BASE_OF_SPLIT
                     else {
                         val manifestXml = xmlTranslator.xml
                         apkType =
-                            ApkType.STANDALONE
+                                ApkType.STANDALONE
                         try {
                             XmlTag.getXmlFromString(
-                                manifestXml
+                                    manifestXml
                             )?.innerTagsAndContent?.forEach { manifestXmlItem: Any ->
                                 if (manifestXmlItem is XmlTag && manifestXmlItem.tagName == "application") {
                                     val innerTagsAndContent = manifestXmlItem.innerTagsAndContent
@@ -67,13 +67,13 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "com.android.vending.splits") {
                                             apkType =
-                                                ApkType.BASE_OF_SPLIT_OR_STANDALONE
+                                                    ApkType.BASE_OF_SPLIT_OR_STANDALONE
                                         }
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "instantapps.clients.allowed" &&
                                                 applicationXmlItem.tagAttributes!!["value"] != "false") {
                                             apkType =
-                                                ApkType.BASE_OF_SPLIT_OR_STANDALONE
+                                                    ApkType.BASE_OF_SPLIT_OR_STANDALONE
                                         }
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "com.android.vending.splits.required") {
@@ -95,11 +95,7 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                     }
                 }
             }
-            return ApkInfo(
-                xmlTranslator,
-                apkMetaTranslator,
-                apkType
-            )
+            return ApkInfo(xmlTranslator, apkMetaTranslator, apkType)
         }
     }
 }

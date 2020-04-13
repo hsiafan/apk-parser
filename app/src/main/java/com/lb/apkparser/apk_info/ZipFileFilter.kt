@@ -5,7 +5,7 @@ import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
-class ZipFileFilter(private val zipFile: ZipFile) : AbstractZipInputStreamFilter(), Closeable {
+class ZipFileFilter(private val zipFile: ZipFile) : AbstractZipFilter(), Closeable {
     private var entries: Enumeration<out ZipEntry>? = null
     var currentEntry: ZipEntry? = null
 

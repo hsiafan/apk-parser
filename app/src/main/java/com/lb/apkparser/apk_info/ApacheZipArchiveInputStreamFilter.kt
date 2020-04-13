@@ -1,16 +1,17 @@
 package com.lb.apkparser.apk_info
 
+import org.apache.commons.compress.archivers.ArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import java.io.Closeable
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 
-class ZipInputStreamFilter(private val zipInputStream: ZipInputStream) : AbstractZipFilter(), Closeable {
-    private var currentEntry: ZipEntry? = null
+/**Seems to be the faster choice compared to the built in ZipInputStream*/
+class ApacheZipArchiveInputStreamFilter(private val zipArchiveInputStream: ZipArchiveInputStream) : AbstractZipFilter(), Closeable {
+    private var currentEntry: ArchiveEntry? = null
     private var currentEntryByteArray: ByteArray? = null
 
     override fun getNextEntryName(): String? {
         try {
-            zipInputStream.nextEntry.let { zipEntry: ZipEntry? ->
+            zipArchiveInputStream.nextEntry.let { zipEntry: ArchiveEntry? ->
                 if (zipEntry == null) {
                     close()
                     return null
@@ -28,12 +29,12 @@ class ZipInputStreamFilter(private val zipInputStream: ZipInputStream) : Abstrac
     override fun getBytesFromCurrentEntry(): ByteArray? {
         currentEntryByteArray?.let { return it }
         try {
-            currentEntry.let { zipEntry: ZipEntry? ->
+            currentEntry.let { zipEntry: ArchiveEntry? ->
                 if (zipEntry == null) {
                     close()
                     return null
                 }
-                zipInputStream.readBytes().let {
+                zipArchiveInputStream.readBytes().let {
                     currentEntryByteArray = it
                     return it
                 }
@@ -48,7 +49,7 @@ class ZipInputStreamFilter(private val zipInputStream: ZipInputStream) : Abstrac
         currentEntry = null
         currentEntryByteArray = null
         try {
-            zipInputStream.close()
+            zipArchiveInputStream.close()
         } catch (e: Exception) {
         }
     }

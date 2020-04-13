@@ -3,7 +3,7 @@ package com.lb.apkparser.apk_info
 import java.io.Closeable
 import java.util.*
 
-abstract class AbstractZipInputStreamFilter : Closeable {
+abstract class AbstractZipFilter : Closeable {
     abstract fun getNextEntryName(): String?
     abstract fun getBytesFromCurrentEntry(): ByteArray?
 
