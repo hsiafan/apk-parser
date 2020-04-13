@@ -1,4 +1,4 @@
-package com.lb.apkparser.library
+package com.lb.apkparser.apk_info
 
 import java.io.Closeable
 import java.util.zip.ZipEntry

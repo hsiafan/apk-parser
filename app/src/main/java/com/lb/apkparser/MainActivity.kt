@@ -6,7 +6,9 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.lb.apkparser.library.ApkInfo
+import com.lb.apkparser.apk_info.ApacheZipFileFilter
+import com.lb.apkparser.apk_info.ApkInfo
+import com.lb.apkparser.apk_info.ZipFileFilter
 import java.util.*
 import java.util.zip.ZipFile
 import kotlin.concurrent.thread
@@ -46,7 +48,8 @@ class MainActivity : AppCompatActivity() {
 //                        Log.d("AppLog", "")
 //                    }
 //                    ZipInputStreamFilter(ZipInputStream(FileInputStream(apkFilePath))).use {
-                    com.lb.apkparser.library.ZipFileFilter(ZipFile(apkFilePath)).use {
+//                    ApacheZipFileFilter(org.apache.commons.compress.archivers.zip.ZipFile(apkFilePath)).use {
+                    ZipFileFilter(ZipFile(apkFilePath)).use {
                         val apkInfo = ApkInfo.getApkInfo(locale, it, true, VALIDATE_RESOURCES)
                         when {
                             apkInfo == null -> Log.e("AppLog", "can't parse apk:$apkFilePath")
@@ -79,7 +82,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     packageInfo.applicationInfo.splitPublicSourceDirs?.forEach { apkFilePath ->
-                        com.lb.apkparser.library.ZipFileFilter(ZipFile(apkFilePath)).use {
+//                        ApacheZipFileFilter(org.apache.commons.compress.archivers.zip.ZipFile(apkFilePath)).use{
+                        ZipFileFilter(ZipFile(apkFilePath)).use {
 //                        ZipInputStreamFilter(ZipInputStream(FileInputStream(apkFilePath))).use {
                             val apkInfo = ApkInfo.getApkInfo(locale, it, requestParseManifestXmlTagForApkType = true, requestParseResources = false)
                             when {

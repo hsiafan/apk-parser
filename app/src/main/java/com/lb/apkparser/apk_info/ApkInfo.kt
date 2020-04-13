@@ -1,4 +1,4 @@
-package com.lb.apkparser.library
+package com.lb.apkparser.apk_info
 
 import net.dongliu.apk.parser.parser.*
 import net.dongliu.apk.parser.struct.AndroidConstants
@@ -50,24 +50,30 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                     //standalone or base of split apks
                     val isDefinitelyBaseApkOfSplit = apkMeta.isSplitRequired
                     if (isDefinitelyBaseApkOfSplit)
-                        apkType = ApkType.BASE_OF_SPLIT
+                        apkType =
+                            ApkType.BASE_OF_SPLIT
                     else {
                         val manifestXml = xmlTranslator.xml
-                        apkType = ApkType.STANDALONE
+                        apkType =
+                            ApkType.STANDALONE
                         try {
-                            XmlTag.getXmlFromString(manifestXml)?.innerTagsAndContent?.forEach { manifestXmlItem: Any ->
+                            XmlTag.getXmlFromString(
+                                manifestXml
+                            )?.innerTagsAndContent?.forEach { manifestXmlItem: Any ->
                                 if (manifestXmlItem is XmlTag && manifestXmlItem.tagName == "application") {
                                     val innerTagsAndContent = manifestXmlItem.innerTagsAndContent
                                             ?: return@forEach
                                     for (applicationXmlItem: Any in innerTagsAndContent) {
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "com.android.vending.splits") {
-                                            apkType = ApkType.BASE_OF_SPLIT_OR_STANDALONE
+                                            apkType =
+                                                ApkType.BASE_OF_SPLIT_OR_STANDALONE
                                         }
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "instantapps.clients.allowed" &&
                                                 applicationXmlItem.tagAttributes!!["value"] != "false") {
-                                            apkType = ApkType.BASE_OF_SPLIT_OR_STANDALONE
+                                            apkType =
+                                                ApkType.BASE_OF_SPLIT_OR_STANDALONE
                                         }
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "com.android.vending.splits.required") {
@@ -89,7 +95,11 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                     }
                 }
             }
-            return ApkInfo(xmlTranslator, apkMetaTranslator, apkType)
+            return ApkInfo(
+                xmlTranslator,
+                apkMetaTranslator,
+                apkType
+            )
         }
     }
 }

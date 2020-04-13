@@ -1,17 +1,17 @@
-package com.lb.apkparser.library
+package com.lb.apkparser.apk_info
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import java.io.Closeable
 import java.util.*
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
 
-class ZipFileFilter(private val zipFile: ZipFile) : AbstractZipInputStreamFilter(), Closeable {
-    private var entries: Enumeration<out ZipEntry>? = null
-    var currentEntry: ZipEntry? = null
+/**Note seems to perform worse than the built in one of Android. Use only if the built in one has some issues*/
+class ApacheZipFileFilter(private val zipFile: org.apache.commons.compress.archivers.zip.ZipFile) : AbstractZipInputStreamFilter(), Closeable {
+    private var entries: Enumeration<out ZipArchiveEntry>? = null
+    var currentEntry: ZipArchiveEntry? = null
 
     init {
         try {
-            this.entries = zipFile.entries()
+            this.entries = zipFile.entries
         } catch (e: Exception) {
             close()
         }
@@ -22,12 +22,12 @@ class ZipFileFilter(private val zipFile: ZipFile) : AbstractZipInputStreamFilter
             val totalItemsCount = mandatoryEntriesNames.size + (extraEntriesNames?.size ?: 0)
             val result = HashMap<String, ByteArray>(totalItemsCount)
             for (name in mandatoryEntriesNames) {
-                val entry: ZipEntry? = zipFile.getEntry(name) ?: return null
+                val entry: ZipArchiveEntry? = zipFile.getEntry(name) ?: return null
                 result[name] = zipFile.getInputStream(entry).readBytes()
             }
             if (extraEntriesNames != null)
                 for (name in extraEntriesNames) {
-                    val entry: ZipEntry? = zipFile.getEntry(name) ?: continue
+                    val entry: ZipArchiveEntry? = zipFile.getEntry(name) ?: continue
                     result[name] = zipFile.getInputStream(entry).readBytes()
                 }
             return result
@@ -42,7 +42,7 @@ class ZipFileFilter(private val zipFile: ZipFile) : AbstractZipInputStreamFilter
             if (it == null)
                 return null
             try {
-                it.nextElement().let { zipEntry: ZipEntry? ->
+                it.nextElement().let { zipEntry: ZipArchiveEntry? ->
                     if (zipEntry == null) {
 //                        close()
                         currentEntry = null
@@ -62,7 +62,7 @@ class ZipFileFilter(private val zipFile: ZipFile) : AbstractZipInputStreamFilter
     }
 
     override fun getBytesFromCurrentEntry(): ByteArray? {
-        currentEntry.let { zipEntry: ZipEntry? ->
+        currentEntry.let { zipEntry: ZipArchiveEntry? ->
             if (zipEntry == null)
                 return null
             return try {

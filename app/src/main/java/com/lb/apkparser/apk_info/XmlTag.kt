@@ -1,4 +1,4 @@
-package com.lb.apkparser.library
+package com.lb.apkparser.apk_info
 
 import android.content.Context
 import org.xmlpull.v1.XmlPullParser
@@ -28,7 +28,9 @@ class XmlTag(val tagName: String) {
             factory.isNamespaceAware = true
             val xpp = factory.newPullParser()
             xpp.setInput(StringReader(input))
-            return getXmlRootTagOfXmlPullParser(xpp)
+            return getXmlRootTagOfXmlPullParser(
+                xpp
+            )
         }
 
         @JvmStatic
@@ -83,17 +85,19 @@ class XmlTag(val tagName: String) {
         fun getXmlRootTagOfXmlFileResourceId(context: Context, xmlFileResourceId: Int): XmlTag? {
             val res = context.resources
             val xmlParser = res.getXml(xmlFileResourceId)
-            return getXmlRootTagOfXmlPullParser(xmlParser)
+            return getXmlRootTagOfXmlPullParser(
+                xmlParser
+            )
         }
     }
 
-    private fun addInnerXmlTag(tag: XmlTag) {
+    fun addInnerXmlTag(tag: XmlTag) {
         if (innerTagsAndContent == null)
             innerTagsAndContent = ArrayList()
         innerTagsAndContent!!.add(tag)
     }
 
-    private fun addInnerText(str: String) {
+    fun addInnerText(str: String) {
         if (innerTagsAndContent == null)
             innerTagsAndContent = ArrayList()
         innerTagsAndContent!!.add(str)

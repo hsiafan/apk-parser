@@ -1,4 +1,3 @@
-include ':app:apkParserLibrary'
 include ':lib'
 include ':app'
 rootProject.name = "apkParser"
