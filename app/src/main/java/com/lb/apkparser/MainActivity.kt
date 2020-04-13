@@ -42,13 +42,12 @@ class MainActivity : AppCompatActivity() {
 //                    continue
 //                if (packageInfo.packageName != "com.google.android.googlequicksearchbox")
 //                    continue
-                val metaData = packageInfo.applicationInfo.metaData
+//                val metaData = packageInfo.applicationInfo.metaData
                 val hasSplitApks = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !packageInfo.applicationInfo.splitPublicSourceDirs.isNullOrEmpty()
                 val packageName = packageInfo.packageName
                 Log.d("AppLog", "checking files of $packageName")
                 packageInfo.applicationInfo.publicSourceDir.let { apkFilePath ->
 //                    ApkFile(File(apkFilePath)).let {
-//                        val manifestXml = it.manifestXml
 //                        Log.d("AppLog", "")
 //                    }
                     getZipFilter(apkFilePath, ZIP_FILTER_TYPE).use {
