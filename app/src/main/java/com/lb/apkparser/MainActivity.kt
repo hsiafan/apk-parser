@@ -15,7 +15,7 @@ import java.util.zip.ZipInputStream
 import kotlin.concurrent.thread
 
 private const val VALIDATE_RESOURCES = true
-private const val GET_APK_TYPE = true
+private const val GET_APK_TYPE = false
 private val ZIP_FILTER_TYPE: MainActivity.Companion.ZipFilterType = MainActivity.Companion.ZipFilterType.ZipFileFilter
 
 class MainActivity : AppCompatActivity() {
@@ -40,9 +40,6 @@ class MainActivity : AppCompatActivity() {
             for (packageInfo in installedPackages) {
 //                if (packageInfo.packageName != "com.facebook.katana")
 //                    continue
-//                if (packageInfo.packageName != "com.google.android.googlequicksearchbox")
-//                    continue
-//                val metaData = packageInfo.applicationInfo.metaData
                 val hasSplitApks = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !packageInfo.applicationInfo.splitPublicSourceDirs.isNullOrEmpty()
                 val packageName = packageInfo.packageName
                 Log.d("AppLog", "checking files of $packageName")
@@ -51,7 +48,13 @@ class MainActivity : AppCompatActivity() {
 //                        Log.d("AppLog", "")
 //                    }
                     getZipFilter(apkFilePath, ZIP_FILTER_TYPE).use {
-                        val apkInfo = ApkInfo.getApkInfo(locale, it, GET_APK_TYPE, VALIDATE_RESOURCES)
+                        val apkInfo = try {
+                            ApkInfo.getApkInfo(locale, it, requestParseManifestXmlTagForApkType = GET_APK_TYPE, requestParseResources = VALIDATE_RESOURCES)
+                        } catch (e: Exception) {
+                            Log.e("AppLog", "can't parse apk:$apkFilePath - exception:$e")
+                            e.printStackTrace()
+                            return@use
+                        }
                         when {
                             apkInfo == null -> Log.e("AppLog", "can't parse apk:$apkFilePath")
                             GET_APK_TYPE && apkInfo.apkType == null -> Log.e("AppLog", "can\'t get apk type: $apkFilePath ")
@@ -63,7 +66,6 @@ class MainActivity : AppCompatActivity() {
                                 val labelOfLibrary = if (!VALIDATE_RESOURCES) "" else apkMeta.label
                                         ?: apkMeta.packageName
                                 val apkMetaTranslator = apkInfo.apkMetaTranslator
-//                                if (VALIDATE_RESOURCES) {
                                 val label = if (VALIDATE_RESOURCES) packageInfo.applicationInfo.loadLabel(packageManager) else ""
                                 when {
                                     packageInfo.packageName != apkMeta.packageName -> Log.e("AppLog", "apk package name is different for $apkFilePath : correct one is: ${packageInfo.packageName} vs found: ${apkMeta.packageName}")
@@ -74,8 +76,6 @@ class MainActivity : AppCompatActivity() {
                                         Log.d("AppLog", "apk data of $apkFilePath : ${apkMeta.packageName}, ${apkMeta.versionCode}, ${apkMeta.versionName}, $labelOfLibrary, ${apkMeta.icon}, ${apkMetaTranslator.iconPaths}")
                                     }
                                 }
-//                                } else
-//                                    Log.d("AppLog", "apk data of $apkFilePath : ${apkMeta.packageName}, ${apkMeta.versionCode}, ${apkMeta.versionName}, $labelOfLibrary, ${apkMeta.icon}, ${apkMetaTranslator.iconPaths}")
                             }
                         }
                     }
@@ -84,7 +84,13 @@ class MainActivity : AppCompatActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     packageInfo.applicationInfo.splitPublicSourceDirs?.forEach { apkFilePath ->
                         getZipFilter(apkFilePath, ZIP_FILTER_TYPE).use {
-                            val apkInfo = ApkInfo.getApkInfo(locale, it, requestParseManifestXmlTagForApkType = GET_APK_TYPE, requestParseResources = VALIDATE_RESOURCES)
+                            val apkInfo = try {
+                                ApkInfo.getApkInfo(locale, it, requestParseManifestXmlTagForApkType = GET_APK_TYPE, requestParseResources = VALIDATE_RESOURCES)
+                            } catch (e: Exception) {
+                                Log.e("AppLog", "can't parse apk:$apkFilePath - exception:$e")
+                                e.printStackTrace()
+                                return@use
+                            }
                             when {
                                 apkInfo == null -> Log.e("AppLog", "can\'t parse apk:$apkFilePath")
                                 GET_APK_TYPE && apkInfo.apkType == null -> Log.e("AppLog", "can\'t get apk type: $apkFilePath")

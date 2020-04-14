@@ -27,6 +27,7 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
             }
             val xmlTranslator = XmlTranslator()
             val resourceTable: ResourceTable =
+//                    try {
                     if (resourcesBytes == null)
                         ResourceTable()
                     else {
@@ -35,6 +36,14 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                         resourceTableParser.resourceTable
                         //                this.locales = resourceTableParser.locales
                     }
+//                    } catch (e: Exception) {
+//                        Log.e("AppLog", "failed to get resourceTable")
+//                        e.printStackTrace()
+//                        return null
+//                    }
+            if (resourcesBytes == null)
+                ResourceTable()
+
             val apkMetaTranslator = ApkMetaTranslator(resourceTable, locale)
             val binaryXmlParser = BinaryXmlParser(ByteBuffer.wrap(manifestBytes), resourceTable)
             binaryXmlParser.locale = locale
@@ -50,16 +59,12 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                     //standalone or base of split apks
                     val isDefinitelyBaseApkOfSplit = apkMeta.isSplitRequired
                     if (isDefinitelyBaseApkOfSplit)
-                        apkType =
-                                ApkType.BASE_OF_SPLIT
+                        apkType = ApkType.BASE_OF_SPLIT
                     else {
                         val manifestXml = xmlTranslator.xml
-                        apkType =
-                                ApkType.STANDALONE
+                        apkType = ApkType.STANDALONE
                         try {
-                            XmlTag.getXmlFromString(
-                                    manifestXml
-                            )?.innerTagsAndContent?.forEach { manifestXmlItem: Any ->
+                            XmlTag.getXmlFromString(manifestXml)?.innerTagsAndContent?.forEach { manifestXmlItem: Any ->
                                 if (manifestXmlItem is XmlTag && manifestXmlItem.tagName == "application") {
                                     val innerTagsAndContent = manifestXmlItem.innerTagsAndContent
                                             ?: return@forEach
