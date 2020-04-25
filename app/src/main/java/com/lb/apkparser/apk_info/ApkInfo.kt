@@ -1,17 +1,32 @@
 package com.lb.apkparser.apk_info
 
+import android.content.pm.PackageInfo
 import net.dongliu.apk.parser.parser.*
 import net.dongliu.apk.parser.struct.AndroidConstants
 import net.dongliu.apk.parser.struct.resource.ResourceTable
 import java.nio.ByteBuffer
 import java.util.*
 
-class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTranslator, val apkType: ApkType?) {
+class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTranslator, val apkType: ApkType) {
     enum class ApkType {
-        STANDALONE, BASE_OF_SPLIT, SPLIT, BASE_OF_SPLIT_OR_STANDALONE
+        STANDALONE, BASE_OF_SPLIT, SPLIT, BASE_OF_SPLIT_OR_STANDALONE, UNKNOWN
     }
 
     companion object {
+        fun getApkType(packageInfo: PackageInfo): ApkType {
+            var apkType: ApkType = ApkType.UNKNOWN
+            val metaData = packageInfo.applicationInfo.metaData ?: return apkType
+            if (metaData.containsKey("com.android.vending.splits"))
+                apkType = ApkType.BASE_OF_SPLIT_OR_STANDALONE
+            if (metaData.getBoolean("instantapps.clients.allowed", false))
+                apkType = ApkType.BASE_OF_SPLIT_OR_STANDALONE
+            if (metaData.containsKey("com.android.vending.splits.required")) {
+                val isSplitRequired = metaData.getBoolean("com.android.vending.splits.required", false)
+                apkType = if (isSplitRequired) ApkType.BASE_OF_SPLIT else ApkType.BASE_OF_SPLIT_OR_STANDALONE
+            }
+            return apkType
+        }
+
         @Suppress("SameParameterValue")
         fun getApkInfo(locale: Locale, zipFilter: AbstractZipFilter, requestParseManifestXmlTagForApkType: Boolean = false, requestParseResources: Boolean = false): ApkInfo? {
             val mandatoryFilesToCheck = hashSetOf(AndroidConstants.MANIFEST_FILE)
@@ -27,7 +42,6 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
             }
             val xmlTranslator = XmlTranslator()
             val resourceTable: ResourceTable =
-//                    try {
                     if (resourcesBytes == null)
                         ResourceTable()
                     else {
@@ -36,20 +50,12 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                         resourceTableParser.resourceTable
                         //                this.locales = resourceTableParser.locales
                     }
-//                    } catch (e: Exception) {
-//                        Log.e("AppLog", "failed to get resourceTable")
-//                        e.printStackTrace()
-//                        return null
-//                    }
-            if (resourcesBytes == null)
-                ResourceTable()
-
             val apkMetaTranslator = ApkMetaTranslator(resourceTable, locale)
             val binaryXmlParser = BinaryXmlParser(ByteBuffer.wrap(manifestBytes), resourceTable)
             binaryXmlParser.locale = locale
             binaryXmlParser.xmlStreamer = CompositeXmlStreamer(xmlTranslator, apkMetaTranslator)
             binaryXmlParser.parse()
-            var apkType: ApkType? = null
+            var apkType: ApkType = ApkType.UNKNOWN
             if (requestParseManifestXmlTagForApkType) {
                 val apkMeta = apkMetaTranslator.apkMeta
                 val isSplitApk = !apkMeta.split.isNullOrEmpty()
@@ -71,14 +77,12 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                                     for (applicationXmlItem: Any in innerTagsAndContent) {
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "com.android.vending.splits") {
-                                            apkType =
-                                                    ApkType.BASE_OF_SPLIT_OR_STANDALONE
+                                            apkType = ApkType.BASE_OF_SPLIT_OR_STANDALONE
                                         }
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "instantapps.clients.allowed" &&
                                                 applicationXmlItem.tagAttributes!!["value"] != "false") {
-                                            apkType =
-                                                    ApkType.BASE_OF_SPLIT_OR_STANDALONE
+                                            apkType = ApkType.BASE_OF_SPLIT_OR_STANDALONE
                                         }
                                         if (applicationXmlItem is XmlTag && applicationXmlItem.tagName == "meta-data"
                                                 && applicationXmlItem.tagAttributes?.get("name") == "com.android.vending.splits.required") {

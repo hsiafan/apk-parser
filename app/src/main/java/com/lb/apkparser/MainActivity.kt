@@ -44,6 +44,12 @@ class MainActivity : AppCompatActivity() {
                 val packageName = packageInfo.packageName
                 Log.d("AppLog", "checking files of $packageName")
                 packageInfo.applicationInfo.publicSourceDir.let { apkFilePath ->
+                    val apkType = ApkInfo.getApkType(packageInfo)
+                    when {
+                        apkType == ApkInfo.ApkType.STANDALONE && hasSplitApks -> Log.e("AppLog", "detected packageInfo as standalone, but has splits")
+                        apkType == ApkInfo.ApkType.BASE_OF_SPLIT && !hasSplitApks -> Log.e("AppLog", "detected packageInfo as base of split, but doesn't have splits")
+                        apkType == ApkInfo.ApkType.SPLIT -> Log.e("AppLog", "detected packageInfo as split, but it is not")
+                    }
 //                    ApkFile(File(apkFilePath)).let {
 //                        Log.d("AppLog", "")
 //                    }
@@ -57,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         when {
                             apkInfo == null -> Log.e("AppLog", "can't parse apk:$apkFilePath")
-                            GET_APK_TYPE && apkInfo.apkType == null -> Log.e("AppLog", "can\'t get apk type: $apkFilePath ")
+                            GET_APK_TYPE && apkInfo.apkType == ApkInfo.ApkType.UNKNOWN -> Log.e("AppLog", "can\'t get apk type: $apkFilePath ")
                             GET_APK_TYPE && apkInfo.apkType == ApkInfo.ApkType.STANDALONE && hasSplitApks -> Log.e("AppLog", "detected as standalone, but in fact is base of split apks: $apkFilePath")
                             GET_APK_TYPE && apkInfo.apkType == ApkInfo.ApkType.BASE_OF_SPLIT && !hasSplitApks -> Log.e("AppLog", "detected as base of split apks, but in fact is standalone: $apkFilePath")
                             GET_APK_TYPE && apkInfo.apkType == ApkInfo.ApkType.SPLIT -> Log.e("AppLog", "detected as split apk, but in fact a main apk: $apkFilePath")
@@ -93,7 +99,7 @@ class MainActivity : AppCompatActivity() {
                             }
                             when {
                                 apkInfo == null -> Log.e("AppLog", "can\'t parse apk:$apkFilePath")
-                                GET_APK_TYPE && apkInfo.apkType == null -> Log.e("AppLog", "can\'t get apk type: $apkFilePath")
+                                GET_APK_TYPE && apkInfo.apkType == ApkInfo.ApkType.UNKNOWN -> Log.e("AppLog", "can\'t get apk type: $apkFilePath")
                                 GET_APK_TYPE && apkInfo.apkType == ApkInfo.ApkType.STANDALONE -> Log.e("AppLog", "detected as standalone, but in fact is split apk: $apkFilePath")
                                 GET_APK_TYPE && apkInfo.apkType == ApkInfo.ApkType.BASE_OF_SPLIT -> Log.e("AppLog", "detected as base of split apks, but in fact is split apk: $apkFilePath")
                                 GET_APK_TYPE && apkInfo.apkType == ApkInfo.ApkType.BASE_OF_SPLIT_OR_STANDALONE -> Log.e("AppLog", "detected as base/standalone apk, but in fact is split apk: $apkFilePath")
