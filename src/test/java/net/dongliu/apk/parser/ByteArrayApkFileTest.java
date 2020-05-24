@@ -2,8 +2,8 @@ package net.dongliu.apk.parser;
 
 import net.dongliu.apk.parser.bean.ApkMeta;
 import net.dongliu.apk.parser.bean.ApkSigner;
+import net.dongliu.apk.parser.bean.ApkV2Signer;
 import net.dongliu.apk.parser.bean.CertificateMeta;
-
 import org.junit.Test;
 
 import java.io.IOException;
