@@ -1,7 +1,7 @@
 package net.dongliu.apk.parser.bean;
 
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * permission provided by the app

@@ -2,7 +2,7 @@ package net.dongliu.apk.parser.struct.resource;
 
 import net.dongliu.apk.parser.struct.ResourceValue;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import java.util.Locale;
 
 /**
@@ -74,6 +74,7 @@ public class ResourceEntry {
         return value;
     }
 
+    @Nullable
     public void setValue(@Nullable ResourceValue value) {
         this.value = value;
     }

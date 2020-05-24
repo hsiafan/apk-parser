@@ -43,7 +43,6 @@ public class ResourceTableMap {
     }
 
     public static class MapAttr {
-        @SuppressWarnings("PointlessBitwiseExpression")
         public static final int TYPE = 0x01000000 | (0 & 0xFFFF);
 
         // For integral attributes; this is the minimum value it can hold.

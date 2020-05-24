@@ -1,32 +1,16 @@
 package net.dongliu.apk.parser.parser;
 
-import net.dongliu.apk.parser.bean.ApkMeta;
-import net.dongliu.apk.parser.bean.GlEsVersion;
-import net.dongliu.apk.parser.bean.IconPath;
-import net.dongliu.apk.parser.bean.Permission;
-import net.dongliu.apk.parser.bean.UseFeature;
+import net.dongliu.apk.parser.bean.*;
 import net.dongliu.apk.parser.struct.ResourceValue;
 import net.dongliu.apk.parser.struct.resource.Densities;
 import net.dongliu.apk.parser.struct.resource.ResourceEntry;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
 import net.dongliu.apk.parser.struct.resource.Type;
-import net.dongliu.apk.parser.struct.xml.Attribute;
-import net.dongliu.apk.parser.struct.xml.Attributes;
-import net.dongliu.apk.parser.struct.xml.XmlCData;
-import net.dongliu.apk.parser.struct.xml.XmlNamespaceEndTag;
-import net.dongliu.apk.parser.struct.xml.XmlNamespaceStartTag;
-import net.dongliu.apk.parser.struct.xml.XmlNodeEndTag;
-import net.dongliu.apk.parser.struct.xml.XmlNodeStartTag;
+import net.dongliu.apk.parser.struct.xml.*;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * trans binary xml to apk meta info
@@ -53,17 +37,6 @@ public class ApkMetaTranslator implements XmlStreamer {
         Attributes attributes = xmlNodeStartTag.getAttributes();
         switch (xmlNodeStartTag.getName()) {
             case "application":
-                //TODO fix this part in a better way. Workaround for this: https://github.com/hsiafan/apk-parser/issues/119
-                if (apkMetaBuilder.split == null)
-                    apkMetaBuilder.setSplit(attributes.getString("split"));
-                if (apkMetaBuilder.configForSplit == null)
-                    apkMetaBuilder.setConfigForSplit(attributes.getString("configForSplit"));
-                if (!apkMetaBuilder.isFeatureSplit)
-                    apkMetaBuilder.setIsFeatureSplit(attributes.getBoolean("isFeatureSplit", false));
-                if (!apkMetaBuilder.isSplitRequired)
-                    apkMetaBuilder.setIsSplitRequired(attributes.getBoolean("isSplitRequired", false));
-                if (!apkMetaBuilder.isolatedSplits)
-                    apkMetaBuilder.setIsolatedSplits(attributes.getBoolean("isolatedSplits", false));
                 String label = attributes.getString("label");
                 if (label != null) {
                     apkMetaBuilder.setLabel(label);
@@ -109,16 +82,11 @@ public class ApkMetaTranslator implements XmlStreamer {
                 apkMetaBuilder.setRevisionCode(attributes.getLong("revisionCode"));
                 apkMetaBuilder.setSharedUserId(attributes.getString("sharedUserId"));
                 apkMetaBuilder.setSharedUserLabel(attributes.getString("sharedUserLabel"));
-                if (apkMetaBuilder.split == null)
-                    apkMetaBuilder.setSplit(attributes.getString("split"));
-                if (apkMetaBuilder.configForSplit == null)
-                    apkMetaBuilder.setConfigForSplit(attributes.getString("configForSplit"));
-                if (!apkMetaBuilder.isFeatureSplit)
-                    apkMetaBuilder.setIsFeatureSplit(attributes.getBoolean("isFeatureSplit", false));
-                if (!apkMetaBuilder.isSplitRequired)
-                    apkMetaBuilder.setIsSplitRequired(attributes.getBoolean("isSplitRequired", false));
-                if (!apkMetaBuilder.isolatedSplits)
-                    apkMetaBuilder.setIsolatedSplits(attributes.getBoolean("isolatedSplits", false));
+                apkMetaBuilder.setSplit(attributes.getString("split"));
+                apkMetaBuilder.setConfigForSplit(attributes.getString("configForSplit"));
+                apkMetaBuilder.setIsFeatureSplit(attributes.getBoolean("isFeatureSplit", false));
+                apkMetaBuilder.setIsSplitRequired(attributes.getBoolean("isSplitRequired", false));
+                apkMetaBuilder.setIsolatedSplits(attributes.getBoolean("isolatedSplits", false));
 
                 Long majorVersionCode = attributes.getLong("versionCodeMajor");
                 Long versionCode = attributes.getLong("versionCode");
@@ -211,12 +179,12 @@ public class ApkMetaTranslator implements XmlStreamer {
 
     }
 
-    @NotNull
+    @Nonnull
     public ApkMeta getApkMeta() {
         return apkMetaBuilder.build();
     }
 
-    @NotNull
+    @Nonnull
     public List<IconPath> getIconPaths() {
         return iconPaths;
     }

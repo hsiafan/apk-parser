@@ -85,11 +85,9 @@ public class Type {
         resourceTableMap.setNameRef(Buffers.readUInt(buffer));
         resourceTableMap.setResValue(ParseUtils.readResValue(buffer, stringPool));
 
-        //noinspection StatementWithEmptyBody
         if ((resourceTableMap.getNameRef() & 0x02000000) != 0) {
             //read arrays
-        } else //noinspection StatementWithEmptyBody
-            if ((resourceTableMap.getNameRef() & 0x01000000) != 0) {
+        } else if ((resourceTableMap.getNameRef() & 0x01000000) != 0) {
             // read attrs
         } else {
         }

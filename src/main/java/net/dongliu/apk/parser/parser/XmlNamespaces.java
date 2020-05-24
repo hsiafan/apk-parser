@@ -49,7 +49,8 @@ class XmlNamespaces {
 
     public List<XmlNamespace> consumeNameSpaces() {
         if (!newNamespaces.isEmpty()) {
-            List<XmlNamespace> xmlNamespaces = new ArrayList<>(newNamespaces);
+            List<XmlNamespace> xmlNamespaces = new ArrayList<>();
+            xmlNamespaces.addAll(newNamespaces);
             newNamespaces.clear();
             return xmlNamespaces;
         } else {

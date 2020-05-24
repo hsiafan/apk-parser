@@ -2,8 +2,7 @@ package net.dongliu.apk.parser.bean;
 
 import net.dongliu.apk.parser.AbstractApkFile;
 
-import org.jetbrains.annotations.Nullable;
-
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -258,11 +257,11 @@ public class ApkMeta {
         private Long revisionCode;
         private String sharedUserId;
         private String sharedUserLabel;
-        public String split;
-        public String configForSplit;
-        public  boolean isFeatureSplit;
-        public boolean isSplitRequired;
-        public boolean isolatedSplits;
+        private String split;
+        private String configForSplit;
+        private boolean isFeatureSplit;
+        private boolean isSplitRequired;
+        private boolean isolatedSplits;
         private String installLocation;
         private String minSdkVersion;
         private String targetSdkVersion;

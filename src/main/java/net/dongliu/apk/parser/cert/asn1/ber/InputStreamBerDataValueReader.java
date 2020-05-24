@@ -16,8 +16,6 @@
 
 package net.dongliu.apk.parser.cert.asn1.ber;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +45,7 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
      *
      * @throws BerDataValueFormatException if the value being read is malformed.
      */
+    @SuppressWarnings("resource")
     private static BerDataValue readDataValue(InputStream input)
             throws BerDataValueFormatException {
         RecordingInputStream in = new RecordingInputStream(input);
@@ -257,7 +256,7 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
         }
 
         @Override
-        public int read(@NotNull byte[] b) throws IOException {
+        public int read(byte[] b) throws IOException {
             int len = mIn.read(b);
             if (len > 0) {
                 mBuf.write(b, 0, len);
@@ -266,7 +265,7 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
         }
 
         @Override
-        public int read(@NotNull byte[] b, int off, int len) throws IOException {
+        public int read(byte[] b, int off, int len) throws IOException {
             len = mIn.read(b, off, len);
             if (len > 0) {
                 mBuf.write(b, off, len);
@@ -285,7 +284,7 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
             if (len > 0) {
                 mBuf.write(buf, 0, len);
             }
-            return Math.max(len, 0);
+            return (len < 0) ? 0 : len;
         }
 
         @Override

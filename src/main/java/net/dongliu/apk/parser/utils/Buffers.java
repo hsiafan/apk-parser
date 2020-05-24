@@ -1,5 +1,6 @@
 package net.dongliu.apk.parser.utils;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -103,7 +104,7 @@ public class Buffers {
      * set position
      */
     public static void position(ByteBuffer buffer, int position) {
-        buffer.position(position);
+        ((Buffer) buffer).position(position);
     }
 
     /**
@@ -120,7 +121,7 @@ public class Buffers {
      */
     public static ByteBuffer sliceAndSkip(ByteBuffer buffer, int size) {
         ByteBuffer buf = buffer.slice().order(ByteOrder.LITTLE_ENDIAN);
-        ByteBuffer slice = (ByteBuffer) buf.limit(buf.position() + size);
+        ByteBuffer slice = (ByteBuffer) ((Buffer) buf).limit(buf.position() + size);
         skip(buffer, size);
         return slice;
     }

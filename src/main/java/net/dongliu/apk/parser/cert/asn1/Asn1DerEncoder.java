@@ -105,7 +105,12 @@ public final class Asn1DerEncoder {
         Class<?> containerClass = container.getClass();
         List<AnnotatedField> fields = getAnnotatedFields(container);
         Collections.sort(
-                fields, (f1, f2) -> f1.getAnnotation().index() - f2.getAnnotation().index());
+                fields, new Comparator<AnnotatedField>() {
+                    @Override
+                    public int compare(AnnotatedField f1, AnnotatedField f2) {
+                        return f1.getAnnotation().index() - f2.getAnnotation().index();
+                    }
+                });
         if (fields.size() > 1) {
             AnnotatedField lastField = null;
             for (AnnotatedField field : fields) {

@@ -1,5 +1,7 @@
 package net.dongliu.apk.parser.utils.xml;
 
+import net.dongliu.apk.parser.utils.*;
+
 /**
  * Utils method to escape xml string, copied from apache commons lang3
  *
