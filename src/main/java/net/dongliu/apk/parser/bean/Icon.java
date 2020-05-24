@@ -1,6 +1,6 @@
 package net.dongliu.apk.parser.bean;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 
 /**
