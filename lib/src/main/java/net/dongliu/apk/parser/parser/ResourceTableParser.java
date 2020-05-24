@@ -5,7 +5,18 @@ import net.dongliu.apk.parser.struct.ChunkHeader;
 import net.dongliu.apk.parser.struct.ChunkType;
 import net.dongliu.apk.parser.struct.StringPool;
 import net.dongliu.apk.parser.struct.StringPoolHeader;
-import net.dongliu.apk.parser.struct.resource.*;
+import net.dongliu.apk.parser.struct.resource.LibraryEntry;
+import net.dongliu.apk.parser.struct.resource.LibraryHeader;
+import net.dongliu.apk.parser.struct.resource.NullHeader;
+import net.dongliu.apk.parser.struct.resource.PackageHeader;
+import net.dongliu.apk.parser.struct.resource.ResTableConfig;
+import net.dongliu.apk.parser.struct.resource.ResourcePackage;
+import net.dongliu.apk.parser.struct.resource.ResourceTable;
+import net.dongliu.apk.parser.struct.resource.ResourceTableHeader;
+import net.dongliu.apk.parser.struct.resource.Type;
+import net.dongliu.apk.parser.struct.resource.TypeHeader;
+import net.dongliu.apk.parser.struct.resource.TypeSpec;
+import net.dongliu.apk.parser.struct.resource.TypeSpecHeader;
 import net.dongliu.apk.parser.utils.Buffers;
 import net.dongliu.apk.parser.utils.Pair;
 import net.dongliu.apk.parser.utils.ParseUtils;
@@ -57,11 +68,13 @@ public class ResourceTableParser {
         resourceTable = new ResourceTable();
         resourceTable.setStringPool(stringPool);
 
-        PackageHeader packageHeader = (PackageHeader) readChunkHeader();
-        for (int i = 0; i < resourceTableHeader.getPackageCount(); i++) {
-            Pair<ResourcePackage, PackageHeader> pair = readPackage(packageHeader);
-            resourceTable.addPackage(pair.getLeft());
-            packageHeader = pair.getRight();
+        if (resourceTableHeader.getPackageCount() != 0) {
+            PackageHeader packageHeader = (PackageHeader) readChunkHeader();
+            for (int i = 0; i < resourceTableHeader.getPackageCount(); i++) {
+                Pair<ResourcePackage, PackageHeader> pair = readPackage(packageHeader);
+                resourceTable.addPackage(pair.getLeft());
+                packageHeader = pair.getRight();
+            }
         }
     }
 
