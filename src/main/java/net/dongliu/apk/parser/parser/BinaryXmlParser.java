@@ -1,9 +1,23 @@
 package net.dongliu.apk.parser.parser;
 
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.struct.*;
+import net.dongliu.apk.parser.struct.ChunkHeader;
+import net.dongliu.apk.parser.struct.ChunkType;
+import net.dongliu.apk.parser.struct.ResourceValue;
+import net.dongliu.apk.parser.struct.StringPool;
+import net.dongliu.apk.parser.struct.StringPoolHeader;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
-import net.dongliu.apk.parser.struct.xml.*;
+import net.dongliu.apk.parser.struct.xml.Attribute;
+import net.dongliu.apk.parser.struct.xml.Attributes;
+import net.dongliu.apk.parser.struct.xml.NullHeader;
+import net.dongliu.apk.parser.struct.xml.XmlCData;
+import net.dongliu.apk.parser.struct.xml.XmlHeader;
+import net.dongliu.apk.parser.struct.xml.XmlNamespaceEndTag;
+import net.dongliu.apk.parser.struct.xml.XmlNamespaceStartTag;
+import net.dongliu.apk.parser.struct.xml.XmlNodeEndTag;
+import net.dongliu.apk.parser.struct.xml.XmlNodeHeader;
+import net.dongliu.apk.parser.struct.xml.XmlNodeStartTag;
+import net.dongliu.apk.parser.struct.xml.XmlResourceMapHeader;
 import net.dongliu.apk.parser.utils.Buffers;
 import net.dongliu.apk.parser.utils.Locales;
 import net.dongliu.apk.parser.utils.ParseUtils;
@@ -131,6 +145,7 @@ public class BinaryXmlParser {
             xmlCData.setData(stringPool.get(dataRef));
         }
         xmlCData.setTypedData(ParseUtils.readResValue(buffer, stringPool));
+        //noinspection StatementWithEmptyBody
         if (xmlStreamer != null) {
             //TODO: to know more about cdata. some cdata appears buffer xml tags
 //            String value = xmlCData.toStringValue(resourceTable, locale);
@@ -227,7 +242,10 @@ public class BinaryXmlParser {
         int nameRef = buffer.getInt();
         Attribute attribute = new Attribute();
         if (nsRef > 0) {
-            attribute.setNamespace(stringPool.get(nsRef));
+            String namespace = stringPool.get(nsRef);
+            //TODO fix this part in a better way. Workaround for this: https://github.com/hsiafan/apk-parser/issues/122
+            if (!namespace.equals("http://schemas.android.com/apk/res/android"))
+                attribute.setNamespace(namespace);
         }
 
         attribute.setName(stringPool.get(nameRef));

@@ -3,8 +3,13 @@ package net.dongliu.apk.parser;
 import net.dongliu.apk.parser.bean.ApkSignStatus;
 import net.dongliu.apk.parser.utils.Inputs;
 
-import javax.annotation.Nullable;
-import java.io.*;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -100,6 +105,7 @@ public class ApkFile extends AbstractApkFile implements Closeable {
                 try (InputStream in = jarFile.getInputStream(e)) {
                     // Read in each jar entry. A security exception will be thrown if a signature/digest check fails.
                     int count;
+                    //noinspection StatementWithEmptyBody
                     while ((count = in.read(buffer, 0, buffer.length)) != -1) {
                         // Don't care
                     }
@@ -113,12 +119,7 @@ public class ApkFile extends AbstractApkFile implements Closeable {
 
     @Override
     public void close() throws IOException {
-        try (Closeable superClosable = new Closeable() {
-            @Override
-            public void close() throws IOException {
-                ApkFile.super.close();
-            }
-        };
+        try (Closeable superClosable = () -> ApkFile.super.close();
              Closeable zipFileClosable = zf;
              Closeable fileChannelClosable = fileChannel) {
 

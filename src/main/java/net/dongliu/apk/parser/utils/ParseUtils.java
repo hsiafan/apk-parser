@@ -7,7 +7,7 @@ import net.dongliu.apk.parser.struct.ResourceValue;
 import net.dongliu.apk.parser.struct.StringPool;
 import net.dongliu.apk.parser.struct.StringPoolHeader;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
@@ -135,6 +135,7 @@ public class ParseUtils {
         }
 
         // read styles
+        //noinspection StatementWithEmptyBody
         if (stringPoolHeader.getStyleCount() > 0) {
             // now we just skip it
         }

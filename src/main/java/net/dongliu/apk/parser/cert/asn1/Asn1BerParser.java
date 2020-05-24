@@ -25,7 +25,6 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -191,12 +190,7 @@ public final class Asn1BerParser {
             throws Asn1DecodingException {
         List<AnnotatedField> fields = getAnnotatedFields(containerClass);
         Collections.sort(
-                fields, new Comparator<AnnotatedField>() {
-                    @Override
-                    public int compare(AnnotatedField f1, AnnotatedField f2) {
-                        return f1.getAnnotation().index() - f2.getAnnotation().index();
-                    }
-                });
+                fields, (f1, f2) -> f1.getAnnotation().index() - f2.getAnnotation().index());
         // Check that there are no fields with the same index
         if (fields.size() > 1) {
             AnnotatedField lastField = null;
@@ -454,12 +448,12 @@ public final class Asn1BerParser {
         long secondNode = firstComponent - firstNode * 40;
         StringBuilder result = new StringBuilder();
         result.append(Long.toString(firstNode)).append('.')
-                .append(Long.toString(secondNode));
+                .append(secondNode);
 
         // Each consecutive node is encoded as a separate component
         while (encodedOid.hasRemaining()) {
             long node = decodeBase128UnsignedLong(encodedOid);
-            result.append('.').append(Long.toString(node));
+            result.append('.').append(node);
         }
 
         return result.toString();
