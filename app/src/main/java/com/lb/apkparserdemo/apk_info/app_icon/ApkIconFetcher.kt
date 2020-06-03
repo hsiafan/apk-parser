@@ -111,7 +111,7 @@ object ApkIconFetcher {
         }
     }
 
-    fun getAppIconFromByteArray(bytes: ByteArray, requestedAppIconSize: Int): Bitmap? {
+    private fun getAppIconFromByteArray(bytes: ByteArray, requestedAppIconSize: Int): Bitmap? {
         if (requestedAppIconSize > 0) {
             val bitmapOptions = BitmapFactory.Options()
             bitmapOptions.inJustDecodeBounds = true
