@@ -25,9 +25,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-//    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'org.jetbrains:annotations:18.0.0'
-//    implementation 'com.google.code.findbugs:jsr305:3.0.2'
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
     implementation 'org.bouncycastle:bcprov-jdk15on:1.65'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.65'

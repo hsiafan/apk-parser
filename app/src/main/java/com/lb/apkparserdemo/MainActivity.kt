@@ -1,12 +1,16 @@
 package com.lb.apkparserdemo
 
+import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.lb.apkparserdemo.apk_info.*
+import com.lb.apkparserdemo.apk_info.app_icon.ApkIconFetcher
+import com.lb.apkparserdemo.apk_info.app_icon.AppInfoUtil
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import java.io.FileInputStream
 import java.util.*
@@ -17,6 +21,7 @@ import kotlin.concurrent.thread
 private const val VALIDATE_RESOURCES = true
 private const val GET_APK_TYPE = false
 private val ZIP_FILTER_TYPE: MainActivity.Companion.ZipFilterType = MainActivity.Companion.ZipFilterType.ZipFileFilter
+inline fun <reified T : Any> Context.getSystemService(): T = ContextCompat.getSystemService(this, T::class.java)!!
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,8 +33,9 @@ class MainActivity : AppCompatActivity() {
 
     @Suppress("ConstantConditionIf")
     private fun performTest() {
+        val locale = Locale.getDefault()
+        val appIconSize = AppInfoUtil.getAppIconSize(this)
         thread {
-            val locale = Locale.getDefault()
             Log.d("AppLog", "getting all package infos:")
             var startTime = System.currentTimeMillis()
             val installedPackages = packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
@@ -38,8 +44,6 @@ class MainActivity : AppCompatActivity() {
             startTime = endTime
             var apksHandledSoFar = 0
             for (packageInfo in installedPackages) {
-//                if (packageInfo.packageName != "com.facebook.katana")
-//                    continue
                 val hasSplitApks = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !packageInfo.applicationInfo.splitPublicSourceDirs.isNullOrEmpty()
                 val packageName = packageInfo.packageName
                 Log.d("AppLog", "checking files of $packageName")
@@ -50,9 +54,7 @@ class MainActivity : AppCompatActivity() {
                         apkType == ApkInfo.ApkType.BASE_OF_SPLIT && !hasSplitApks -> Log.e("AppLog", "detected packageInfo as base of split, but doesn't have splits")
                         apkType == ApkInfo.ApkType.SPLIT -> Log.e("AppLog", "detected packageInfo as split, but it is not")
                     }
-//                    ApkFile(File(apkFilePath)).let {
-//                        Log.d("AppLog", "")
-//                    }
+                    var baseApkInfo: ApkInfo? = null
                     getZipFilter(apkFilePath, ZIP_FILTER_TYPE).use {
                         val apkInfo = try {
                             ApkInfo.getApkInfo(locale, it, requestParseManifestXmlTagForApkType = GET_APK_TYPE, requestParseResources = VALIDATE_RESOURCES)
@@ -60,6 +62,14 @@ class MainActivity : AppCompatActivity() {
                             Log.e("AppLog", "can't parse apk:$apkFilePath - exception:$e")
                             e.printStackTrace()
                             return@use
+                        }
+                        baseApkInfo = apkInfo
+                        if (apkInfo != null && VALIDATE_RESOURCES) {
+                            val appIcon = ApkIconFetcher.getApkIcon(this, locale, object : ApkIconFetcher.ZipFilterCreator {
+                                override fun generateZipFilter(): AbstractZipFilter = getZipFilter(apkFilePath, ZIP_FILTER_TYPE)
+                            }, apkInfo, appIconSize)
+                            if (packageInfo.applicationInfo.icon != 0 && appIcon == null)
+                                Log.e("AppLog", "can\'t get app icon for $packageName path: $apkFilePath ")
                         }
                         when {
                             apkInfo == null -> Log.e("AppLog", "can't parse apk:$apkFilePath")

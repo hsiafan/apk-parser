@@ -7,7 +7,7 @@ import net.dongliu.apk.parser.struct.resource.ResourceTable
 import java.nio.ByteBuffer
 import java.util.*
 
-class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTranslator, val apkType: ApkType) {
+class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTranslator, val apkType: ApkType, val resourceTable: ResourceTable) {
     enum class ApkType {
         STANDALONE, BASE_OF_SPLIT, SPLIT, BASE_OF_SPLIT_OR_STANDALONE, UNKNOWN
     }
@@ -104,7 +104,7 @@ class ApkInfo(val xmlTranslator: XmlTranslator, val apkMetaTranslator: ApkMetaTr
                     }
                 }
             }
-            return ApkInfo(xmlTranslator, apkMetaTranslator, apkType)
+            return ApkInfo(xmlTranslator, apkMetaTranslator, apkType, resourceTable)
         }
     }
 }
