@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
-import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import com.lb.apkparserdemo.apk_info.AbstractZipFilter
 import com.lb.apkparserdemo.apk_info.ApkInfo
@@ -95,11 +94,8 @@ object ApkIconFetcher {
                                         else getAppIconFromByteArray(foregroundIconBytes, requestedAppIconSize)?.let { BitmapDrawable(resources, it) }
                                         if (backgroundDrawable != null && foregroundDrawable != null) {
                                             val adaptiveIconDrawable = AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable)
-                                            val bitmap = adaptiveIconDrawable.toBitmap(requestedAppIconSize, requestedAppIconSize)
-                                            return bitmap
+                                            return adaptiveIconDrawable.toBitmap(requestedAppIconSize, requestedAppIconSize)
                                         }
-
-                                        Log.d("AppLog", "")
                                     }
                                 }
                             }
