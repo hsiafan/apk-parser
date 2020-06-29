@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ApkFileTest {
 
@@ -46,6 +48,24 @@ public class ApkFileTest {
             assertEquals(1, certificateMetas.size());
             CertificateMeta certificateMeta = certificateMetas.get(0);
             assertEquals("69ee076cc84f4d94802d61907b07525f", certificateMeta.getCertMd5());
+        }
+    }
+
+    @Test
+    public void testAppIsNotDebuggable() throws IOException {
+        String path = getClass().getClassLoader().getResource("apks/app-release.apk").getPath();
+        try (ApkFile apkFile = new ApkFile(path)) {
+            ApkMeta apkMeta = apkFile.getApkMeta();
+            assertFalse(apkMeta.isDebuggable());
+        }
+    }
+
+    @Test
+    public void testAppIsDebuggable() throws IOException {
+        String path = getClass().getClassLoader().getResource("apks/app-debug.apk").getPath();
+        try (ApkFile apkFile = new ApkFile(path)) {
+            ApkMeta apkMeta = apkFile.getApkMeta();
+            assertTrue(apkMeta.isDebuggable());
         }
     }
 }

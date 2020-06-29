@@ -37,6 +37,8 @@ public class ApkMetaTranslator implements XmlStreamer {
         Attributes attributes = xmlNodeStartTag.getAttributes();
         switch (xmlNodeStartTag.getName()) {
             case "application":
+                boolean debuggable = attributes.getBoolean("debuggable", false);
+                apkMetaBuilder.setDebuggable(debuggable);
                 String label = attributes.getString("label");
                 if (label != null) {
                     apkMetaBuilder.setLabel(label);
