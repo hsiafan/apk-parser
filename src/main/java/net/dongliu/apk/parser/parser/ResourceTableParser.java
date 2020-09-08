@@ -57,11 +57,13 @@ public class ResourceTableParser {
         resourceTable = new ResourceTable();
         resourceTable.setStringPool(stringPool);
 
-        PackageHeader packageHeader = (PackageHeader) readChunkHeader();
-        for (int i = 0; i < resourceTableHeader.getPackageCount(); i++) {
-            Pair<ResourcePackage, PackageHeader> pair = readPackage(packageHeader);
-            resourceTable.addPackage(pair.getLeft());
-            packageHeader = pair.getRight();
+        if (resourceTableHeader.getPackageCount() != 0) {
+            PackageHeader packageHeader = (PackageHeader) readChunkHeader();
+            for (int i = 0; i < resourceTableHeader.getPackageCount(); i++) {
+                Pair<ResourcePackage, PackageHeader> pair = readPackage(packageHeader);
+                resourceTable.addPackage(pair.getLeft());
+                packageHeader = pair.getRight();
+            }
         }
     }
 
