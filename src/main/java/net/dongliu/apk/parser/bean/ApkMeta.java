@@ -44,6 +44,7 @@ public class ApkMeta {
     private final boolean smallScreens;
     private final boolean normalScreens;
     private final boolean largeScreens;
+    private final boolean debuggable;
 
     private final List<String> usesPermissions;
     private final List<UseFeature> usesFeatures;
@@ -76,6 +77,7 @@ public class ApkMeta {
         smallScreens = builder.smallScreens;
         normalScreens = builder.normalScreens;
         largeScreens = builder.largeScreens;
+        debuggable = builder.debuggable;
         usesPermissions = builder.usesPermissions;
         usesFeatures = builder.usesFeatures;
         permissions = builder.permissions;
@@ -211,6 +213,10 @@ public class ApkMeta {
         return largeScreens;
     }
 
+    public boolean isDebuggable() {
+        return debuggable;
+    }
+
     public GlEsVersion getGlEsVersion() {
         return glEsVersion;
     }
@@ -275,6 +281,7 @@ public class ApkMeta {
         private boolean smallScreens;
         private boolean normalScreens;
         private boolean largeScreens;
+        private boolean debuggable;
         private List<String> usesPermissions = new ArrayList<>();
         private List<UseFeature> usesFeatures = new ArrayList<>();
         private List<Permission> permissions = new ArrayList<>();
@@ -409,6 +416,11 @@ public class ApkMeta {
 
         public Builder setLargeScreens(boolean largeScreens) {
             this.largeScreens = largeScreens;
+            return this;
+        }
+
+        public Builder setDebuggable(boolean debuggable) {
+            this.debuggable = debuggable;
             return this;
         }
 
