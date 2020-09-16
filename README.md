@@ -1,28 +1,28 @@
-Apk parser lib, for decoding binary xml file, getting apk meta info.
+APK parser lib, for decoding binary XML files, getting APK meta info.
 
 Table of Contents
 =================
 
 * [Features](#features)
-* [Get apk-parser](#get-apk-parser)
+* [Get APK-parser](#get-apk-parser)
 * [Usage](#usage)
-    * [1. Apk info](#1-apk-info)
-    * [2. Get binary xml and manifest xml file](#2-get-binary-xml-and-manifest-xml-file)
-    * [3. Get dex classes](#3-get-dex-classes)
-    * [4. Get Apk Sign info](#4-get-apk-sign-info)
+    * [1. APK Info](#1-apk-info)
+    * [2. Get Binary XML and Manifest XML Files](#2-get-binary-xml-and-manifest-xml-file)
+    * [3. Get DEX Classes](#3-get-dex-classes)
+    * [4. Get APK Signing Info](#4-get-apk-sign-info)
     * [5. Locales](#5-locales)
-* [Open Issue](#open-issue)
+* [Reporting Issues](#open-issue)
 
 #### Features
 
-* Retrieve apk meta info, such as title, icon, package name, version, etc.
-* Parse and convert binary xml file to text 
-* Get classes from dex file
-* Get apk singer info
+* Retrieve APK meta info, such as title, icon, package name, version, etc.
+* Parse and convert binary XML files to text 
+* Get classes from DEX files
+* Get APK singer info
 
-#### Get apk-parser
+#### Get APK-parser
 
-Get apk-parser from maven central repo:
+Get APK-parser from the Maven Central Reposotiry:
 ```xml
 <dependency>
     <groupId>net.dongliu</groupId>
@@ -30,16 +30,17 @@ Get apk-parser from maven central repo:
     <version>2.6.10</version>
 </dependency>
 ```
-From version 2.0, apk-parser requires java7. The last version support java6 is 1.7.4.
+From version 2.0, apk-parser requires Java 7. The last version to support Java 6 is 1.7.4.
 
 #### Usage
 
-The ordinary way is using the ApkFile class, which contains convenient methods to get AndroidManifest.xml, apk info, etc.ApkFile need to be closed when no longer used. 
-There is also a ByteArrayApkFile class for reading apk file from byte array.
+The ordinary way is using the ApkFile class, which contains convenient methods to get AndroidManifest.xml, APK info, etc.
+The ApkFile need to be closed when no longer used. 
+There is also a ByteArrayApkFile class for reading APK files from byte array.
 
-##### 1. Apk info
+##### 1. APK Info
 
-ApkMeta contains name(label), packageName, version, sdk, used features, etc.
+ApkMeta contains name(label), packageName, version, SDK, used features, etc.
 
 ```java
 try (ApkFile apkFile = new ApkFile(new File(filePath))) {
@@ -52,7 +53,7 @@ try (ApkFile apkFile = new ApkFile(new File(filePath))) {
     }
 }
 ```
-##### 2. Get binary xml and manifest xml file
+##### 2. Get Binary XML and Manifest XML Files
 
 ```java
 try (ApkFile apkFile = new ApkFile(new File(filePath))) {
@@ -61,7 +62,7 @@ try (ApkFile apkFile = new ApkFile(new File(filePath))) {
 }
 ```
 
-##### 3. Get dex classes
+##### 3. Get DEX Classes
 
 ```java
 try(ApkFile apkFile = new ApkFile(new File(filePath))) {
@@ -72,9 +73,9 @@ try(ApkFile apkFile = new ApkFile(new File(filePath))) {
 }
 ```
 
-##### 4. Get Apk Sign info
+##### 4. Get APK Signing Info
 
-To get apk signer certificate info and other messages, using:
+Get the APK signer certificate info and other messages, using:
 
 ```java
 try(ApkFile apkFile = new ApkFile(new File(filePath))) {
@@ -85,8 +86,8 @@ try(ApkFile apkFile = new ApkFile(new File(filePath))) {
 
 ##### 5. Locales
 
-Apk may have different info(title, icon, etc.) for different regions and languages——or we can call it Locale.
-If locale is not set, the default "en_US" locale(<code>Locale.US</code>) is used. You can set one preferred locale by:
+An APK may have different info (title, icon, etc.) for different regions and languages——or we can call it a "locale".
+If a locale is not set, the default "en_US" locale (<code>Locale.US</code>) is used. You can set a preferred locale by:
 
 ```java
 try (ApkFile apkFile = new ApkFile(new File(filePath))) {
@@ -95,11 +96,11 @@ try (ApkFile apkFile = new ApkFile(new File(filePath))) {
 }
 ```
 
-Apk parser will find best match languages with locale you specified.
+APK-parser will find the best matching languages for the locale you specified.
 
-If locale is set to null, ApkFile will not translate resource tag, just give the resource id.
+If locale is set to null, ApkFile will not translate the resource tag, and instead just give the resource ID.
 For example, the title will be something like '@string/app_name' instead of the real name.
 
 
-#### Open Issue
-If this parser has any problem with a specific apk, open a new issue, **with the link to download the apk file**.
+#### Reporting Issues
+If this parser has any problem with a specific APK, open a new issue, **with a link to download the APK file**.
