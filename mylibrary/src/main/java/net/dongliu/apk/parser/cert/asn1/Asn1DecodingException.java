@@ -22,11 +22,11 @@ package net.dongliu.apk.parser.cert.asn1;
 public class Asn1DecodingException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    public Asn1DecodingException(String message) {
+    public Asn1DecodingException(final String message) {
         super(message);
     }
 
-    public Asn1DecodingException(String message, Throwable cause) {
+    public Asn1DecodingException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

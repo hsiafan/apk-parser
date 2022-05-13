@@ -37,7 +37,7 @@ public class AlgorithmIdentifier {
     public AlgorithmIdentifier() {
     }
 
-    public AlgorithmIdentifier(String algorithmOid, Asn1OpaqueObject parameters) {
+    public AlgorithmIdentifier(final String algorithmOid, final Asn1OpaqueObject parameters) {
         this.algorithm = algorithmOid;
         this.parameters = parameters;
     }

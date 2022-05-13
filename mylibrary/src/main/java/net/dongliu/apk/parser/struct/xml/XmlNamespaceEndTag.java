@@ -8,23 +8,23 @@ public class XmlNamespaceEndTag {
     private String uri;
 
     public String getPrefix() {
-        return prefix;
+        return this.prefix;
     }
 
-    public void setPrefix(String prefix) {
+    public void setPrefix(final String prefix) {
         this.prefix = prefix;
     }
 
     public String getUri() {
-        return uri;
+        return this.uri;
     }
 
-    public void setUri(String uri) {
+    public void setUri(final String uri) {
         this.uri = uri;
     }
 
     @Override
     public String toString() {
-        return prefix + "=" + uri;
+        return this.prefix + "=" + this.uri;
     }
 }

@@ -23,18 +23,18 @@ public class ByteArrayApkFile extends AbstractApkFile implements Closeable {
 
     private byte[] apkData;
 
-    public ByteArrayApkFile(byte[] apkData) {
+    public ByteArrayApkFile(final byte[] apkData) {
         this.apkData = apkData;
     }
 
     @Override
     protected List<CertificateFile> getAllCertificateData() throws IOException {
-        List<CertificateFile> list = new ArrayList<>();
-        try (InputStream in = new ByteArrayInputStream(apkData);
-             ZipInputStream zis = new ZipInputStream(in)) {
+        final List<CertificateFile> list = new ArrayList<>();
+        try (final InputStream in = new ByteArrayInputStream(this.apkData);
+             final ZipInputStream zis = new ZipInputStream(in)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                String name = entry.getName();
+                final String name = entry.getName();
                 if (name.toUpperCase().endsWith(".RSA") || name.toUpperCase().endsWith(".DSA")) {
                     list.add(new CertificateFile(name, Inputs.readAll(zis)));
                 }
@@ -44,9 +44,9 @@ public class ByteArrayApkFile extends AbstractApkFile implements Closeable {
     }
 
     @Override
-    public byte[] getFileData(String path) throws IOException {
-        try (InputStream in = new ByteArrayInputStream(apkData);
-             ZipInputStream zis = new ZipInputStream(in)) {
+    public byte[] getFileData(final String path) throws IOException {
+        try (final InputStream in = new ByteArrayInputStream(this.apkData);
+             final ZipInputStream zis = new ZipInputStream(in)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 if (path.equals(entry.getName())) {
@@ -59,7 +59,7 @@ public class ByteArrayApkFile extends AbstractApkFile implements Closeable {
 
     @Override
     protected ByteBuffer fileData() {
-        return ByteBuffer.wrap(apkData).asReadOnlyBuffer();
+        return ByteBuffer.wrap(this.apkData).asReadOnlyBuffer();
     }
 
     @Deprecated

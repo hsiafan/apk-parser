@@ -20,8 +20,8 @@ public class ApkMeta {
     private final String versionName;
     private final Long versionCode;
     private final Long revisionCode;
-    private String sharedUserId;
-    private String sharedUserLabel;
+    private final String sharedUserId;
+    private final String sharedUserLabel;
     private final String split;
     private final String configForSplit;
     private final boolean isFeatureSplit;
@@ -50,36 +50,36 @@ public class ApkMeta {
     private final List<UseFeature> usesFeatures;
     private final List<Permission> permissions;
 
-    private ApkMeta(Builder builder) {
-        packageName = builder.packageName;
-        label = builder.label;
-        icon = builder.icon;
-        versionName = builder.versionName;
-        versionCode = builder.versionCode;
-        revisionCode = builder.revisionCode;
-        sharedUserId = builder.sharedUserId;
-        sharedUserLabel = builder.sharedUserLabel;
-        split = builder.split;
-        configForSplit = builder.configForSplit;
-        isFeatureSplit = builder.isFeatureSplit;
-        isSplitRequired = builder.isSplitRequired;
-        isolatedSplits = builder.isolatedSplits;
-        installLocation = builder.installLocation;
-        minSdkVersion = builder.minSdkVersion;
-        targetSdkVersion = builder.targetSdkVersion;
-        maxSdkVersion = builder.maxSdkVersion;
-        compileSdkVersion = builder.compileSdkVersion;
-        compileSdkVersionCodename = builder.compileSdkVersionCodename;
-        platformBuildVersionCode = builder.platformBuildVersionCode;
-        platformBuildVersionName = builder.platformBuildVersionName;
-        glEsVersion = builder.glEsVersion;
-        anyDensity = builder.anyDensity;
-        smallScreens = builder.smallScreens;
-        normalScreens = builder.normalScreens;
-        largeScreens = builder.largeScreens;
-        usesPermissions = builder.usesPermissions;
-        usesFeatures = builder.usesFeatures;
-        permissions = builder.permissions;
+    private ApkMeta(final Builder builder) {
+        this.packageName = builder.packageName;
+        this.label = builder.label;
+        this.icon = builder.icon;
+        this.versionName = builder.versionName;
+        this.versionCode = builder.versionCode;
+        this.revisionCode = builder.revisionCode;
+        this.sharedUserId = builder.sharedUserId;
+        this.sharedUserLabel = builder.sharedUserLabel;
+        this.split = builder.split;
+        this.configForSplit = builder.configForSplit;
+        this.isFeatureSplit = builder.isFeatureSplit;
+        this.isSplitRequired = builder.isSplitRequired;
+        this.isolatedSplits = builder.isolatedSplits;
+        this.installLocation = builder.installLocation;
+        this.minSdkVersion = builder.minSdkVersion;
+        this.targetSdkVersion = builder.targetSdkVersion;
+        this.maxSdkVersion = builder.maxSdkVersion;
+        this.compileSdkVersion = builder.compileSdkVersion;
+        this.compileSdkVersionCodename = builder.compileSdkVersionCodename;
+        this.platformBuildVersionCode = builder.platformBuildVersionCode;
+        this.platformBuildVersionName = builder.platformBuildVersionName;
+        this.glEsVersion = builder.glEsVersion;
+        this.anyDensity = builder.anyDensity;
+        this.smallScreens = builder.smallScreens;
+        this.normalScreens = builder.normalScreens;
+        this.largeScreens = builder.largeScreens;
+        this.usesPermissions = builder.usesPermissions;
+        this.usesFeatures = builder.usesFeatures;
+        this.permissions = builder.permissions;
     }
 
     public static Builder newBuilder() {
@@ -87,87 +87,87 @@ public class ApkMeta {
     }
 
     public String getPackageName() {
-        return packageName;
+        return this.packageName;
     }
 
     public String getVersionName() {
-        return versionName;
+        return this.versionName;
     }
 
     public Long getVersionCode() {
-        return versionCode;
+        return this.versionCode;
     }
 
     public Long getRevisionCode() {
-        return revisionCode;
+        return this.revisionCode;
     }
 
     public String getSharedUserId() {
-        return sharedUserId;
+        return this.sharedUserId;
     }
 
     public String getSharedUserLabel() {
-        return sharedUserLabel;
+        return this.sharedUserLabel;
     }
 
     public String getSplit() {
-        return split;
+        return this.split;
     }
 
     public String getConfigForSplit() {
-        return configForSplit;
+        return this.configForSplit;
     }
 
     public boolean isFeatureSplit() {
-        return isFeatureSplit;
+        return this.isFeatureSplit;
     }
 
     public boolean isSplitRequired() {
-        return isSplitRequired;
+        return this.isSplitRequired;
     }
 
     public boolean isIsolatedSplits() {
-        return isolatedSplits;
+        return this.isolatedSplits;
     }
 
     public String getMinSdkVersion() {
-        return minSdkVersion;
+        return this.minSdkVersion;
     }
 
     public String getTargetSdkVersion() {
-        return targetSdkVersion;
+        return this.targetSdkVersion;
     }
 
     @Nullable
     public String getMaxSdkVersion() {
-        return maxSdkVersion;
+        return this.maxSdkVersion;
     }
 
     @Nullable
     public String getCompileSdkVersion() {
-        return compileSdkVersion;
+        return this.compileSdkVersion;
     }
 
     @Nullable
     public String getCompileSdkVersionCodename() {
-        return compileSdkVersionCodename;
+        return this.compileSdkVersionCodename;
     }
 
     @Nullable
     public String getPlatformBuildVersionCode() {
-        return platformBuildVersionCode;
+        return this.platformBuildVersionCode;
     }
 
     @Nullable
     public String getPlatformBuildVersionName() {
-        return platformBuildVersionName;
+        return this.platformBuildVersionName;
     }
 
     public List<String> getUsesPermissions() {
-        return usesPermissions;
+        return this.usesPermissions;
     }
 
-    public void addUsesPermission(String permission) {
+    public void addUsesPermission(final String permission) {
         this.usesPermissions.add(permission);
     }
 
@@ -179,56 +179,56 @@ public class ApkMeta {
      */
     @Deprecated
     public String getIcon() {
-        return icon;
+        return this.icon;
     }
 
     /**
      * alias for getLabel
      */
     public String getName() {
-        return label;
+        return this.label;
     }
 
     /**
      * get the apk's title(name)
      */
     public String getLabel() {
-        return label;
+        return this.label;
     }
 
     public boolean isAnyDensity() {
-        return anyDensity;
+        return this.anyDensity;
     }
 
     public boolean isSmallScreens() {
-        return smallScreens;
+        return this.smallScreens;
     }
 
     public boolean isNormalScreens() {
-        return normalScreens;
+        return this.normalScreens;
     }
 
     public boolean isLargeScreens() {
-        return largeScreens;
+        return this.largeScreens;
     }
 
     public GlEsVersion getGlEsVersion() {
-        return glEsVersion;
+        return this.glEsVersion;
     }
 
     public List<UseFeature> getUsesFeatures() {
-        return usesFeatures;
+        return this.usesFeatures;
     }
 
-    public void addUseFeatures(UseFeature useFeature) {
+    public void addUseFeatures(final UseFeature useFeature) {
         this.usesFeatures.add(useFeature);
     }
 
     public String getInstallLocation() {
-        return installLocation;
+        return this.installLocation;
     }
 
-    public void addPermission(Permission permission) {
+    public void addPermission(final Permission permission) {
         this.permissions.add(permission);
     }
 
@@ -239,14 +239,14 @@ public class ApkMeta {
 
     @Override
     public String toString() {
-        return "packageName: \t" + packageName + "\n"
-                + "label: \t" + label + "\n"
-                + "icon: \t" + icon + "\n"
-                + "versionName: \t" + versionName + "\n"
-                + "versionCode: \t" + versionCode + "\n"
-                + "minSdkVersion: \t" + minSdkVersion + "\n"
-                + "targetSdkVersion: \t" + targetSdkVersion + "\n"
-                + "maxSdkVersion: \t" + maxSdkVersion;
+        return "packageName: \t" + this.packageName + "\n"
+                + "label: \t" + this.label + "\n"
+                + "icon: \t" + this.icon + "\n"
+                + "versionName: \t" + this.versionName + "\n"
+                + "versionCode: \t" + this.versionCode + "\n"
+                + "minSdkVersion: \t" + this.minSdkVersion + "\n"
+                + "targetSdkVersion: \t" + this.targetSdkVersion + "\n"
+                + "maxSdkVersion: \t" + this.maxSdkVersion;
     }
 
     public static final class Builder {
@@ -276,154 +276,154 @@ public class ApkMeta {
         private boolean smallScreens;
         private boolean normalScreens;
         private boolean largeScreens;
-        private List<String> usesPermissions = new ArrayList<>();
-        private List<UseFeature> usesFeatures = new ArrayList<>();
-        private List<Permission> permissions = new ArrayList<>();
+        private final List<String> usesPermissions = new ArrayList<>();
+        private final List<UseFeature> usesFeatures = new ArrayList<>();
+        private final List<Permission> permissions = new ArrayList<>();
 
         private Builder() {
         }
 
-        public Builder setPackageName(String packageName) {
+        public Builder setPackageName(final String packageName) {
             this.packageName = packageName;
             return this;
         }
 
-        public Builder setLabel(String label) {
+        public Builder setLabel(final String label) {
             this.label = label;
             return this;
         }
 
-        public Builder setIcon(String icon) {
+        public Builder setIcon(final String icon) {
             this.icon = icon;
             return this;
         }
 
-        public Builder setVersionName(String versionName) {
+        public Builder setVersionName(final String versionName) {
             this.versionName = versionName;
             return this;
         }
 
-        public Builder setVersionCode(Long versionCode) {
+        public Builder setVersionCode(final Long versionCode) {
             this.versionCode = versionCode;
             return this;
         }
 
-        public Builder setRevisionCode(Long revisionCode) {
+        public Builder setRevisionCode(final Long revisionCode) {
             this.revisionCode = revisionCode;
             return this;
         }
 
-        public Builder setSharedUserId(String sharedUserId) {
+        public Builder setSharedUserId(final String sharedUserId) {
             this.sharedUserId = sharedUserId;
             return this;
         }
 
-        public Builder setSharedUserLabel(String sharedUserLabel) {
+        public Builder setSharedUserLabel(final String sharedUserLabel) {
             this.sharedUserLabel = sharedUserLabel;
             return this;
         }
 
-        public Builder setSplit(String split) {
+        public Builder setSplit(final String split) {
             this.split = split;
             return this;
         }
 
-        public Builder setConfigForSplit(String configForSplit) {
+        public Builder setConfigForSplit(final String configForSplit) {
             this.configForSplit = configForSplit;
             return this;
         }
 
-        public Builder setIsFeatureSplit(boolean isFeatureSplit) {
+        public Builder setIsFeatureSplit(final boolean isFeatureSplit) {
             this.isFeatureSplit = isFeatureSplit;
             return this;
         }
 
-        public Builder setIsSplitRequired(boolean isSplitRequired) {
+        public Builder setIsSplitRequired(final boolean isSplitRequired) {
             this.isSplitRequired = isSplitRequired;
             return this;
         }
 
-        public Builder setIsolatedSplits(boolean isolatedSplits) {
+        public Builder setIsolatedSplits(final boolean isolatedSplits) {
             this.isolatedSplits = isolatedSplits;
             return this;
         }
 
-        public Builder setInstallLocation(String installLocation) {
+        public Builder setInstallLocation(final String installLocation) {
             this.installLocation = installLocation;
             return this;
         }
 
-        public Builder setMinSdkVersion(String minSdkVersion) {
+        public Builder setMinSdkVersion(final String minSdkVersion) {
             this.minSdkVersion = minSdkVersion;
             return this;
         }
 
-        public Builder setTargetSdkVersion(String targetSdkVersion) {
+        public Builder setTargetSdkVersion(final String targetSdkVersion) {
             this.targetSdkVersion = targetSdkVersion;
             return this;
         }
 
-        public Builder setMaxSdkVersion(String maxSdkVersion) {
+        public Builder setMaxSdkVersion(final String maxSdkVersion) {
             this.maxSdkVersion = maxSdkVersion;
             return this;
         }
 
-        public Builder setCompileSdkVersion(String compileSdkVersion) {
+        public Builder setCompileSdkVersion(final String compileSdkVersion) {
             this.compileSdkVersion = compileSdkVersion;
             return this;
         }
 
-        public Builder setCompileSdkVersionCodename(String compileSdkVersionCodename) {
+        public Builder setCompileSdkVersionCodename(final String compileSdkVersionCodename) {
             this.compileSdkVersionCodename = compileSdkVersionCodename;
             return this;
         }
 
-        public Builder setPlatformBuildVersionCode(String platformBuildVersionCode) {
+        public Builder setPlatformBuildVersionCode(final String platformBuildVersionCode) {
             this.platformBuildVersionCode = platformBuildVersionCode;
             return this;
         }
 
-        public Builder setPlatformBuildVersionName(String platformBuildVersionName) {
+        public Builder setPlatformBuildVersionName(final String platformBuildVersionName) {
             this.platformBuildVersionName = platformBuildVersionName;
             return this;
         }
 
-        public Builder setGlEsVersion(GlEsVersion glEsVersion) {
+        public Builder setGlEsVersion(final GlEsVersion glEsVersion) {
             this.glEsVersion = glEsVersion;
             return this;
         }
 
-        public Builder setAnyDensity(boolean anyDensity) {
+        public Builder setAnyDensity(final boolean anyDensity) {
             this.anyDensity = anyDensity;
             return this;
         }
 
-        public Builder setSmallScreens(boolean smallScreens) {
+        public Builder setSmallScreens(final boolean smallScreens) {
             this.smallScreens = smallScreens;
             return this;
         }
 
-        public Builder setNormalScreens(boolean normalScreens) {
+        public Builder setNormalScreens(final boolean normalScreens) {
             this.normalScreens = normalScreens;
             return this;
         }
 
-        public Builder setLargeScreens(boolean largeScreens) {
+        public Builder setLargeScreens(final boolean largeScreens) {
             this.largeScreens = largeScreens;
             return this;
         }
 
-        public Builder addUsesPermission(String usesPermission) {
+        public Builder addUsesPermission(final String usesPermission) {
             this.usesPermissions.add(usesPermission);
             return this;
         }
 
-        public Builder addUsesFeature(UseFeature usesFeature) {
+        public Builder addUsesFeature(final UseFeature usesFeature) {
             this.usesFeatures.add(usesFeature);
             return this;
         }
 
-        public Builder addPermissions(Permission permission) {
+        public Builder addPermissions(final Permission permission) {
             this.permissions.add(permission);
             return this;
         }

@@ -30,52 +30,52 @@ import java.util.zip.ZipFile;
 public class ApkFile extends AbstractApkFile implements Closeable {
 
     private final ZipFile zf;
-    private File apkFile;
+    private final File apkFile;
     @Nullable
     private FileChannel fileChannel;
 
-    public ApkFile(File apkFile) throws IOException {
+    public ApkFile(final File apkFile) throws IOException {
         this.apkFile = apkFile;
         // create zip file cost time, use one zip file for apk parser life cycle
         this.zf = new ZipFile(apkFile);
     }
 
-    public ApkFile(String filePath) throws IOException {
+    public ApkFile(final String filePath) throws IOException {
         this(new File(filePath));
     }
 
     @Override
     protected List<CertificateFile> getAllCertificateData() throws IOException {
-        Enumeration<? extends ZipEntry> enu = zf.entries();
-        List<CertificateFile> list = new ArrayList<>();
+        final Enumeration<? extends ZipEntry> enu = this.zf.entries();
+        final List<CertificateFile> list = new ArrayList<>();
         while (enu.hasMoreElements()) {
-            ZipEntry ne = enu.nextElement();
+            final ZipEntry ne = enu.nextElement();
             if (ne.isDirectory()) {
                 continue;
             }
-            String name = ne.getName().toUpperCase();
+            final String name = ne.getName().toUpperCase();
             if (name.endsWith(".RSA") || name.endsWith(".DSA")) {
-                list.add(new CertificateFile(name, Inputs.readAllAndClose(zf.getInputStream(ne))));
+                list.add(new CertificateFile(name, Inputs.readAllAndClose(this.zf.getInputStream(ne))));
             }
         }
         return list;
     }
 
     @Override
-    public byte[] getFileData(String path) throws IOException {
-        ZipEntry entry = zf.getEntry(path);
+    public byte[] getFileData(final String path) throws IOException {
+        final ZipEntry entry = this.zf.getEntry(path);
         if (entry == null) {
             return null;
         }
 
-        InputStream inputStream = zf.getInputStream(entry);
+        final InputStream inputStream = this.zf.getInputStream(entry);
         return Inputs.readAllAndClose(inputStream);
     }
 
     @Override
     protected ByteBuffer fileData() throws IOException {
-        fileChannel = new FileInputStream(apkFile).getChannel();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
+        this.fileChannel = new FileInputStream(this.apkFile).getChannel();
+        return this.fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, this.fileChannel.size());
     }
 
 
@@ -87,29 +87,29 @@ public class ApkFile extends AbstractApkFile implements Closeable {
     @Override
     @Deprecated
     public ApkSignStatus verifyApk() throws IOException {
-        ZipEntry entry = zf.getEntry("META-INF/MANIFEST.MF");
+        final ZipEntry entry = this.zf.getEntry("META-INF/MANIFEST.MF");
         if (entry == null) {
             // apk is not signed;
             return ApkSignStatus.notSigned;
         }
 
-        try (JarFile jarFile = new JarFile(this.apkFile)) {
-            Enumeration<JarEntry> entries = jarFile.entries();
-            byte[] buffer = new byte[8192];
+        try (final JarFile jarFile = new JarFile(this.apkFile)) {
+            final Enumeration<JarEntry> entries = jarFile.entries();
+            final byte[] buffer = new byte[8192];
 
             while (entries.hasMoreElements()) {
-                JarEntry e = entries.nextElement();
+                final JarEntry e = entries.nextElement();
                 if (e.isDirectory()) {
                     continue;
                 }
-                try (InputStream in = jarFile.getInputStream(e)) {
+                try (final InputStream in = jarFile.getInputStream(e)) {
                     // Read in each jar entry. A security exception will be thrown if a signature/digest check fails.
                     int count;
                     //noinspection StatementWithEmptyBody
                     while ((count = in.read(buffer, 0, buffer.length)) != -1) {
                         // Don't care
                     }
-                } catch (SecurityException se) {
+                } catch (final SecurityException se) {
                     return ApkSignStatus.incorrect;
                 }
             }
@@ -119,9 +119,9 @@ public class ApkFile extends AbstractApkFile implements Closeable {
 
     @Override
     public void close() throws IOException {
-        try (Closeable superClosable = () -> ApkFile.super.close();
-             Closeable zipFileClosable = zf;
-             Closeable fileChannelClosable = fileChannel) {
+        try (final Closeable superClosable = () -> ApkFile.super.close();
+             final Closeable zipFileClosable = this.zf;
+             final Closeable fileChannelClosable = this.fileChannel) {
 
         }
     }

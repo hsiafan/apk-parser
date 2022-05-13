@@ -3,9 +3,17 @@
   <component name="SaveActionSettings">
     <option name="actions">
       <set>
+        <option value="activateOnShortcut" />
+        <option value="activateOnBatch" />
+        <option value="noActionIfCompileErrors" />
+        <option value="organizeImports" />
+        <option value="reformat" />
         <option value="fieldCanBeFinal" />
         <option value="localCanBeFinal" />
         <option value="localCanBeFinalExceptImplicit" />
+        <option value="unqualifiedFieldAccess" />
+        <option value="unqualifiedMethodAccess" />
+        <option value="unqualifiedStaticMemberAccess" />
         <option value="missingOverrideAnnotation" />
         <option value="generateSerialVersionUID" />
         <option value="finalPrivateMethod" />

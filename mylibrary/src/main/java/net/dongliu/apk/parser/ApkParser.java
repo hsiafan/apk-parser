@@ -14,11 +14,11 @@ import java.io.IOException;
 @Deprecated
 public class ApkParser extends ApkFile {
 
-    public ApkParser(File apkFile) throws IOException {
+    public ApkParser(final File apkFile) throws IOException {
         super(apkFile);
     }
 
-    public ApkParser(String filePath) throws IOException {
+    public ApkParser(final String filePath) throws IOException {
         super(filePath);
     }
 }

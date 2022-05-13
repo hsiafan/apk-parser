@@ -19,25 +19,25 @@ public class AdaptiveIconParser implements XmlStreamer {
     private String background;
 
     public String getForeground() {
-        return foreground;
+        return this.foreground;
     }
 
     public String getBackground() {
-        return background;
+        return this.background;
     }
 
     @Override
-    public void onStartTag(XmlNodeStartTag xmlNodeStartTag) {
+    public void onStartTag(final XmlNodeStartTag xmlNodeStartTag) {
         if (xmlNodeStartTag.getName().equals("background")) {
-            background = getDrawable(xmlNodeStartTag);
+            this.background = this.getDrawable(xmlNodeStartTag);
         } else if (xmlNodeStartTag.getName().equals("foreground")) {
-            foreground = getDrawable(xmlNodeStartTag);
+            this.foreground = this.getDrawable(xmlNodeStartTag);
         }
     }
 
-    private String getDrawable(XmlNodeStartTag xmlNodeStartTag) {
-        Attributes attributes = xmlNodeStartTag.getAttributes();
-        for (Attribute attribute : attributes.values()) {
+    private String getDrawable(final XmlNodeStartTag xmlNodeStartTag) {
+        final Attributes attributes = xmlNodeStartTag.getAttributes();
+        for (final Attribute attribute : attributes.values()) {
             if (attribute.getName().equals("drawable")) {
                 return attribute.getValue();
             }
@@ -46,22 +46,22 @@ public class AdaptiveIconParser implements XmlStreamer {
     }
 
     @Override
-    public void onEndTag(XmlNodeEndTag xmlNodeEndTag) {
+    public void onEndTag(final XmlNodeEndTag xmlNodeEndTag) {
 
     }
 
     @Override
-    public void onCData(XmlCData xmlCData) {
+    public void onCData(final XmlCData xmlCData) {
 
     }
 
     @Override
-    public void onNamespaceStart(XmlNamespaceStartTag tag) {
+    public void onNamespaceStart(final XmlNamespaceStartTag tag) {
 
     }
 
     @Override
-    public void onNamespaceEnd(XmlNamespaceEndTag tag) {
+    public void onNamespaceEnd(final XmlNamespaceEndTag tag) {
 
     }
 }

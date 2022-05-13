@@ -22,22 +22,22 @@ import java.nio.ByteOrder;
  */
 public class DexParser {
 
-    private ByteBuffer buffer;
+    private final ByteBuffer buffer;
 
     private static final int NO_INDEX = 0xffffffff;
 
-    public DexParser(ByteBuffer buffer) {
+    public DexParser(final ByteBuffer buffer) {
         this.buffer = buffer.duplicate();
         this.buffer.order(ByteOrder.LITTLE_ENDIAN);
     }
 
     public DexClass[] parse() {
         // read magic
-        String magic = new String(Buffers.readBytes(buffer, 8));
+        final String magic = new String(Buffers.readBytes(this.buffer, 8));
         if (!magic.startsWith("dex\n")) {
             return new DexClass[0];
         }
-        int version = Integer.parseInt(magic.substring(4, 7));
+        final int version = Integer.parseInt(magic.substring(4, 7));
         // now the version is 035
         if (version < 35) {
             // version 009 was used for the M3 releases of the Android platform (November–December 2007),
@@ -46,31 +46,31 @@ public class DexParser {
         }
 
         // read header
-        DexHeader header = readDexHeader();
+        final DexHeader header = this.readDexHeader();
         header.setVersion(version);
 
         // read string pool
-        long[] stringOffsets = readStringPool(header.getStringIdsOff(), header.getStringIdsSize());
+        final long[] stringOffsets = this.readStringPool(header.getStringIdsOff(), header.getStringIdsSize());
 
         // read types
-        int[] typeIds = readTypes(header.getTypeIdsOff(), header.getTypeIdsSize());
+        final int[] typeIds = this.readTypes(header.getTypeIdsOff(), header.getTypeIdsSize());
 
         // read classes
-        DexClassStruct[] dexClassStructs = readClass(header.getClassDefsOff(),
+        final DexClassStruct[] dexClassStructs = this.readClass(header.getClassDefsOff(),
                 header.getClassDefsSize());
 
-        StringPool stringpool = readStrings(stringOffsets);
+        final StringPool stringpool = this.readStrings(stringOffsets);
 
-        String[] types = new String[typeIds.length];
+        final String[] types = new String[typeIds.length];
         for (int i = 0; i < typeIds.length; i++) {
             types[i] = stringpool.get(typeIds[i]);
         }
 
-        DexClass[] dexClasses = new DexClass[dexClassStructs.length];
+        final DexClass[] dexClasses = new DexClass[dexClassStructs.length];
         for (int i = 0; i < dexClassStructs.length; i++) {
-            DexClassStruct dexClassStruct = dexClassStructs[i];
+            final DexClassStruct dexClassStruct = dexClassStructs[i];
             String superClass = null;
-            if (dexClassStruct.getSuperclassIdx() != NO_INDEX) {
+            if (dexClassStruct.getSuperclassIdx() != DexParser.NO_INDEX) {
                 superClass = types[dexClassStruct.getSuperclassIdx()];
             }
             dexClasses[i] = new DexClass(
@@ -84,22 +84,22 @@ public class DexParser {
     /**
      * read class info.
      */
-    private DexClassStruct[] readClass(long classDefsOff, int classDefsSize) {
-        Buffers.position(buffer, classDefsOff);
+    private DexClassStruct[] readClass(final long classDefsOff, final int classDefsSize) {
+        Buffers.position(this.buffer, classDefsOff);
 
-        DexClassStruct[] dexClassStructs = new DexClassStruct[classDefsSize];
+        final DexClassStruct[] dexClassStructs = new DexClassStruct[classDefsSize];
         for (int i = 0; i < classDefsSize; i++) {
-            DexClassStruct dexClassStruct = new DexClassStruct();
-            dexClassStruct.setClassIdx(buffer.getInt());
+            final DexClassStruct dexClassStruct = new DexClassStruct();
+            dexClassStruct.setClassIdx(this.buffer.getInt());
 
-            dexClassStruct.setAccessFlags(buffer.getInt());
-            dexClassStruct.setSuperclassIdx(buffer.getInt());
+            dexClassStruct.setAccessFlags(this.buffer.getInt());
+            dexClassStruct.setSuperclassIdx(this.buffer.getInt());
 
-            dexClassStruct.setInterfacesOff(Buffers.readUInt(buffer));
-            dexClassStruct.setSourceFileIdx(buffer.getInt());
-            dexClassStruct.setAnnotationsOff(Buffers.readUInt(buffer));
-            dexClassStruct.setClassDataOff(Buffers.readUInt(buffer));
-            dexClassStruct.setStaticValuesOff(Buffers.readUInt(buffer));
+            dexClassStruct.setInterfacesOff(Buffers.readUInt(this.buffer));
+            dexClassStruct.setSourceFileIdx(this.buffer.getInt());
+            dexClassStruct.setAnnotationsOff(Buffers.readUInt(this.buffer));
+            dexClassStruct.setClassDataOff(Buffers.readUInt(this.buffer));
+            dexClassStruct.setStaticValuesOff(Buffers.readUInt(this.buffer));
             dexClassStructs[i] = dexClassStruct;
         }
 
@@ -109,11 +109,11 @@ public class DexParser {
     /**
      * read types.
      */
-    private int[] readTypes(long typeIdsOff, int typeIdsSize) {
-        Buffers.position(buffer, typeIdsOff);
-        int[] typeIds = new int[typeIdsSize];
+    private int[] readTypes(final long typeIdsOff, final int typeIdsSize) {
+        Buffers.position(this.buffer, typeIdsOff);
+        final int[] typeIds = new int[typeIdsSize];
         for (int i = 0; i < typeIdsSize; i++) {
-            typeIds[i] = (int) Buffers.readUInt(buffer);
+            typeIds[i] = (int) Buffers.readUInt(this.buffer);
         }
         return typeIds;
     }
@@ -126,26 +126,26 @@ public class DexParser {
      * @return
      * @throws IOException
      */
-    private StringPool readStrings(long[] offsets) {
+    private StringPool readStrings(final long[] offsets) {
         // read strings.
         // buffer some apk, the strings' offsets may not well ordered. we sort it first
 
-        StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
+        final StringPoolEntry[] entries = new StringPoolEntry[offsets.length];
         for (int i = 0; i < offsets.length; i++) {
             entries[i] = new StringPoolEntry(i, offsets[i]);
         }
 
         String lastStr = null;
         long lastOffset = -1;
-        StringPool stringpool = new StringPool(offsets.length);
-        for (StringPoolEntry entry : entries) {
+        final StringPool stringpool = new StringPool(offsets.length);
+        for (final StringPoolEntry entry : entries) {
             if (entry.getOffset() == lastOffset) {
                 stringpool.set(entry.getIdx(), lastStr);
                 continue;
             }
-            Buffers.position(buffer, entry.getOffset());
+            Buffers.position(this.buffer, entry.getOffset());
             lastOffset = entry.getOffset();
-            String str = readString();
+            final String str = this.readString();
             lastStr = str;
             stringpool.set(entry.getIdx(), str);
         }
@@ -155,11 +155,11 @@ public class DexParser {
     /*
      * read string identifiers list.
      */
-    private long[] readStringPool(long stringIdsOff, int stringIdsSize) {
-        Buffers.position(buffer, stringIdsOff);
-        long offsets[] = new long[stringIdsSize];
+    private long[] readStringPool(final long stringIdsOff, final int stringIdsSize) {
+        Buffers.position(this.buffer, stringIdsOff);
+        final long[] offsets = new long[stringIdsSize];
         for (int i = 0; i < stringIdsSize; i++) {
-            offsets[i] = Buffers.readUInt(buffer);
+            offsets[i] = Buffers.readUInt(this.buffer);
         }
 
         return offsets;
@@ -170,8 +170,8 @@ public class DexParser {
      */
     private String readString() {
         // the length is char len, not byte len
-        int strLen = readVarInts();
-        return readString(strLen);
+        final int strLen = this.readVarInts();
+        return this.readString(strLen);
     }
 
     /**
@@ -179,21 +179,21 @@ public class DexParser {
      *
      * @param strLen the java-utf16-char len, not strLen nor bytes len.
      */
-    private String readString(int strLen) {
-        char[] chars = new char[strLen];
+    private String readString(final int strLen) {
+        final char[] chars = new char[strLen];
 
         for (int i = 0; i < strLen; i++) {
-            short a = Buffers.readUByte(buffer);
+            final short a = Buffers.readUByte(this.buffer);
             if ((a & 0x80) == 0) {
                 // ascii char
                 chars[i] = (char) a;
             } else if ((a & 0xe0) == 0xc0) {
                 // read one more
-                short b = Buffers.readUByte(buffer);
+                final short b = Buffers.readUByte(this.buffer);
                 chars[i] = (char) (((a & 0x1F) << 6) | (b & 0x3F));
             } else if ((a & 0xf0) == 0xe0) {
-                short b = Buffers.readUByte(buffer);
-                short c = Buffers.readUByte(buffer);
+                final short b = Buffers.readUByte(this.buffer);
+                final short c = Buffers.readUByte(this.buffer);
                 chars[i] = (char) (((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F));
             } else //noinspection StatementWithEmptyBody
                 if ((a & 0xf0) == 0xf0) {
@@ -226,7 +226,7 @@ public class DexParser {
             if (count > 4) {
                 throw new ParserException("read varints error.");
             }
-            s = Buffers.readUByte(buffer);
+            s = Buffers.readUByte(this.buffer);
             i |= (s & 0x7f) << (count * 7);
             count++;
         } while ((s & 0x80) != 0);
@@ -237,47 +237,47 @@ public class DexParser {
     private DexHeader readDexHeader() {
 
         // check sum. skip
-        buffer.getInt();
+        this.buffer.getInt();
 
         // signature skip
-        Buffers.readBytes(buffer, DexHeader.kSHA1DigestLen);
+        Buffers.readBytes(this.buffer, DexHeader.kSHA1DigestLen);
 
-        DexHeader header = new DexHeader();
-        header.setFileSize(Buffers.readUInt(buffer));
-        header.setHeaderSize(Buffers.readUInt(buffer));
+        final DexHeader header = new DexHeader();
+        header.setFileSize(Buffers.readUInt(this.buffer));
+        header.setHeaderSize(Buffers.readUInt(this.buffer));
 
         // skip?
-        Buffers.readUInt(buffer);
+        Buffers.readUInt(this.buffer);
 
         // static link data
-        header.setLinkSize(Buffers.readUInt(buffer));
-        header.setLinkOff(Buffers.readUInt(buffer));
+        header.setLinkSize(Buffers.readUInt(this.buffer));
+        header.setLinkOff(Buffers.readUInt(this.buffer));
 
         // the map data is just the same as dex header.
-        header.setMapOff(Buffers.readUInt(buffer));
+        header.setMapOff(Buffers.readUInt(this.buffer));
 
-        header.setStringIdsSize(buffer.getInt());
-        header.setStringIdsOff(Buffers.readUInt(buffer));
+        header.setStringIdsSize(this.buffer.getInt());
+        header.setStringIdsOff(Buffers.readUInt(this.buffer));
 
-        header.setTypeIdsSize(buffer.getInt());
-        header.setTypeIdsOff(Buffers.readUInt(buffer));
+        header.setTypeIdsSize(this.buffer.getInt());
+        header.setTypeIdsOff(Buffers.readUInt(this.buffer));
 
-        header.setProtoIdsSize(buffer.getInt());
-        header.setProtoIdsOff(Buffers.readUInt(buffer));
+        header.setProtoIdsSize(this.buffer.getInt());
+        header.setProtoIdsOff(Buffers.readUInt(this.buffer));
 
-        header.setFieldIdsSize(buffer.getInt());
-        header.setFieldIdsOff(Buffers.readUInt(buffer));
+        header.setFieldIdsSize(this.buffer.getInt());
+        header.setFieldIdsOff(Buffers.readUInt(this.buffer));
 
-        header.setMethodIdsSize(buffer.getInt());
-        header.setMethodIdsOff(Buffers.readUInt(buffer));
+        header.setMethodIdsSize(this.buffer.getInt());
+        header.setMethodIdsOff(Buffers.readUInt(this.buffer));
 
-        header.setClassDefsSize(buffer.getInt());
-        header.setClassDefsOff(Buffers.readUInt(buffer));
+        header.setClassDefsSize(this.buffer.getInt());
+        header.setClassDefsOff(Buffers.readUInt(this.buffer));
 
-        header.setDataSize(buffer.getInt());
-        header.setDataOff(Buffers.readUInt(buffer));
+        header.setDataSize(this.buffer.getInt());
+        header.setDataOff(Buffers.readUInt(this.buffer));
 
-        Buffers.position(buffer, header.getHeaderSize());
+        Buffers.position(this.buffer, header.getHeaderSize());
 
         return header;
     }

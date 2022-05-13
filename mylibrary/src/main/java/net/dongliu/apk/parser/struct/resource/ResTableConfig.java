@@ -66,162 +66,162 @@ public class ResTableConfig {
 
 
     public int getSize() {
-        return size;
+        return this.size;
     }
 
-    public void setSize(long size) {
+    public void setSize(final long size) {
         this.size = Unsigned.ensureUInt(size);
     }
 
     public short getMcc() {
-        return mcc;
+        return this.mcc;
     }
 
-    public void setMcc(short mcc) {
+    public void setMcc(final short mcc) {
         this.mcc = mcc;
     }
 
     public short getMnc() {
-        return mnc;
+        return this.mnc;
     }
 
-    public void setMnc(short mnc) {
+    public void setMnc(final short mnc) {
         this.mnc = mnc;
     }
 
     public String getLanguage() {
-        return language;
+        return this.language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(final String language) {
         this.language = language;
     }
 
     public String getCountry() {
-        return country;
+        return this.country;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(final String country) {
         this.country = country;
     }
 
     public short getOrientation() {
-        return (short) (orientation & 0xff);
+        return (short) (this.orientation & 0xff);
     }
 
-    public void setOrientation(short orientation) {
+    public void setOrientation(final short orientation) {
         this.orientation = (byte) orientation;
     }
 
     public short getTouchscreen() {
-        return (short) (touchscreen & 0xff);
+        return (short) (this.touchscreen & 0xff);
     }
 
-    public void setTouchscreen(short touchscreen) {
+    public void setTouchscreen(final short touchscreen) {
         this.touchscreen = (byte) touchscreen;
     }
 
     public int getDensity() {
-        return density & 0xffff;
+        return this.density & 0xffff;
     }
 
-    public void setDensity(int density) {
+    public void setDensity(final int density) {
         this.density = (short) density;
     }
 
     public short getKeyboard() {
-        return keyboard;
+        return this.keyboard;
     }
 
-    public void setKeyboard(short keyboard) {
+    public void setKeyboard(final short keyboard) {
         this.keyboard = keyboard;
     }
 
     public short getNavigation() {
-        return navigation;
+        return this.navigation;
     }
 
-    public void setNavigation(short navigation) {
+    public void setNavigation(final short navigation) {
         this.navigation = navigation;
     }
 
     public short getInputFlags() {
-        return inputFlags;
+        return this.inputFlags;
     }
 
-    public void setInputFlags(short inputFlags) {
+    public void setInputFlags(final short inputFlags) {
         this.inputFlags = inputFlags;
     }
 
     public short getInputPad0() {
-        return inputPad0;
+        return this.inputPad0;
     }
 
-    public void setInputPad0(short inputPad0) {
+    public void setInputPad0(final short inputPad0) {
         this.inputPad0 = inputPad0;
     }
 
     public int getScreenWidth() {
-        return screenWidth;
+        return this.screenWidth;
     }
 
-    public void setScreenWidth(int screenWidth) {
+    public void setScreenWidth(final int screenWidth) {
         this.screenWidth = screenWidth;
     }
 
     public int getScreenHeight() {
-        return screenHeight;
+        return this.screenHeight;
     }
 
-    public void setScreenHeight(int screenHeight) {
+    public void setScreenHeight(final int screenHeight) {
         this.screenHeight = screenHeight;
     }
 
     public int getSdkVersion() {
-        return sdkVersion;
+        return this.sdkVersion;
     }
 
-    public void setSdkVersion(int sdkVersion) {
+    public void setSdkVersion(final int sdkVersion) {
         this.sdkVersion = sdkVersion;
     }
 
     public int getMinorVersion() {
-        return minorVersion;
+        return this.minorVersion;
     }
 
-    public void setMinorVersion(int minorVersion) {
+    public void setMinorVersion(final int minorVersion) {
         this.minorVersion = minorVersion;
     }
 
     public short getScreenLayout() {
-        return screenLayout;
+        return this.screenLayout;
     }
 
-    public void setScreenLayout(short screenLayout) {
+    public void setScreenLayout(final short screenLayout) {
         this.screenLayout = screenLayout;
     }
 
     public short getUiMode() {
-        return uiMode;
+        return this.uiMode;
     }
 
-    public void setUiMode(short uiMode) {
+    public void setUiMode(final short uiMode) {
         this.uiMode = uiMode;
     }
 
     public short getScreenConfigPad1() {
-        return screenConfigPad1;
+        return this.screenConfigPad1;
     }
 
-    public void setScreenConfigPad1(short screenConfigPad1) {
+    public void setScreenConfigPad1(final short screenConfigPad1) {
         this.screenConfigPad1 = screenConfigPad1;
     }
 
     public short getScreenConfigPad2() {
-        return screenConfigPad2;
+        return this.screenConfigPad2;
     }
 
-    public void setScreenConfigPad2(short screenConfigPad2) {
+    public void setScreenConfigPad2(final short screenConfigPad2) {
         this.screenConfigPad2 = screenConfigPad2;
     }
 }

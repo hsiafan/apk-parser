@@ -4,10 +4,10 @@ package net.dongliu.apk.parser.bean;
  * Icon path, and density
  */
 public class IconPath {
-    private String path;
-    private int density;
+    private final String path;
+    private final int density;
 
-    public IconPath(String path, int density) {
+    public IconPath(final String path, final int density) {
         this.path = path;
         this.density = density;
     }
@@ -16,7 +16,7 @@ public class IconPath {
      * The icon path in apk file
      */
     public String getPath() {
-        return path;
+        return this.path;
     }
 
     /**
@@ -24,14 +24,14 @@ public class IconPath {
      * see {@link net.dongliu.apk.parser.struct.resource.Densities} for more density values.
      */
     public int getDensity() {
-        return density;
+        return this.density;
     }
 
     @Override
     public String toString() {
         return "IconPath{" +
-                "path='" + path + '\'' +
-                ", density=" + density +
+                "path='" + this.path + '\'' +
+                ", density=" + this.density +
                 '}';
     }
 }

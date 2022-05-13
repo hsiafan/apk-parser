@@ -28,28 +28,28 @@ public class ResourceFetcher {
     // from https://android.googlesource.com/platform/frameworks/base/+/master/core/res/res/values/public.xml
     private void fetchSystemAttrIds()
             throws IOException, SAXException, ParserConfigurationException {
-        String url = "https://android.googlesource.com/platform/frameworks/base/+/master/core/res/res/values/public.xml";
-        String html = getUrl(url);
-        String xml = retrieveCode(html);
+        final String url = "https://android.googlesource.com/platform/frameworks/base/+/master/core/res/res/values/public.xml";
+        final String html = this.getUrl(url);
+        final String xml = this.retrieveCode(html);
 
         if (xml != null) {
-            parseAttributeXml(xml);
+            this.parseAttributeXml(xml);
         }
     }
 
-    private void parseAttributeXml(String xml)
+    private void parseAttributeXml(final String xml)
             throws IOException, ParserConfigurationException, SAXException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        SAXParser parser = factory.newSAXParser();
+        final SAXParserFactory factory = SAXParserFactory.newInstance();
+        final SAXParser parser = factory.newSAXParser();
         final List<Pair<Integer, String>> attrIds = new ArrayList<>();
-        DefaultHandler dh = new DefaultHandler() {
+        final DefaultHandler dh = new DefaultHandler() {
             @Override
-            public void startElement(String uri, String localName, String qName,
-                                     Attributes attributes) throws SAXException {
+            public void startElement(final String uri, final String localName, final String qName,
+                                     final Attributes attributes) throws SAXException {
                 if (!qName.equals("public")) {
                     return;
                 }
-                String type = attributes.getValue("type");
+                final String type = attributes.getValue("type");
                 if (type == null) {
                     return;
                 }
@@ -59,18 +59,18 @@ public class ResourceFetcher {
                     if (idStr == null) {
                         return;
                     }
-                    String name = attributes.getValue("name");
+                    final String name = attributes.getValue("name");
                     if (idStr.startsWith("0x")) {
                         idStr = idStr.substring(2);
                     }
-                    int id = Integer.parseInt(idStr, 16);
+                    final int id = Integer.parseInt(idStr, 16);
                     attrIds.add(new Pair<>(id, name));
                 }
             }
         };
         parser.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), dh);
-        for (Pair<Integer, String> pair : attrIds) {
-            System.out.println(String.format("%s=%d", pair.getRight(), pair.getLeft()));
+        for (final Pair<Integer, String> pair : attrIds) {
+            System.out.printf("%s=%d%n", pair.getRight(), pair.getLeft());
         }
     }
 
@@ -80,17 +80,17 @@ public class ResourceFetcher {
     // from https://android.googlesource.com/platform/frameworks/base/+/master/api/current.txt r.style section
 
     private void fetchSystemStyle() throws IOException {
-        String url = "https://android.googlesource.com/platform/frameworks/base/+/master/api/current.txt";
-        String html = getUrl(url);
-        String code = retrieveCode(html);
+        final String url = "https://android.googlesource.com/platform/frameworks/base/+/master/api/current.txt";
+        final String html = this.getUrl(url);
+        final String code = this.retrieveCode(html);
         if (code == null) {
             System.err.println("code area not found");
             return;
         }
-        int begin = code.indexOf("R.style");
-        int end = code.indexOf("}", begin);
-        String styleCode = code.substring(begin, end);
-        String[] lines = styleCode.split("\n");
+        final int begin = code.indexOf("R.style");
+        final int end = code.indexOf("}", begin);
+        final String styleCode = code.substring(begin, end);
+        final String[] lines = styleCode.split("\n");
         for (String line : lines) {
             line = line.trim();
             if (line.startsWith("field public static final")) {
@@ -101,23 +101,23 @@ public class ResourceFetcher {
         }
     }
 
-    private String getUrl(String url) throws IOException {
-        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+    private String getUrl(final String url) throws IOException {
+        final HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         try {
             conn.setRequestMethod("GET");
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(10000);
-            byte[] bytes = Inputs.readAllAndClose(conn.getInputStream());
+            final byte[] bytes = Inputs.readAllAndClose(conn.getInputStream());
             return new String(bytes, StandardCharsets.UTF_8);
         } finally {
             conn.disconnect();
         }
     }
 
-    private String retrieveCode(String html) {
-        Matcher matcher = Pattern.compile("<ol class=\"prettyprint\">(.*?)</ol>").matcher(html);
+    private String retrieveCode(final String html) {
+        final Matcher matcher = Pattern.compile("<ol class=\"prettyprint\">(.*?)</ol>").matcher(html);
         if (matcher.find()) {
-            String codeHtml = matcher.group(1);
+            final String codeHtml = matcher.group(1);
             return codeHtml.replace("</li>", "\n").replaceAll("<[^>]+>", "").replace("&lt;", "<")
                     .replace("&quot;", "\"").replace("&gt;", ">");
         } else {
@@ -125,9 +125,9 @@ public class ResourceFetcher {
         }
     }
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
             throws ParserConfigurationException, SAXException, IOException {
-        ResourceFetcher fetcher = new ResourceFetcher();
+        final ResourceFetcher fetcher = new ResourceFetcher();
         fetcher.fetchSystemAttrIds();
         //fetcher.fetchSystemStyle();
     }

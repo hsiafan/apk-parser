@@ -23,97 +23,97 @@ import java.util.List;
  * The Apk Sign Block V2 Parser.
  */
 public class ApkSignBlockParser {
-    private ByteBuffer data;
+    private final ByteBuffer data;
 
-    public ApkSignBlockParser(ByteBuffer data) {
+    public ApkSignBlockParser(final ByteBuffer data) {
         this.data = data.order(ByteOrder.LITTLE_ENDIAN);
     }
 
     public ApkSigningBlock parse() throws CertificateException {
         // sign block found, read pairs
-        List<SignerBlock> signerBlocks = new ArrayList<>();
-        while (data.remaining() >= 8) {
-            int id = data.getInt();
-            int size = Unsigned.ensureUInt(data.getInt());
+        final List<SignerBlock> signerBlocks = new ArrayList<>();
+        while (this.data.remaining() >= 8) {
+            final int id = this.data.getInt();
+            final int size = Unsigned.ensureUInt(this.data.getInt());
             if (id == ApkSigningBlock.SIGNING_V2_ID) {
-                ByteBuffer signingV2Buffer = Buffers.sliceAndSkip(data, size);
+                final ByteBuffer signingV2Buffer = Buffers.sliceAndSkip(this.data, size);
                 // now only care about apk signing v2 entry
                 while (signingV2Buffer.hasRemaining()) {
-                    SignerBlock signerBlock = readSigningV2(signingV2Buffer);
+                    final SignerBlock signerBlock = this.readSigningV2(signingV2Buffer);
                     signerBlocks.add(signerBlock);
                 }
             } else {
                 // just ignore now
-                Buffers.position(data, data.position() + size);
+                Buffers.position(this.data, this.data.position() + size);
             }
         }
         return new ApkSigningBlock(signerBlocks);
     }
 
     private SignerBlock readSigningV2(ByteBuffer buffer) throws CertificateException {
-        buffer = readLenPrefixData(buffer);
+        buffer = this.readLenPrefixData(buffer);
 
-        ByteBuffer signedData = readLenPrefixData(buffer);
-        ByteBuffer digestsData = readLenPrefixData(signedData);
-        List<Digest> digests = readDigests(digestsData);
-        ByteBuffer certificateData = readLenPrefixData(signedData);
-        List<X509Certificate> certificates = readCertificates(certificateData);
-        ByteBuffer attributesData = readLenPrefixData(signedData);
-        readAttributes(attributesData);
+        final ByteBuffer signedData = this.readLenPrefixData(buffer);
+        final ByteBuffer digestsData = this.readLenPrefixData(signedData);
+        final List<Digest> digests = this.readDigests(digestsData);
+        final ByteBuffer certificateData = this.readLenPrefixData(signedData);
+        final List<X509Certificate> certificates = this.readCertificates(certificateData);
+        final ByteBuffer attributesData = this.readLenPrefixData(signedData);
+        this.readAttributes(attributesData);
 
-        ByteBuffer signaturesData = readLenPrefixData(buffer);
-        List<Signature> signatures = readSignatures(signaturesData);
+        final ByteBuffer signaturesData = this.readLenPrefixData(buffer);
+        final List<Signature> signatures = this.readSignatures(signaturesData);
 
-        ByteBuffer publicKeyData = readLenPrefixData(buffer);
+        final ByteBuffer publicKeyData = this.readLenPrefixData(buffer);
         return new SignerBlock(digests, certificates, signatures);
     }
 
-    private List<Digest> readDigests(ByteBuffer buffer) {
-        List<Digest> list = new ArrayList<>();
+    private List<Digest> readDigests(final ByteBuffer buffer) {
+        final List<Digest> list = new ArrayList<>();
         while (buffer.hasRemaining()) {
-            ByteBuffer digestData = readLenPrefixData(buffer);
-            int algorithmID = digestData.getInt();
-            byte[] digest = Buffers.readBytes(digestData);
+            final ByteBuffer digestData = this.readLenPrefixData(buffer);
+            final int algorithmID = digestData.getInt();
+            final byte[] digest = Buffers.readBytes(digestData);
             list.add(new Digest(algorithmID, digest));
         }
         return list;
     }
 
-    private List<X509Certificate> readCertificates(ByteBuffer buffer) throws CertificateException {
-        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-        List<X509Certificate> certificates = new ArrayList<>();
+    private List<X509Certificate> readCertificates(final ByteBuffer buffer) throws CertificateException {
+        final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+        final List<X509Certificate> certificates = new ArrayList<>();
         while (buffer.hasRemaining()) {
-            ByteBuffer certificateData = readLenPrefixData(buffer);
-            Certificate certificate = certificateFactory.generateCertificate(
+            final ByteBuffer certificateData = this.readLenPrefixData(buffer);
+            final Certificate certificate = certificateFactory.generateCertificate(
                     new ByteArrayInputStream(Buffers.readBytes(certificateData)));
             certificates.add((X509Certificate) certificate);
         }
         return certificates;
     }
 
-    private void readAttributes(ByteBuffer buffer) {
+    private void readAttributes(final ByteBuffer buffer) {
         while (buffer.hasRemaining()) {
-            ByteBuffer attributeData = readLenPrefixData(buffer);
-            int id = attributeData.getInt();
+            final ByteBuffer attributeData = this.readLenPrefixData(buffer);
+            final int id = attributeData.getInt();
 //            byte[] value = Buffers.readBytes(attributeData);
         }
     }
 
-    private List<Signature> readSignatures(ByteBuffer buffer) {
-        List<Signature> signatures = new ArrayList<>();
+    private List<Signature> readSignatures(final ByteBuffer buffer) {
+        final List<Signature> signatures = new ArrayList<>();
         while (buffer.hasRemaining()) {
-            ByteBuffer signatureData = readLenPrefixData(buffer);
-            int algorithmID = signatureData.getInt();
-            int signatureDataLen = Unsigned.ensureUInt(signatureData.getInt());
-            byte[] signature = Buffers.readBytes(signatureData, signatureDataLen);
+            final ByteBuffer signatureData = this.readLenPrefixData(buffer);
+            final int algorithmID = signatureData.getInt();
+            final int signatureDataLen = Unsigned.ensureUInt(signatureData.getInt());
+            final byte[] signature = Buffers.readBytes(signatureData, signatureDataLen);
             signatures.add(new Signature(algorithmID, signature));
         }
         return signatures;
     }
 
 
-    private ByteBuffer readLenPrefixData(ByteBuffer buffer) {
-        int len = Unsigned.ensureUInt(buffer.getInt());
+    private ByteBuffer readLenPrefixData(final ByteBuffer buffer) {
+        final int len = Unsigned.ensureUInt(buffer.getInt());
         return Buffers.sliceAndSkip(buffer, len);
     }
 

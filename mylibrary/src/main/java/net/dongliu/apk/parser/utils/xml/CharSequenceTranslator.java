@@ -54,7 +54,7 @@ abstract class CharSequenceTranslator {
         }
         try {
             final StringWriter writer = new StringWriter(input.length() * 2);
-            translate(input, writer);
+            this.translate(input, writer);
             return writer.toString();
         } catch (final IOException ioe) {
             // this should never ever happen while writing to a StringWriter
@@ -80,7 +80,7 @@ abstract class CharSequenceTranslator {
         int pos = 0;
         final int len = input.length();
         while (pos < len) {
-            final int consumed = translate(input, pos, out);
+            final int consumed = this.translate(input, pos, out);
             if (consumed == 0) {
                 final char[] c = Character.toChars(Character.codePointAt(input, pos));
                 out.write(c);

@@ -38,7 +38,7 @@ public class IssuerAndSerialNumber {
     public IssuerAndSerialNumber() {
     }
 
-    public IssuerAndSerialNumber(Asn1OpaqueObject issuer, BigInteger certificateSerialNumber) {
+    public IssuerAndSerialNumber(final Asn1OpaqueObject issuer, final BigInteger certificateSerialNumber) {
         this.issuer = issuer;
         this.certificateSerialNumber = certificateSerialNumber;
     }

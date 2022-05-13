@@ -34,7 +34,7 @@ public class ChunkHeader {
     // no data associated with the chunk.
     private int chunkSize;
 
-    public ChunkHeader(int chunkType, int headerSize, long chunkSize) {
+    public ChunkHeader(final int chunkType, final int headerSize, final long chunkSize) {
         this.chunkType = Unsigned.toUShort(chunkType);
         this.headerSize = Unsigned.toUShort(headerSize);
         this.chunkSize = Unsigned.ensureUInt(chunkSize);
@@ -45,26 +45,26 @@ public class ChunkHeader {
     }
 
     public int getChunkType() {
-        return chunkType;
+        return this.chunkType;
     }
 
-    public void setChunkType(int chunkType) {
+    public void setChunkType(final int chunkType) {
         this.chunkType = Unsigned.toUShort(chunkType);
     }
 
     public int getHeaderSize() {
-        return headerSize;
+        return this.headerSize;
     }
 
-    public void setHeaderSize(int headerSize) {
+    public void setHeaderSize(final int headerSize) {
         this.headerSize = Unsigned.toUShort(headerSize);
     }
 
     public long getChunkSize() {
-        return chunkSize;
+        return this.chunkSize;
     }
 
-    public void setChunkSize(long chunkSize) {
+    public void setChunkSize(final long chunkSize) {
         this.chunkSize = Unsigned.ensureUInt(chunkSize);
     }
 }

@@ -23,15 +23,15 @@ public class LibraryHeader extends ChunkHeader {
      */
     private int count;
 
-    public LibraryHeader(int headerSize, long chunkSize) {
+    public LibraryHeader(final int headerSize, final long chunkSize) {
         super(ChunkType.TABLE_LIBRARY, headerSize, chunkSize);
     }
 
     public int getCount() {
-        return count;
+        return this.count;
     }
 
-    public void setCount(long count) {
+    public void setCount(final long count) {
         this.count = Unsigned.ensureUInt(count);
     }
 }

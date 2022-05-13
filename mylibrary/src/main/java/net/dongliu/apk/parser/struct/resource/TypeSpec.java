@@ -9,43 +9,43 @@ public class TypeSpec {
     private String name;
     private short id;
 
-    public TypeSpec(TypeSpecHeader header) {
+    public TypeSpec(final TypeSpecHeader header) {
         this.id = header.getId();
     }
 
-    public boolean exists(int id) {
-        return id < entryFlags.length;
+    public boolean exists(final int id) {
+        return id < this.entryFlags.length;
     }
 
     public long[] getEntryFlags() {
-        return entryFlags;
+        return this.entryFlags;
     }
 
-    public void setEntryFlags(long[] entryFlags) {
+    public void setEntryFlags(final long[] entryFlags) {
         this.entryFlags = entryFlags;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     public short getId() {
-        return id;
+        return this.id;
     }
 
-    public void setId(short id) {
+    public void setId(final short id) {
         this.id = id;
     }
 
     @Override
     public String toString() {
         return "TypeSpec{" +
-                "name='" + name + '\'' +
-                ", id=" + id +
+                "name='" + this.name + '\'' +
+                ", id=" + this.id +
                 '}';
     }
 }

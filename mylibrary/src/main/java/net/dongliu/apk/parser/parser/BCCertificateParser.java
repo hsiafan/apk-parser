@@ -27,29 +27,30 @@ class BCCertificateParser extends CertificateParser {
 
     private static final Provider provider = new BouncyCastleProvider();
 
-    public BCCertificateParser(byte[] data) {
+    public BCCertificateParser(final byte[] data) {
         super(data);
     }
 
     /**
      * get certificate info
      */
+    @Override
     @SuppressWarnings("unchecked")
     public List<CertificateMeta> parse() throws CertificateException {
-        CMSSignedData cmsSignedData;
+        final CMSSignedData cmsSignedData;
         try {
-            cmsSignedData = new CMSSignedData(data);
-        } catch (CMSException e) {
+            cmsSignedData = new CMSSignedData(this.data);
+        } catch (final CMSException e) {
             throw new CertificateException(e);
         }
-        Store<X509CertificateHolder> certStore = cmsSignedData.getCertificates();
-        SignerInformationStore signerInfos = cmsSignedData.getSignerInfos();
-        Collection<SignerInformation> signers = signerInfos.getSigners();
-        List<X509Certificate> certificates = new ArrayList<>();
-        for (SignerInformation signer : signers) {
-            Collection<X509CertificateHolder> matches = certStore.getMatches(signer.getSID());
-            for (X509CertificateHolder holder : matches) {
-                certificates.add(new JcaX509CertificateConverter().setProvider(provider).getCertificate(holder));
+        final Store<X509CertificateHolder> certStore = cmsSignedData.getCertificates();
+        final SignerInformationStore signerInfos = cmsSignedData.getSignerInfos();
+        final Collection<SignerInformation> signers = signerInfos.getSigners();
+        final List<X509Certificate> certificates = new ArrayList<>();
+        for (final SignerInformation signer : signers) {
+            final Collection<X509CertificateHolder> matches = certStore.getMatches(signer.getSID());
+            for (final X509CertificateHolder holder : matches) {
+                certificates.add(new JcaX509CertificateConverter().setProvider(BCCertificateParser.provider).getCertificate(holder));
             }
         }
         return CertificateMetas.from(certificates);

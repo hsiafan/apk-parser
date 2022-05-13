@@ -34,93 +34,93 @@ import java.util.Objects;
  * @author Liu Dong dongliu@live.cn
  */
 public class ApkMetaTranslator implements XmlStreamer {
-    private String[] tagStack = new String[100];
+    private final String[] tagStack = new String[100];
     private int depth = 0;
-    private ApkMeta.Builder apkMetaBuilder = ApkMeta.newBuilder();
+    private final ApkMeta.Builder apkMetaBuilder = ApkMeta.newBuilder();
     private List<IconPath> iconPaths = Collections.emptyList();
 
-    private ResourceTable resourceTable;
+    private final ResourceTable resourceTable;
     @Nullable
-    private Locale locale;
+    private final Locale locale;
 
-    public ApkMetaTranslator(ResourceTable resourceTable, @Nullable Locale locale) {
+    public ApkMetaTranslator(final ResourceTable resourceTable, @Nullable final Locale locale) {
         this.resourceTable = Objects.requireNonNull(resourceTable);
         this.locale = locale;
     }
 
     @Override
-    public void onStartTag(XmlNodeStartTag xmlNodeStartTag) {
-        Attributes attributes = xmlNodeStartTag.getAttributes();
+    public void onStartTag(final XmlNodeStartTag xmlNodeStartTag) {
+        final Attributes attributes = xmlNodeStartTag.getAttributes();
         switch (xmlNodeStartTag.getName()) {
             case "application":
                 //TODO fix this part in a better way. Workaround for this: https://github.com/hsiafan/apk-parser/issues/119
-                if (apkMetaBuilder.split == null)
-                    apkMetaBuilder.setSplit(attributes.getString("split"));
-                if (apkMetaBuilder.configForSplit == null)
-                    apkMetaBuilder.setConfigForSplit(attributes.getString("configForSplit"));
-                if (!apkMetaBuilder.isFeatureSplit)
-                    apkMetaBuilder.setIsFeatureSplit(attributes.getBoolean("isFeatureSplit", false));
-                if (!apkMetaBuilder.isSplitRequired)
-                    apkMetaBuilder.setIsSplitRequired(attributes.getBoolean("isSplitRequired", false));
-                if (!apkMetaBuilder.isolatedSplits)
-                    apkMetaBuilder.setIsolatedSplits(attributes.getBoolean("isolatedSplits", false));
-                String label = attributes.getString("label");
+                if (this.apkMetaBuilder.split == null)
+                    this.apkMetaBuilder.setSplit(attributes.getString("split"));
+                if (this.apkMetaBuilder.configForSplit == null)
+                    this.apkMetaBuilder.setConfigForSplit(attributes.getString("configForSplit"));
+                if (!this.apkMetaBuilder.isFeatureSplit)
+                    this.apkMetaBuilder.setIsFeatureSplit(attributes.getBoolean("isFeatureSplit", false));
+                if (!this.apkMetaBuilder.isSplitRequired)
+                    this.apkMetaBuilder.setIsSplitRequired(attributes.getBoolean("isSplitRequired", false));
+                if (!this.apkMetaBuilder.isolatedSplits)
+                    this.apkMetaBuilder.setIsolatedSplits(attributes.getBoolean("isolatedSplits", false));
+                final String label = attributes.getString("label");
                 if (label != null) {
-                    apkMetaBuilder.setLabel(label);
+                    this.apkMetaBuilder.setLabel(label);
                 }
-                Attribute iconAttr = attributes.get("icon");
+                final Attribute iconAttr = attributes.get("icon");
                 if (iconAttr != null) {
-                    ResourceValue resourceValue = iconAttr.getTypedValue();
+                    final ResourceValue resourceValue = iconAttr.getTypedValue();
                     if (resourceValue instanceof ResourceValue.ReferenceResourceValue) {
-                        long resourceId = ((ResourceValue.ReferenceResourceValue) resourceValue).getReferenceResourceId();
-                        List<ResourceTable.Resource> resources = this.resourceTable.getResourcesById(resourceId);
+                        final long resourceId = ((ResourceValue.ReferenceResourceValue) resourceValue).getReferenceResourceId();
+                        final List<ResourceTable.Resource> resources = this.resourceTable.getResourcesById(resourceId);
                         if (!resources.isEmpty()) {
-                            List<IconPath> icons = new ArrayList<>();
+                            final List<IconPath> icons = new ArrayList<>();
                             boolean hasDefault = false;
-                            for (ResourceTable.Resource resource : resources) {
-                                Type type = resource.getType();
-                                ResourceEntry resourceEntry = resource.getResourceEntry();
-                                String path = resourceEntry.toStringValue(resourceTable, locale);
+                            for (final ResourceTable.Resource resource : resources) {
+                                final Type type = resource.getType();
+                                final ResourceEntry resourceEntry = resource.getResourceEntry();
+                                final String path = resourceEntry.toStringValue(this.resourceTable, this.locale);
                                 if (type.getDensity() == Densities.DEFAULT) {
                                     hasDefault = true;
-                                    apkMetaBuilder.setIcon(path);
+                                    this.apkMetaBuilder.setIcon(path);
                                 }
-                                IconPath iconPath = new IconPath(path, type.getDensity());
+                                final IconPath iconPath = new IconPath(path, type.getDensity());
                                 icons.add(iconPath);
                             }
                             if (!hasDefault) {
-                                apkMetaBuilder.setIcon(icons.get(0).getPath());
+                                this.apkMetaBuilder.setIcon(icons.get(0).getPath());
                             }
                             this.iconPaths = icons;
                         }
                     } else {
-                        String value = iconAttr.getValue();
+                        final String value = iconAttr.getValue();
                         if (value != null) {
-                            apkMetaBuilder.setIcon(value);
-                            IconPath iconPath = new IconPath(value, Densities.DEFAULT);
+                            this.apkMetaBuilder.setIcon(value);
+                            final IconPath iconPath = new IconPath(value, Densities.DEFAULT);
                             this.iconPaths = Collections.singletonList(iconPath);
                         }
                     }
                 }
                 break;
             case "manifest":
-                apkMetaBuilder.setPackageName(attributes.getString("package"));
-                apkMetaBuilder.setVersionName(attributes.getString("versionName"));
-                apkMetaBuilder.setRevisionCode(attributes.getLong("revisionCode"));
-                apkMetaBuilder.setSharedUserId(attributes.getString("sharedUserId"));
-                apkMetaBuilder.setSharedUserLabel(attributes.getString("sharedUserLabel"));
-                if (apkMetaBuilder.split == null)
-                    apkMetaBuilder.setSplit(attributes.getString("split"));
-                if (apkMetaBuilder.configForSplit == null)
-                    apkMetaBuilder.setConfigForSplit(attributes.getString("configForSplit"));
-                if (!apkMetaBuilder.isFeatureSplit)
-                    apkMetaBuilder.setIsFeatureSplit(attributes.getBoolean("isFeatureSplit", false));
-                if (!apkMetaBuilder.isSplitRequired)
-                    apkMetaBuilder.setIsSplitRequired(attributes.getBoolean("isSplitRequired", false));
-                if (!apkMetaBuilder.isolatedSplits)
-                    apkMetaBuilder.setIsolatedSplits(attributes.getBoolean("isolatedSplits", false));
+                this.apkMetaBuilder.setPackageName(attributes.getString("package"));
+                this.apkMetaBuilder.setVersionName(attributes.getString("versionName"));
+                this.apkMetaBuilder.setRevisionCode(attributes.getLong("revisionCode"));
+                this.apkMetaBuilder.setSharedUserId(attributes.getString("sharedUserId"));
+                this.apkMetaBuilder.setSharedUserLabel(attributes.getString("sharedUserLabel"));
+                if (this.apkMetaBuilder.split == null)
+                    this.apkMetaBuilder.setSplit(attributes.getString("split"));
+                if (this.apkMetaBuilder.configForSplit == null)
+                    this.apkMetaBuilder.setConfigForSplit(attributes.getString("configForSplit"));
+                if (!this.apkMetaBuilder.isFeatureSplit)
+                    this.apkMetaBuilder.setIsFeatureSplit(attributes.getBoolean("isFeatureSplit", false));
+                if (!this.apkMetaBuilder.isSplitRequired)
+                    this.apkMetaBuilder.setIsSplitRequired(attributes.getBoolean("isSplitRequired", false));
+                if (!this.apkMetaBuilder.isolatedSplits)
+                    this.apkMetaBuilder.setIsolatedSplits(attributes.getBoolean("isolatedSplits", false));
 
-                Long majorVersionCode = attributes.getLong("versionCodeMajor");
+                final Long majorVersionCode = attributes.getLong("versionCodeMajor");
                 Long versionCode = attributes.getLong("versionCode");
                 if (majorVersionCode != null) {
                     if (versionCode == null) {
@@ -128,114 +128,114 @@ public class ApkMetaTranslator implements XmlStreamer {
                     }
                     versionCode = (majorVersionCode << 32) | (versionCode & 0xFFFFFFFFL);
                 }
-                apkMetaBuilder.setVersionCode(versionCode);
+                this.apkMetaBuilder.setVersionCode(versionCode);
 
-                String installLocation = attributes.getString("installLocation");
+                final String installLocation = attributes.getString("installLocation");
                 if (installLocation != null) {
-                    apkMetaBuilder.setInstallLocation(installLocation);
+                    this.apkMetaBuilder.setInstallLocation(installLocation);
                 }
-                apkMetaBuilder.setCompileSdkVersion(attributes.getString("compileSdkVersion"));
-                apkMetaBuilder.setCompileSdkVersionCodename(attributes.getString("compileSdkVersionCodename"));
-                apkMetaBuilder.setPlatformBuildVersionCode(attributes.getString("platformBuildVersionCode"));
-                apkMetaBuilder.setPlatformBuildVersionName(attributes.getString("platformBuildVersionName"));
+                this.apkMetaBuilder.setCompileSdkVersion(attributes.getString("compileSdkVersion"));
+                this.apkMetaBuilder.setCompileSdkVersionCodename(attributes.getString("compileSdkVersionCodename"));
+                this.apkMetaBuilder.setPlatformBuildVersionCode(attributes.getString("platformBuildVersionCode"));
+                this.apkMetaBuilder.setPlatformBuildVersionName(attributes.getString("platformBuildVersionName"));
                 break;
             case "uses-sdk":
-                String minSdkVersion = attributes.getString("minSdkVersion");
+                final String minSdkVersion = attributes.getString("minSdkVersion");
                 if (minSdkVersion != null) {
-                    apkMetaBuilder.setMinSdkVersion(minSdkVersion);
+                    this.apkMetaBuilder.setMinSdkVersion(minSdkVersion);
                 }
-                String targetSdkVersion = attributes.getString("targetSdkVersion");
+                final String targetSdkVersion = attributes.getString("targetSdkVersion");
                 if (targetSdkVersion != null) {
-                    apkMetaBuilder.setTargetSdkVersion(targetSdkVersion);
+                    this.apkMetaBuilder.setTargetSdkVersion(targetSdkVersion);
                 }
-                String maxSdkVersion = attributes.getString("maxSdkVersion");
+                final String maxSdkVersion = attributes.getString("maxSdkVersion");
                 if (maxSdkVersion != null) {
-                    apkMetaBuilder.setMaxSdkVersion(maxSdkVersion);
+                    this.apkMetaBuilder.setMaxSdkVersion(maxSdkVersion);
                 }
                 break;
             case "supports-screens":
-                apkMetaBuilder.setAnyDensity(attributes.getBoolean("anyDensity", false));
-                apkMetaBuilder.setSmallScreens(attributes.getBoolean("smallScreens", false));
-                apkMetaBuilder.setNormalScreens(attributes.getBoolean("normalScreens", false));
-                apkMetaBuilder.setLargeScreens(attributes.getBoolean("largeScreens", false));
+                this.apkMetaBuilder.setAnyDensity(attributes.getBoolean("anyDensity", false));
+                this.apkMetaBuilder.setSmallScreens(attributes.getBoolean("smallScreens", false));
+                this.apkMetaBuilder.setNormalScreens(attributes.getBoolean("normalScreens", false));
+                this.apkMetaBuilder.setLargeScreens(attributes.getBoolean("largeScreens", false));
                 break;
             case "uses-feature":
-                String name = attributes.getString("name");
-                boolean required = attributes.getBoolean("required", false);
+                final String name = attributes.getString("name");
+                final boolean required = attributes.getBoolean("required", false);
                 if (name != null) {
-                    UseFeature useFeature = new UseFeature(name, required);
-                    apkMetaBuilder.addUsesFeature(useFeature);
+                    final UseFeature useFeature = new UseFeature(name, required);
+                    this.apkMetaBuilder.addUsesFeature(useFeature);
                 } else {
-                    Integer gl = attributes.getInt("glEsVersion");
+                    final Integer gl = attributes.getInt("glEsVersion");
                     if (gl != null) {
-                        int v = gl;
-                        GlEsVersion glEsVersion = new GlEsVersion(v >> 16, v & 0xffff, required);
-                        apkMetaBuilder.setGlEsVersion(glEsVersion);
+                        final int v = gl;
+                        final GlEsVersion glEsVersion = new GlEsVersion(v >> 16, v & 0xffff, required);
+                        this.apkMetaBuilder.setGlEsVersion(glEsVersion);
                     }
                 }
                 break;
             case "uses-permission":
-                apkMetaBuilder.addUsesPermission(attributes.getString("name"));
+                this.apkMetaBuilder.addUsesPermission(attributes.getString("name"));
                 break;
             case "permission":
-                Permission permission = new Permission(
+                final Permission permission = new Permission(
                         attributes.getString("name"),
                         attributes.getString("label"),
                         attributes.getString("icon"),
                         attributes.getString("description"),
                         attributes.getString("group"),
                         attributes.getString("android:protectionLevel"));
-                apkMetaBuilder.addPermissions(permission);
+                this.apkMetaBuilder.addPermissions(permission);
                 break;
         }
-        tagStack[depth++] = xmlNodeStartTag.getName();
+        this.tagStack[this.depth++] = xmlNodeStartTag.getName();
     }
 
     @Override
-    public void onEndTag(XmlNodeEndTag xmlNodeEndTag) {
-        depth--;
+    public void onEndTag(final XmlNodeEndTag xmlNodeEndTag) {
+        this.depth--;
     }
 
     @Override
-    public void onCData(XmlCData xmlCData) {
-
-    }
-
-    @Override
-    public void onNamespaceStart(XmlNamespaceStartTag tag) {
+    public void onCData(final XmlCData xmlCData) {
 
     }
 
     @Override
-    public void onNamespaceEnd(XmlNamespaceEndTag tag) {
+    public void onNamespaceStart(final XmlNamespaceStartTag tag) {
+
+    }
+
+    @Override
+    public void onNamespaceEnd(final XmlNamespaceEndTag tag) {
 
     }
 
     @NotNull
     public ApkMeta getApkMeta() {
-        return apkMetaBuilder.build();
+        return this.apkMetaBuilder.build();
     }
 
     @NotNull
     public List<IconPath> getIconPaths() {
-        return iconPaths;
+        return this.iconPaths;
     }
 
-    private boolean matchTagPath(String... tags) {
+    private boolean matchTagPath(final String... tags) {
         // the root should always be "manifest"
-        if (depth != tags.length + 1) {
+        if (this.depth != tags.length + 1) {
             return false;
         }
-        for (int i = 1; i < depth; i++) {
-            if (!tagStack[i].equals(tags[i - 1])) {
+        for (int i = 1; i < this.depth; i++) {
+            if (!this.tagStack[i].equals(tags[i - 1])) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean matchLastTag(String tag) {
+    private boolean matchLastTag(final String tag) {
         // the root should always be "manifest"
-        return tagStack[depth - 1].endsWith(tag);
+        return this.tagStack[this.depth - 1].endsWith(tag);
     }
 }

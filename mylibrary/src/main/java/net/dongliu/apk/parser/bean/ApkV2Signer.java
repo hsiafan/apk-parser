@@ -9,14 +9,14 @@ public class ApkV2Signer {
     /**
      * The meta info of certificate contained in this cert file.
      */
-    private List<CertificateMeta> certificateMetas;
+    private final List<CertificateMeta> certificateMetas;
 
-    public ApkV2Signer(List<CertificateMeta> certificateMetas) {
+    public ApkV2Signer(final List<CertificateMeta> certificateMetas) {
         this.certificateMetas = certificateMetas;
     }
 
     public List<CertificateMeta> getCertificateMetas() {
-        return certificateMetas;
+        return this.certificateMetas;
     }
 
 }

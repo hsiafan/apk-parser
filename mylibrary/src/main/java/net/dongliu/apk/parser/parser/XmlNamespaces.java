@@ -14,32 +14,32 @@ import java.util.List;
  */
 class XmlNamespaces {
 
-    private List<XmlNamespace> namespaces;
+    private final List<XmlNamespace> namespaces;
 
-    private List<XmlNamespace> newNamespaces;
+    private final List<XmlNamespace> newNamespaces;
 
     public XmlNamespaces() {
         this.namespaces = new ArrayList<>();
         this.newNamespaces = new ArrayList<>();
     }
 
-    public void addNamespace(XmlNamespaceStartTag tag) {
-        XmlNamespace namespace = new XmlNamespace(tag.getPrefix(), tag.getUri());
-        namespaces.add(namespace);
-        newNamespaces.add(namespace);
+    public void addNamespace(final XmlNamespaceStartTag tag) {
+        final XmlNamespace namespace = new XmlNamespace(tag.getPrefix(), tag.getUri());
+        this.namespaces.add(namespace);
+        this.newNamespaces.add(namespace);
     }
 
-    public void removeNamespace(XmlNamespaceEndTag tag) {
-        XmlNamespace namespace = new XmlNamespace(tag.getPrefix(), tag.getUri());
-        namespaces.remove(namespace);
-        newNamespaces.remove(namespace);
+    public void removeNamespace(final XmlNamespaceEndTag tag) {
+        final XmlNamespace namespace = new XmlNamespace(tag.getPrefix(), tag.getUri());
+        this.namespaces.remove(namespace);
+        this.newNamespaces.remove(namespace);
     }
 
-    public String getPrefixViaUri(String uri) {
+    public String getPrefixViaUri(final String uri) {
         if (uri == null) {
             return null;
         }
-        for (XmlNamespace namespace : namespaces) {
+        for (final XmlNamespace namespace : this.namespaces) {
             if (namespace.uri.equals(uri)) {
                 return namespace.prefix;
             }
@@ -48,9 +48,9 @@ class XmlNamespaces {
     }
 
     public List<XmlNamespace> consumeNameSpaces() {
-        if (!newNamespaces.isEmpty()) {
-            List<XmlNamespace> xmlNamespaces = new ArrayList<>(newNamespaces);
-            newNamespaces.clear();
+        if (!this.newNamespaces.isEmpty()) {
+            final List<XmlNamespace> xmlNamespaces = new ArrayList<>(this.newNamespaces);
+            this.newNamespaces.clear();
             return xmlNamespaces;
         } else {
             return Collections.emptyList();
@@ -61,41 +61,37 @@ class XmlNamespaces {
      * one namespace
      */
     public static class XmlNamespace {
-        private String prefix;
-        private String uri;
+        private final String prefix;
+        private final String uri;
 
-        private XmlNamespace(String prefix, String uri) {
+        private XmlNamespace(final String prefix, final String uri) {
             this.prefix = prefix;
             this.uri = uri;
         }
 
         public String getPrefix() {
-            return prefix;
+            return this.prefix;
         }
 
         public String getUri() {
-            return uri;
+            return this.uri;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            XmlNamespace namespace = (XmlNamespace) o;
-
-            if (prefix == null && namespace.prefix != null) return false;
-            if (uri == null && namespace.uri != null) return false;
-            if (prefix != null && !prefix.equals(namespace.prefix)) return false;
-            if (uri != null && !uri.equals(namespace.uri)) return false;
-
-            return true;
+            if (o == null || this.getClass() != o.getClass()) return false;
+            final XmlNamespace namespace = (XmlNamespace) o;
+            if (this.prefix == null && namespace.prefix != null) return false;
+            if (this.uri == null && namespace.uri != null) return false;
+            if (this.prefix != null && !this.prefix.equals(namespace.prefix)) return false;
+            return this.uri == null || this.uri.equals(namespace.uri);
         }
 
         @Override
         public int hashCode() {
-            int result = prefix.hashCode();
-            result = 31 * result + uri.hashCode();
+            int result = this.prefix.hashCode();
+            result = 31 * result + this.uri.hashCode();
             return result;
         }
     }

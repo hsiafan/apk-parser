@@ -10,7 +10,7 @@ public class AdaptiveIcon implements IconFace, Serializable {
     private final Icon foreground;
     private final Icon background;
 
-    public AdaptiveIcon(Icon foreground, Icon background) {
+    public AdaptiveIcon(final Icon foreground, final Icon background) {
         this.foreground = foreground;
         this.background = background;
     }
@@ -20,36 +20,36 @@ public class AdaptiveIcon implements IconFace, Serializable {
      * The foreground icon
      */
     public Icon getForeground() {
-        return foreground;
+        return this.foreground;
     }
 
     /**
      * The background icon
      */
     public Icon getBackground() {
-        return background;
+        return this.background;
     }
 
     @Override
     public String toString() {
         return "AdaptiveIcon{" +
-                "foreground=" + foreground +
-                ", background=" + background +
+                "foreground=" + this.foreground +
+                ", background=" + this.background +
                 '}';
     }
 
     @Override
     public boolean isFile() {
-        return foreground.isFile();
+        return this.foreground.isFile();
     }
 
     @Override
     public byte[] getData() {
-        return foreground.getData();
+        return this.foreground.getData();
     }
 
     @Override
     public String getPath() {
-        return foreground.getPath();
+        return this.foreground.getPath();
     }
 }

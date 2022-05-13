@@ -57,18 +57,18 @@ public final class Asn1BerParser {
      * @throws Asn1DecodingException if the input could not be decoded into the specified Java
      *                               object
      */
-    public static <T> T parse(ByteBuffer encoded, Class<T> containerClass)
+    public static <T> T parse(final ByteBuffer encoded, final Class<T> containerClass)
             throws Asn1DecodingException {
-        BerDataValue containerDataValue;
+        final BerDataValue containerDataValue;
         try {
             containerDataValue = new ByteBufferBerDataValueReader(encoded).readDataValue();
-        } catch (BerDataValueFormatException e) {
+        } catch (final BerDataValueFormatException e) {
             throw new Asn1DecodingException("Failed to decode top-level data value", e);
         }
         if (containerDataValue == null) {
             throw new Asn1DecodingException("Empty input");
         }
-        return parse(containerDataValue, containerClass);
+        return Asn1BerParser.parse(containerDataValue, containerClass);
     }
 
     /**
@@ -92,21 +92,21 @@ public final class Asn1BerParser {
      * @throws Asn1DecodingException if the input could not be decoded into the specified Java
      *                               object
      */
-    public static <T> List<T> parseImplicitSetOf(ByteBuffer encoded, Class<T> elementClass)
+    public static <T> List<T> parseImplicitSetOf(final ByteBuffer encoded, final Class<T> elementClass)
             throws Asn1DecodingException {
-        BerDataValue containerDataValue;
+        final BerDataValue containerDataValue;
         try {
             containerDataValue = new ByteBufferBerDataValueReader(encoded).readDataValue();
-        } catch (BerDataValueFormatException e) {
+        } catch (final BerDataValueFormatException e) {
             throw new Asn1DecodingException("Failed to decode top-level data value", e);
         }
         if (containerDataValue == null) {
             throw new Asn1DecodingException("Empty input");
         }
-        return parseSetOf(containerDataValue, elementClass);
+        return Asn1BerParser.parseSetOf(containerDataValue, elementClass);
     }
 
-    private static <T> T parse(BerDataValue container, Class<T> containerClass)
+    private static <T> T parse(final BerDataValue container, final Class<T> containerClass)
             throws Asn1DecodingException {
         if (container == null) {
             throw new NullPointerException("container == null");
@@ -115,14 +115,14 @@ public final class Asn1BerParser {
             throw new NullPointerException("containerClass == null");
         }
 
-        Asn1Type dataType = getContainerAsn1Type(containerClass);
+        final Asn1Type dataType = Asn1BerParser.getContainerAsn1Type(containerClass);
         switch (dataType) {
             case CHOICE:
-                return parseChoice(container, containerClass);
+                return Asn1BerParser.parseChoice(container, containerClass);
 
             case SEQUENCE: {
-                int expectedTagClass = BerEncoding.TAG_CLASS_UNIVERSAL;
-                int expectedTagNumber = BerEncoding.getTagNumber(dataType);
+                final int expectedTagClass = BerEncoding.TAG_CLASS_UNIVERSAL;
+                final int expectedTagNumber = BerEncoding.getTagNumber(dataType);
                 if ((container.getTagClass() != expectedTagClass)
                         || (container.getTagNumber() != expectedTagNumber)) {
                     throw new Asn1UnexpectedTagException(
@@ -132,7 +132,7 @@ public final class Asn1BerParser {
                                     + ", but read: " + BerEncoding.tagClassAndNumberToString(
                                     container.getTagClass(), container.getTagNumber()));
                 }
-                return parseSequence(container, containerClass);
+                return Asn1BerParser.parseSequence(container, containerClass);
             }
 
             default:
@@ -140,9 +140,9 @@ public final class Asn1BerParser {
         }
     }
 
-    private static <T> T parseChoice(BerDataValue dataValue, Class<T> containerClass)
+    private static <T> T parseChoice(final BerDataValue dataValue, final Class<T> containerClass)
             throws Asn1DecodingException {
-        List<AnnotatedField> fields = getAnnotatedFields(containerClass);
+        final List<AnnotatedField> fields = Asn1BerParser.getAnnotatedFields(containerClass);
         if (fields.isEmpty()) {
             throw new Asn1DecodingException(
                     "No fields annotated with " + Asn1Field.class.getName()
@@ -151,13 +151,13 @@ public final class Asn1BerParser {
 
         // Check that class + tagNumber don't clash between the choices
         for (int i = 0; i < fields.size() - 1; i++) {
-            AnnotatedField f1 = fields.get(i);
-            int tagNumber1 = f1.getBerTagNumber();
-            int tagClass1 = f1.getBerTagClass();
+            final AnnotatedField f1 = fields.get(i);
+            final int tagNumber1 = f1.getBerTagNumber();
+            final int tagClass1 = f1.getBerTagClass();
             for (int j = i + 1; j < fields.size(); j++) {
-                AnnotatedField f2 = fields.get(j);
-                int tagNumber2 = f2.getBerTagNumber();
-                int tagClass2 = f2.getBerTagClass();
+                final AnnotatedField f2 = fields.get(j);
+                final int tagNumber2 = f2.getBerTagNumber();
+                final int tagClass2 = f2.getBerTagClass();
                 if ((tagNumber1 == tagNumber2) && (tagClass1 == tagClass2)) {
                     throw new Asn1DecodingException(
                             "CHOICE fields are indistinguishable because they have the same tag"
@@ -169,19 +169,19 @@ public final class Asn1BerParser {
         }
 
         // Instantiate the container object / result
-        T obj;
+        final T obj;
         try {
             obj = containerClass.getConstructor().newInstance();
-        } catch (IllegalArgumentException | ReflectiveOperationException e) {
+        } catch (final IllegalArgumentException | ReflectiveOperationException e) {
             throw new Asn1DecodingException("Failed to instantiate " + containerClass.getName(), e);
         }
 
         // Set the matching field's value from the data value
-        for (AnnotatedField field : fields) {
+        for (final AnnotatedField field : fields) {
             try {
                 field.setValueFrom(dataValue, obj);
                 return obj;
-            } catch (Asn1UnexpectedTagException expected) {
+            } catch (final Asn1UnexpectedTagException expected) {
                 // not a match
             }
         }
@@ -190,15 +190,15 @@ public final class Asn1BerParser {
                 "No options of CHOICE " + containerClass.getName() + " matched");
     }
 
-    private static <T> T parseSequence(BerDataValue container, Class<T> containerClass)
+    private static <T> T parseSequence(final BerDataValue container, final Class<T> containerClass)
             throws Asn1DecodingException {
-        List<AnnotatedField> fields = getAnnotatedFields(containerClass);
+        final List<AnnotatedField> fields = Asn1BerParser.getAnnotatedFields(containerClass);
         Collections.sort(
                 fields, (f1, f2) -> f1.getAnnotation().index() - f2.getAnnotation().index());
         // Check that there are no fields with the same index
         if (fields.size() > 1) {
             AnnotatedField lastField = null;
-            for (AnnotatedField field : fields) {
+            for (final AnnotatedField field : fields) {
                 if ((lastField != null)
                         && (lastField.getAnnotation().index() == field.getAnnotation().index())) {
                     throw new Asn1DecodingException(
@@ -211,21 +211,21 @@ public final class Asn1BerParser {
         }
 
         // Instantiate the container object / result
-        T t;
+        final T t;
         try {
             t = containerClass.getConstructor().newInstance();
-        } catch (IllegalArgumentException | ReflectiveOperationException e) {
+        } catch (final IllegalArgumentException | ReflectiveOperationException e) {
             throw new Asn1DecodingException("Failed to instantiate " + containerClass.getName(), e);
         }
 
         // Parse fields one by one. A complication is that there may be optional fields.
         int nextUnreadFieldIndex = 0;
-        BerDataValueReader elementsReader = container.contentsReader();
+        final BerDataValueReader elementsReader = container.contentsReader();
         while (nextUnreadFieldIndex < fields.size()) {
-            BerDataValue dataValue;
+            final BerDataValue dataValue;
             try {
                 dataValue = elementsReader.readDataValue();
-            } catch (BerDataValueFormatException e) {
+            } catch (final BerDataValueFormatException e) {
                 throw new Asn1DecodingException("Malformed data value", e);
             }
             if (dataValue == null) {
@@ -233,7 +233,7 @@ public final class Asn1BerParser {
             }
 
             for (int i = nextUnreadFieldIndex; i < fields.size(); i++) {
-                AnnotatedField field = fields.get(i);
+                final AnnotatedField field = fields.get(i);
                 try {
                     if (field.isOptional()) {
                         // Optional field -- might not be present and we may thus be trying to set
@@ -242,7 +242,7 @@ public final class Asn1BerParser {
                             field.setValueFrom(dataValue, t);
                             nextUnreadFieldIndex = i + 1;
                             break;
-                        } catch (Asn1UnexpectedTagException e) {
+                        } catch (final Asn1UnexpectedTagException e) {
                             // This field is not present, attempt to use this data value for the
                             // next / iteration of the loop
                             continue;
@@ -254,7 +254,7 @@ public final class Asn1BerParser {
                         nextUnreadFieldIndex = i + 1;
                         break;
                     }
-                } catch (Asn1DecodingException e) {
+                } catch (final Asn1DecodingException e) {
                     throw new Asn1DecodingException(
                             "Failed to parse " + containerClass.getName()
                                     + "." + field.getField().getName(),
@@ -269,36 +269,36 @@ public final class Asn1BerParser {
     // NOTE: This method returns List rather than Set because ASN.1 SET_OF does require uniqueness
     // of elements -- it's an unordered collection.
     @SuppressWarnings("unchecked")
-    private static <T> List<T> parseSetOf(BerDataValue container, Class<T> elementClass)
+    private static <T> List<T> parseSetOf(final BerDataValue container, final Class<T> elementClass)
             throws Asn1DecodingException {
-        List<T> result = new ArrayList<>();
-        BerDataValueReader elementsReader = container.contentsReader();
+        final List<T> result = new ArrayList<>();
+        final BerDataValueReader elementsReader = container.contentsReader();
         while (true) {
-            BerDataValue dataValue;
+            final BerDataValue dataValue;
             try {
                 dataValue = elementsReader.readDataValue();
-            } catch (BerDataValueFormatException e) {
+            } catch (final BerDataValueFormatException e) {
                 throw new Asn1DecodingException("Malformed data value", e);
             }
             if (dataValue == null) {
                 break;
             }
-            T element;
+            final T element;
             if (ByteBuffer.class.equals(elementClass)) {
                 element = (T) dataValue.getEncodedContents();
             } else if (Asn1OpaqueObject.class.equals(elementClass)) {
                 element = (T) new Asn1OpaqueObject(dataValue.getEncoded());
             } else {
-                element = parse(dataValue, elementClass);
+                element = Asn1BerParser.parse(dataValue, elementClass);
             }
             result.add(element);
         }
         return result;
     }
 
-    private static Asn1Type getContainerAsn1Type(Class<?> containerClass)
+    private static Asn1Type getContainerAsn1Type(final Class<?> containerClass)
             throws Asn1DecodingException {
-        Asn1Class containerAnnotation = containerClass.getAnnotation(Asn1Class.class);
+        final Asn1Class containerAnnotation = containerClass.getAnnotation(Asn1Class.class);
         if (containerAnnotation == null) {
             throw new Asn1DecodingException(
                     containerClass.getName() + " is not annotated with "
@@ -316,20 +316,20 @@ public final class Asn1BerParser {
         }
     }
 
-    private static Class<?> getElementType(Field field)
+    private static Class<?> getElementType(final Field field)
             throws Asn1DecodingException, ClassNotFoundException {
-        String type = field.getGenericType().toString();
-        int delimiterIndex = type.indexOf('<');
+        final String type = field.getGenericType().toString();
+        final int delimiterIndex = type.indexOf('<');
         if (delimiterIndex == -1) {
             throw new Asn1DecodingException("Not a container type: " + field.getGenericType());
         }
-        int startIndex = delimiterIndex + 1;
-        int endIndex = type.indexOf('>', startIndex);
+        final int startIndex = delimiterIndex + 1;
+        final int endIndex = type.indexOf('>', startIndex);
         // TODO: handle comma?
         if (endIndex == -1) {
             throw new Asn1DecodingException("Not a container type: " + field.getGenericType());
         }
-        String elementClassName = type.substring(startIndex, endIndex);
+        final String elementClassName = type.substring(startIndex, endIndex);
         return Class.forName(elementClassName);
     }
 
@@ -343,10 +343,10 @@ public final class Asn1BerParser {
         private final Asn1Tagging mTagging;
         private final boolean mOptional;
 
-        public AnnotatedField(Field field, Asn1Field annotation) throws Asn1DecodingException {
-            mField = field;
-            mAnnotation = annotation;
-            mDataType = annotation.type();
+        public AnnotatedField(final Field field, final Asn1Field annotation) throws Asn1DecodingException {
+            this.mField = field;
+            this.mAnnotation = annotation;
+            this.mDataType = annotation.type();
 
             Asn1TagClass tagClass = annotation.cls();
             if (tagClass == Asn1TagClass.AUTOMATIC) {
@@ -356,114 +356,114 @@ public final class Asn1BerParser {
                     tagClass = Asn1TagClass.UNIVERSAL;
                 }
             }
-            mTagClass = tagClass;
-            mBerTagClass = BerEncoding.getTagClass(mTagClass);
+            this.mTagClass = tagClass;
+            this.mBerTagClass = BerEncoding.getTagClass(this.mTagClass);
 
-            int tagNumber;
+            final int tagNumber;
             if (annotation.tagNumber() != -1) {
                 tagNumber = annotation.tagNumber();
-            } else if ((mDataType == Asn1Type.CHOICE) || (mDataType == Asn1Type.ANY)) {
+            } else if ((this.mDataType == Asn1Type.CHOICE) || (this.mDataType == Asn1Type.ANY)) {
                 tagNumber = -1;
             } else {
-                tagNumber = BerEncoding.getTagNumber(mDataType);
+                tagNumber = BerEncoding.getTagNumber(this.mDataType);
             }
-            mBerTagNumber = tagNumber;
+            this.mBerTagNumber = tagNumber;
 
-            mTagging = annotation.tagging();
-            if (((mTagging == Asn1Tagging.EXPLICIT) || (mTagging == Asn1Tagging.IMPLICIT))
+            this.mTagging = annotation.tagging();
+            if (((this.mTagging == Asn1Tagging.EXPLICIT) || (this.mTagging == Asn1Tagging.IMPLICIT))
                     && (annotation.tagNumber() == -1)) {
                 throw new Asn1DecodingException(
-                        "Tag number must be specified when tagging mode is " + mTagging);
+                        "Tag number must be specified when tagging mode is " + this.mTagging);
             }
 
-            mOptional = annotation.optional();
+            this.mOptional = annotation.optional();
         }
 
         public Field getField() {
-            return mField;
+            return this.mField;
         }
 
         public Asn1Field getAnnotation() {
-            return mAnnotation;
+            return this.mAnnotation;
         }
 
         public boolean isOptional() {
-            return mOptional;
+            return this.mOptional;
         }
 
         public int getBerTagClass() {
-            return mBerTagClass;
+            return this.mBerTagClass;
         }
 
         public int getBerTagNumber() {
-            return mBerTagNumber;
+            return this.mBerTagNumber;
         }
 
-        public void setValueFrom(BerDataValue dataValue, Object obj) throws Asn1DecodingException {
-            int readTagClass = dataValue.getTagClass();
-            if (mBerTagNumber != -1) {
-                int readTagNumber = dataValue.getTagNumber();
-                if ((readTagClass != mBerTagClass) || (readTagNumber != mBerTagNumber)) {
+        public void setValueFrom(BerDataValue dataValue, final Object obj) throws Asn1DecodingException {
+            final int readTagClass = dataValue.getTagClass();
+            if (this.mBerTagNumber != -1) {
+                final int readTagNumber = dataValue.getTagNumber();
+                if ((readTagClass != this.mBerTagClass) || (readTagNumber != this.mBerTagNumber)) {
                     throw new Asn1UnexpectedTagException(
                             "Tag mismatch. Expected: "
-                                    + BerEncoding.tagClassAndNumberToString(mBerTagClass, mBerTagNumber)
+                                    + BerEncoding.tagClassAndNumberToString(this.mBerTagClass, this.mBerTagNumber)
                                     + ", but found "
                                     + BerEncoding.tagClassAndNumberToString(readTagClass, readTagNumber));
                 }
             } else {
-                if (readTagClass != mBerTagClass) {
+                if (readTagClass != this.mBerTagClass) {
                     throw new Asn1UnexpectedTagException(
                             "Tag mismatch. Expected class: "
-                                    + BerEncoding.tagClassToString(mBerTagClass)
+                                    + BerEncoding.tagClassToString(this.mBerTagClass)
                                     + ", but found "
                                     + BerEncoding.tagClassToString(readTagClass));
                 }
             }
 
-            if (mTagging == Asn1Tagging.EXPLICIT) {
+            if (this.mTagging == Asn1Tagging.EXPLICIT) {
                 try {
                     dataValue = dataValue.contentsReader().readDataValue();
-                } catch (BerDataValueFormatException e) {
+                } catch (final BerDataValueFormatException e) {
                     throw new Asn1DecodingException(
                             "Failed to read contents of EXPLICIT data value", e);
                 }
             }
 
-            BerToJavaConverter.setFieldValue(obj, mField, mDataType, dataValue);
+            BerToJavaConverter.setFieldValue(obj, this.mField, this.mDataType, dataValue);
         }
     }
 
     private static class Asn1UnexpectedTagException extends Asn1DecodingException {
         private static final long serialVersionUID = 1L;
 
-        public Asn1UnexpectedTagException(String message) {
+        public Asn1UnexpectedTagException(final String message) {
             super(message);
         }
     }
 
-    private static String oidToString(ByteBuffer encodedOid) throws Asn1DecodingException {
+    private static String oidToString(final ByteBuffer encodedOid) throws Asn1DecodingException {
         if (!encodedOid.hasRemaining()) {
             throw new Asn1DecodingException("Empty OBJECT IDENTIFIER");
         }
 
         // First component encodes the first two nodes, X.Y, as X * 40 + Y, with 0 <= X <= 2
-        long firstComponent = decodeBase128UnsignedLong(encodedOid);
-        int firstNode = (int) Math.min(firstComponent / 40, 2);
-        long secondNode = firstComponent - firstNode * 40;
-        StringBuilder result = new StringBuilder();
+        final long firstComponent = Asn1BerParser.decodeBase128UnsignedLong(encodedOid);
+        final int firstNode = (int) Math.min(firstComponent / 40, 2);
+        final long secondNode = firstComponent - firstNode * 40;
+        final StringBuilder result = new StringBuilder();
         result.append(Long.toString(firstNode)).append('.')
                 .append(secondNode);
 
         // Each consecutive node is encoded as a separate component
         while (encodedOid.hasRemaining()) {
-            long node = decodeBase128UnsignedLong(encodedOid);
+            final long node = Asn1BerParser.decodeBase128UnsignedLong(encodedOid);
             result.append('.').append(node);
         }
 
         return result.toString();
     }
 
-    private static long decodeBase128UnsignedLong(ByteBuffer encoded) throws Asn1DecodingException {
+    private static long decodeBase128UnsignedLong(final ByteBuffer encoded) throws Asn1DecodingException {
         if (!encoded.hasRemaining()) {
             return 0;
         }
@@ -472,7 +472,7 @@ public final class Asn1BerParser {
             if (result > Long.MAX_VALUE >>> 7) {
                 throw new Asn1DecodingException("Base-128 number too large");
             }
-            int b = encoded.get() & 0xff;
+            final int b = encoded.get() & 0xff;
             result <<= 7;
             result |= b & 0x7f;
             if ((b & 0x80) == 0) {
@@ -484,40 +484,40 @@ public final class Asn1BerParser {
                         + " set");
     }
 
-    private static BigInteger integerToBigInteger(ByteBuffer encoded) {
+    private static BigInteger integerToBigInteger(final ByteBuffer encoded) {
         if (!encoded.hasRemaining()) {
             return BigInteger.ZERO;
         }
         return new BigInteger(Buffers.readBytes(encoded));
     }
 
-    private static int integerToInt(ByteBuffer encoded) throws Asn1DecodingException {
-        BigInteger value = integerToBigInteger(encoded);
+    private static int integerToInt(final ByteBuffer encoded) throws Asn1DecodingException {
+        final BigInteger value = Asn1BerParser.integerToBigInteger(encoded);
         try {
             return value.intValue();
-        } catch (ArithmeticException e) {
+        } catch (final ArithmeticException e) {
             throw new Asn1DecodingException(
                     String.format("INTEGER cannot be represented as int: %1$d (0x%1$x)", value), e);
         }
     }
 
-    private static long integerToLong(ByteBuffer encoded) throws Asn1DecodingException {
-        BigInteger value = integerToBigInteger(encoded);
+    private static long integerToLong(final ByteBuffer encoded) throws Asn1DecodingException {
+        final BigInteger value = Asn1BerParser.integerToBigInteger(encoded);
         try {
             return value.intValue();
-        } catch (ArithmeticException e) {
+        } catch (final ArithmeticException e) {
             throw new Asn1DecodingException(
                     String.format("INTEGER cannot be represented as long: %1$d (0x%1$x)", value),
                     e);
         }
     }
 
-    private static List<AnnotatedField> getAnnotatedFields(Class<?> containerClass)
+    private static List<AnnotatedField> getAnnotatedFields(final Class<?> containerClass)
             throws Asn1DecodingException {
-        Field[] declaredFields = containerClass.getDeclaredFields();
-        List<AnnotatedField> result = new ArrayList<>(declaredFields.length);
-        for (Field field : declaredFields) {
-            Asn1Field annotation = field.getAnnotation(Asn1Field.class);
+        final Field[] declaredFields = containerClass.getDeclaredFields();
+        final List<AnnotatedField> result = new ArrayList<>(declaredFields.length);
+        for (final Field field : declaredFields) {
+            final Asn1Field annotation = field.getAnnotation(Asn1Field.class);
             if (annotation == null) {
                 continue;
             }
@@ -527,10 +527,10 @@ public final class Asn1BerParser {
                                 + containerClass.getName() + "." + field.getName());
             }
 
-            AnnotatedField annotatedField;
+            final AnnotatedField annotatedField;
             try {
                 annotatedField = new AnnotatedField(field, annotation);
-            } catch (Asn1DecodingException e) {
+            } catch (final Asn1DecodingException e) {
                 throw new Asn1DecodingException(
                         "Invalid ASN.1 annotation on "
                                 + containerClass.getName() + "." + field.getName(),
@@ -546,23 +546,23 @@ public final class Asn1BerParser {
         }
 
         public static void setFieldValue(
-                Object obj, Field field, Asn1Type type, BerDataValue dataValue)
+                final Object obj, final Field field, final Asn1Type type, final BerDataValue dataValue)
                 throws Asn1DecodingException {
             try {
                 switch (type) {
                     case SET_OF:
                     case SEQUENCE_OF:
                         if (Asn1OpaqueObject.class.equals(field.getType())) {
-                            field.set(obj, convert(type, dataValue, field.getType()));
+                            field.set(obj, BerToJavaConverter.convert(type, dataValue, field.getType()));
                         } else {
-                            field.set(obj, parseSetOf(dataValue, getElementType(field)));
+                            field.set(obj, Asn1BerParser.parseSetOf(dataValue, Asn1BerParser.getElementType(field)));
                         }
                         return;
                     default:
-                        field.set(obj, convert(type, dataValue, field.getType()));
+                        field.set(obj, BerToJavaConverter.convert(type, dataValue, field.getType()));
                         break;
                 }
-            } catch (ReflectiveOperationException e) {
+            } catch (final ReflectiveOperationException e) {
                 throw new Asn1DecodingException(
                         "Failed to set value of " + obj.getClass().getName()
                                 + "." + field.getName(),
@@ -574,52 +574,52 @@ public final class Asn1BerParser {
 
         @SuppressWarnings("unchecked")
         public static <T> T convert(
-                Asn1Type sourceType,
-                BerDataValue dataValue,
-                Class<T> targetType) throws Asn1DecodingException {
+                final Asn1Type sourceType,
+                final BerDataValue dataValue,
+                final Class<T> targetType) throws Asn1DecodingException {
             if (ByteBuffer.class.equals(targetType)) {
                 return (T) dataValue.getEncodedContents();
             } else if (byte[].class.equals(targetType)) {
-                ByteBuffer resultBuf = dataValue.getEncodedContents();
+                final ByteBuffer resultBuf = dataValue.getEncodedContents();
                 if (!resultBuf.hasRemaining()) {
-                    return (T) EMPTY_BYTE_ARRAY;
+                    return (T) BerToJavaConverter.EMPTY_BYTE_ARRAY;
                 }
-                byte[] result = new byte[resultBuf.remaining()];
+                final byte[] result = new byte[resultBuf.remaining()];
                 resultBuf.get(result);
                 return (T) result;
             } else if (Asn1OpaqueObject.class.equals(targetType)) {
                 return (T) new Asn1OpaqueObject(dataValue.getEncoded());
             }
 
-            ByteBuffer encodedContents = dataValue.getEncodedContents();
+            final ByteBuffer encodedContents = dataValue.getEncodedContents();
             switch (sourceType) {
                 case INTEGER:
                     if ((int.class.equals(targetType)) || (Integer.class.equals(targetType))) {
-                        return (T) Integer.valueOf(integerToInt(encodedContents));
+                        return (T) Integer.valueOf(Asn1BerParser.integerToInt(encodedContents));
                     } else if ((long.class.equals(targetType)) || (Long.class.equals(targetType))) {
-                        return (T) Long.valueOf(integerToLong(encodedContents));
+                        return (T) Long.valueOf(Asn1BerParser.integerToLong(encodedContents));
                     } else if (BigInteger.class.equals(targetType)) {
-                        return (T) integerToBigInteger(encodedContents);
+                        return (T) Asn1BerParser.integerToBigInteger(encodedContents);
                     }
                     break;
                 case OBJECT_IDENTIFIER:
                     if (String.class.equals(targetType)) {
-                        return (T) oidToString(encodedContents);
+                        return (T) Asn1BerParser.oidToString(encodedContents);
                     }
                     break;
                 case SEQUENCE: {
-                    Asn1Class containerAnnotation = targetType.getAnnotation(Asn1Class.class);
+                    final Asn1Class containerAnnotation = targetType.getAnnotation(Asn1Class.class);
                     if ((containerAnnotation != null)
                             && (containerAnnotation.type() == Asn1Type.SEQUENCE)) {
-                        return parseSequence(dataValue, targetType);
+                        return Asn1BerParser.parseSequence(dataValue, targetType);
                     }
                     break;
                 }
                 case CHOICE: {
-                    Asn1Class containerAnnotation = targetType.getAnnotation(Asn1Class.class);
+                    final Asn1Class containerAnnotation = targetType.getAnnotation(Asn1Class.class);
                     if ((containerAnnotation != null)
                             && (containerAnnotation.type() == Asn1Type.CHOICE)) {
-                        return parseChoice(dataValue, targetType);
+                        return Asn1BerParser.parseChoice(dataValue, targetType);
                     }
                     break;
                 }

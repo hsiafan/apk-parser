@@ -18,24 +18,24 @@ import java.util.Map;
  * @author dongliu
  */
 public class ResourceTable {
-    private Map<Short, ResourcePackage> packageMap = new HashMap<>();
+    private final Map<Short, ResourcePackage> packageMap = new HashMap<>();
     private StringPool stringPool;
 
-    public static Map<Integer, String> sysStyle = ResourceLoader.loadSystemStyles();
+    public static final Map<Integer, String> sysStyle = ResourceLoader.loadSystemStyles();
 
-    public void addPackage(ResourcePackage resourcePackage) {
+    public void addPackage(final ResourcePackage resourcePackage) {
         this.packageMap.put(resourcePackage.getId(), resourcePackage);
     }
 
-    public ResourcePackage getPackage(short id) {
+    public ResourcePackage getPackage(final short id) {
         return this.packageMap.get(id);
     }
 
     public StringPool getStringPool() {
-        return stringPool;
+        return this.stringPool;
     }
 
-    public void setStringPool(StringPool stringPool) {
+    public void setStringPool(final StringPool stringPool) {
         this.stringPool = stringPool;
     }
 
@@ -44,22 +44,22 @@ public class ResourceTable {
      * Get resources match the given resource id.
      */
     @NotNull
-    public List<Resource> getResourcesById(long resourceId) {
+    public List<Resource> getResourcesById(final long resourceId) {
         // An Android Resource id is a 32-bit integer. It comprises
         // an 8-bit Package id [bits 24-31]
         // an 8-bit Type id [bits 16-23]
         // a 16-bit Entry index [bits 0-15]
 
 
-        short packageId = (short) (resourceId >> 24 & 0xff);
-        short typeId = (short) ((resourceId >> 16) & 0xff);
-        int entryIndex = (int) (resourceId & 0xffff);
-        ResourcePackage resourcePackage = this.getPackage(packageId);
+        final short packageId = (short) (resourceId >> 24 & 0xff);
+        final short typeId = (short) ((resourceId >> 16) & 0xff);
+        final int entryIndex = (int) (resourceId & 0xffff);
+        final ResourcePackage resourcePackage = this.getPackage(packageId);
         if (resourcePackage == null) {
             return Collections.emptyList();
         }
-        TypeSpec typeSpec = resourcePackage.getTypeSpec(typeId);
-        List<Type> types = resourcePackage.getTypes(typeId);
+        final TypeSpec typeSpec = resourcePackage.getTypeSpec(typeId);
+        final List<Type> types = resourcePackage.getTypes(typeId);
         if (typeSpec == null || types == null) {
             return Collections.emptyList();
         }
@@ -68,13 +68,13 @@ public class ResourceTable {
         }
 
         // read from type resource
-        List<Resource> result = new ArrayList<>();
-        for (Type type : types) {
-            ResourceEntry resourceEntry = type.getResourceEntry(entryIndex);
+        final List<Resource> result = new ArrayList<>();
+        for (final Type type : types) {
+            final ResourceEntry resourceEntry = type.getResourceEntry(entryIndex);
             if (resourceEntry == null) {
                 continue;
             }
-            ResourceValue currentResourceValue = resourceEntry.getValue();
+            final ResourceValue currentResourceValue = resourceEntry.getValue();
             if (currentResourceValue == null) {
                 continue;
             }
@@ -96,26 +96,26 @@ public class ResourceTable {
      * contains all info for one resource
      */
     public static class Resource {
-        private TypeSpec typeSpec;
-        private Type type;
-        private ResourceEntry resourceEntry;
+        private final TypeSpec typeSpec;
+        private final Type type;
+        private final ResourceEntry resourceEntry;
 
-        public Resource(TypeSpec typeSpec, Type type, ResourceEntry resourceEntry) {
+        public Resource(final TypeSpec typeSpec, final Type type, final ResourceEntry resourceEntry) {
             this.typeSpec = typeSpec;
             this.type = type;
             this.resourceEntry = resourceEntry;
         }
 
         public TypeSpec getTypeSpec() {
-            return typeSpec;
+            return this.typeSpec;
         }
 
         public Type getType() {
-            return type;
+            return this.type;
         }
 
         public ResourceEntry getResourceEntry() {
-            return resourceEntry;
+            return this.resourceEntry;
         }
     }
 }

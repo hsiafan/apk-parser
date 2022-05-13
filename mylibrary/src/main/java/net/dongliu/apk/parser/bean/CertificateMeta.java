@@ -51,8 +51,8 @@ public class CertificateMeta {
      */
     private final String certMd5;
 
-    public CertificateMeta(String signAlgorithm, String signAlgorithmOID, Date startDate, Date endDate,
-                           byte[] data, String certBase64Md5, String certMd5) {
+    public CertificateMeta(final String signAlgorithm, final String signAlgorithmOID, final Date startDate, final Date endDate,
+                           final byte[] data, final String certBase64Md5, final String certMd5) {
         this.signAlgorithm = signAlgorithm;
         this.signAlgorithmOID = signAlgorithmOID;
         this.startDate = startDate;
@@ -63,39 +63,39 @@ public class CertificateMeta {
     }
 
     public byte[] getData() {
-        return data;
+        return this.data;
     }
 
     public String getCertBase64Md5() {
-        return certBase64Md5;
+        return this.certBase64Md5;
     }
 
     public String getCertMd5() {
-        return certMd5;
+        return this.certMd5;
     }
 
     public String getSignAlgorithm() {
-        return signAlgorithm;
+        return this.signAlgorithm;
     }
 
     public Date getStartDate() {
-        return startDate;
+        return this.startDate;
     }
 
     public Date getEndDate() {
-        return endDate;
+        return this.endDate;
     }
 
     public String getSignAlgorithmOID() {
-        return signAlgorithmOID;
+        return this.signAlgorithmOID;
     }
 
     @Override
     public String toString() {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return "CertificateMeta{signAlgorithm=" + signAlgorithm + ", " +
-                "certBase64Md5=" + certBase64Md5 + ", " +
-                "startDate=" + df.format(startDate) + ", " + "endDate=" + df.format(endDate) + "}";
+        final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return "CertificateMeta{signAlgorithm=" + this.signAlgorithm + ", " +
+                "certBase64Md5=" + this.certBase64Md5 + ", " +
+                "startDate=" + df.format(this.startDate) + ", " + "endDate=" + df.format(this.endDate) + "}";
     }
 }
 

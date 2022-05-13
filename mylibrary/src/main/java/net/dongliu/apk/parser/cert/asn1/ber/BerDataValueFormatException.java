@@ -24,11 +24,11 @@ public class BerDataValueFormatException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public BerDataValueFormatException(String message) {
+    public BerDataValueFormatException(final String message) {
         super(message);
     }
 
-    public BerDataValueFormatException(String message, Throwable cause) {
+    public BerDataValueFormatException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

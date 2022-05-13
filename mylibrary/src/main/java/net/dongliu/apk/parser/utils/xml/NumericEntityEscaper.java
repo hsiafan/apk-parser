@@ -58,7 +58,7 @@ class NumericEntityEscaper extends CodePointTranslator {
      * @return the newly created {@code NumericEntityEscaper} instance
      */
     public static NumericEntityEscaper below(final int codepoint) {
-        return outsideOf(codepoint, Integer.MAX_VALUE);
+        return NumericEntityEscaper.outsideOf(codepoint, Integer.MAX_VALUE);
     }
 
     /**
@@ -68,7 +68,7 @@ class NumericEntityEscaper extends CodePointTranslator {
      * @return the newly created {@code NumericEntityEscaper} instance
      */
     public static NumericEntityEscaper above(final int codepoint) {
-        return outsideOf(0, codepoint);
+        return NumericEntityEscaper.outsideOf(0, codepoint);
     }
 
     /**
@@ -98,12 +98,12 @@ class NumericEntityEscaper extends CodePointTranslator {
      */
     @Override
     public boolean translate(final int codepoint, final Writer out) throws IOException {
-        if (between) {
-            if (codepoint < below || codepoint > above) {
+        if (this.between) {
+            if (codepoint < this.below || codepoint > this.above) {
                 return false;
             }
         } else {
-            if (codepoint >= below && codepoint <= above) {
+            if (codepoint >= this.below && codepoint <= this.above) {
                 return false;
             }
         }

@@ -10,24 +10,24 @@ public class Pair<K, V> {
     public Pair() {
     }
 
-    public Pair(K left, V right) {
+    public Pair(final K left, final V right) {
         this.left = left;
         this.right = right;
     }
 
     public K getLeft() {
-        return left;
+        return this.left;
     }
 
-    public void setLeft(K left) {
+    public void setLeft(final K left) {
         this.left = left;
     }
 
     public V getRight() {
-        return right;
+        return this.right;
     }
 
-    public void setRight(V right) {
+    public void setRight(final V right) {
         this.right = right;
     }
 }

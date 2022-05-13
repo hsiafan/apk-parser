@@ -13,32 +13,32 @@ public class Buffers {
     /**
      * get one unsigned byte as short type
      */
-    public static short readUByte(ByteBuffer buffer) {
-        byte b = buffer.get();
+    public static short readUByte(final ByteBuffer buffer) {
+        final byte b = buffer.get();
         return (short) (b & 0xff);
     }
 
     /**
      * get one unsigned short as int type
      */
-    public static int readUShort(ByteBuffer buffer) {
-        short s = buffer.getShort();
+    public static int readUShort(final ByteBuffer buffer) {
+        final short s = buffer.getShort();
         return s & 0xffff;
     }
 
     /**
      * get one unsigned int as long type
      */
-    public static long readUInt(ByteBuffer buffer) {
-        int i = buffer.getInt();
+    public static long readUInt(final ByteBuffer buffer) {
+        final int i = buffer.getInt();
         return i & 0xffffffffL;
     }
 
     /**
      * get bytes
      */
-    public static byte[] readBytes(ByteBuffer buffer, int size) {
-        byte[] bytes = new byte[size];
+    public static byte[] readBytes(final ByteBuffer buffer, final int size) {
+        final byte[] bytes = new byte[size];
         buffer.get(bytes);
         return bytes;
     }
@@ -46,15 +46,15 @@ public class Buffers {
     /**
      * get all bytes remains
      */
-    public static byte[] readBytes(ByteBuffer buffer) {
-        return readBytes(buffer, buffer.remaining());
+    public static byte[] readBytes(final ByteBuffer buffer) {
+        return Buffers.readBytes(buffer, buffer.remaining());
     }
 
     /**
      * Read ascii string ,by len
      */
-    public static String readAsciiString(ByteBuffer buffer, int strLen) {
-        byte[] bytes = new byte[strLen];
+    public static String readAsciiString(final ByteBuffer buffer, final int strLen) {
+        final byte[] bytes = new byte[strLen];
         buffer.get(bytes);
         return new String(bytes);
     }
@@ -62,8 +62,8 @@ public class Buffers {
     /**
      * read utf16 strings, use strLen, not ending 0 char.
      */
-    public static String readString(ByteBuffer buffer, int strLen) {
-        StringBuilder sb = new StringBuilder(strLen);
+    public static String readString(final ByteBuffer buffer, final int strLen) {
+        final StringBuilder sb = new StringBuilder(strLen);
         for (int i = 0; i < strLen; i++) {
             sb.append(buffer.getChar());
         }
@@ -73,12 +73,12 @@ public class Buffers {
     /**
      * read utf16 strings, ending with 0 char.
      */
-    public static String readZeroTerminatedString(ByteBuffer buffer, int strLen) {
-        StringBuilder sb = new StringBuilder(strLen);
+    public static String readZeroTerminatedString(final ByteBuffer buffer, final int strLen) {
+        final StringBuilder sb = new StringBuilder(strLen);
         for (int i = 0; i < strLen; i++) {
-            char c = buffer.getChar();
+            final char c = buffer.getChar();
             if (c == '\0') {
-                skip(buffer, (strLen - i - 1) * 2);
+                Buffers.skip(buffer, (strLen - i - 1) * 2);
                 break;
             }
             sb.append(c);
@@ -89,8 +89,8 @@ public class Buffers {
     /**
      * skip count bytes
      */
-    public static void skip(ByteBuffer buffer, int count) {
-        position(buffer, buffer.position() + count);
+    public static void skip(final ByteBuffer buffer, final int count) {
+        Buffers.position(buffer, buffer.position() + count);
     }
 
     // Cast java.nio.ByteBuffer instances where necessary to java.nio.Buffer to avoid NoSuchMethodError
@@ -102,15 +102,15 @@ public class Buffers {
     /**
      * set position
      */
-    public static void position(ByteBuffer buffer, int position) {
+    public static void position(final ByteBuffer buffer, final int position) {
         buffer.position(position);
     }
 
     /**
      * set position
      */
-    public static void position(ByteBuffer buffer, long position) {
-        position(buffer, Unsigned.ensureUInt(position));
+    public static void position(final ByteBuffer buffer, final long position) {
+        Buffers.position(buffer, Unsigned.ensureUInt(position));
     }
 
 
@@ -118,10 +118,10 @@ public class Buffers {
      * Return one new ByteBuffer from current position, with size, the byte order of new buffer will be set to little endian;
      * And advance the original buffer with size.
      */
-    public static ByteBuffer sliceAndSkip(ByteBuffer buffer, int size) {
-        ByteBuffer buf = buffer.slice().order(ByteOrder.LITTLE_ENDIAN);
-        ByteBuffer slice = (ByteBuffer) buf.limit(buf.position() + size);
-        skip(buffer, size);
+    public static ByteBuffer sliceAndSkip(final ByteBuffer buffer, final int size) {
+        final ByteBuffer buf = buffer.slice().order(ByteOrder.LITTLE_ENDIAN);
+        final ByteBuffer slice = (ByteBuffer) buf.limit(buf.position() + size);
+        Buffers.skip(buffer, size);
         return slice;
     }
 }

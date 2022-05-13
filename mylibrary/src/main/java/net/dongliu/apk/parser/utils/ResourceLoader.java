@@ -18,46 +18,46 @@ public class ResourceLoader {
      * load system attr ids for parse binary xml.
      */
     public static Map<Integer, String> loadSystemAttrIds() {
-        try (BufferedReader reader = toReader("/r_values.ini")) {
-            Map<Integer, String> map = new HashMap<>();
+        try (final BufferedReader reader = ResourceLoader.toReader("/r_values.ini")) {
+            final Map<Integer, String> map = new HashMap<>();
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] items = line.trim().split("=");
+                final String[] items = line.trim().split("=");
                 if (items.length != 2) {
                     continue;
                 }
-                String name = items[0].trim();
-                Integer id = Integer.valueOf(items[1].trim());
+                final String name = items[0].trim();
+                final Integer id = Integer.valueOf(items[1].trim());
                 map.put(id, name);
             }
             return map;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static Map<Integer, String> loadSystemStyles() {
-        Map<Integer, String> map = new HashMap<>();
-        try (BufferedReader reader = toReader("/r_styles.ini")) {
+        final Map<Integer, String> map = new HashMap<>();
+        try (final BufferedReader reader = ResourceLoader.toReader("/r_styles.ini")) {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                String[] items = line.split("=");
+                final String[] items = line.split("=");
                 if (items.length != 2) {
                     continue;
                 }
-                Integer id = Integer.valueOf(items[1].trim());
-                String name = items[0].trim();
+                final Integer id = Integer.valueOf(items[1].trim());
+                final String name = items[0].trim();
                 map.put(id, name);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
         return map;
     }
 
 
-    private static BufferedReader toReader(String path) {
+    private static BufferedReader toReader(final String path) {
         return new BufferedReader(new InputStreamReader(
                 ResourceLoader.class.getResourceAsStream(path)));
     }

@@ -16,7 +16,7 @@ public class AttributeValues {
     // Activity constants begin. see:
     // http://developer.android.com/reference/android/content/pm/ActivityInfo.html
     // http://developer.android.com/guide/topics/manifest/activity-element.html
-    public static String getScreenOrientation(int value) {
+    public static String getScreenOrientation(final int value) {
         switch (value) {
             case 0x00000003:
                 return "behind";
@@ -55,7 +55,7 @@ public class AttributeValues {
         }
     }
 
-    public static String getLaunchMode(int value) {
+    public static String getLaunchMode(final int value) {
         switch (value) {
             case 0x00000000:
                 return "standard";
@@ -71,8 +71,8 @@ public class AttributeValues {
 
     }
 
-    public static String getConfigChanges(int value) {
-        List<String> list = new ArrayList<>();
+    public static String getConfigChanges(final int value) {
+        final List<String> list = new ArrayList<>();
         if ((value & 0x00001000) != 0) {
             list.add("density");
         } else if ((value & 0x40000000) != 0) {
@@ -107,10 +107,10 @@ public class AttributeValues {
         return Strings.join(list, "|");
     }
 
-    public static String getWindowSoftInputMode(int value) {
-        int adjust = value & 0x000000f0;
-        int state = value & 0x0000000f;
-        List<String> list = new ArrayList<>(2);
+    public static String getWindowSoftInputMode(final int value) {
+        final int adjust = value & 0x000000f0;
+        final int state = value & 0x0000000f;
+        final List<String> list = new ArrayList<>(2);
         switch (adjust) {
             case 0x00000030:
                 list.add("adjustNothing");
@@ -156,7 +156,7 @@ public class AttributeValues {
 
     //http://developer.android.com/reference/android/content/pm/PermissionInfo.html
     public static String getProtectionLevel(int value) {
-        List<String> levels = new ArrayList<>(3);
+        final List<String> levels = new ArrayList<>(3);
         if ((value & 0x10) != 0) {
             value = value ^ 0x10;
             levels.add("system");
@@ -190,7 +190,7 @@ public class AttributeValues {
     /**
      * get Installation string values from int
      */
-    public static String getInstallLocation(int value) {
+    public static String getInstallLocation(final int value) {
         switch (value) {
             case 0:
                 return "auto";

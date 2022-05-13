@@ -38,7 +38,7 @@ public class SignerIdentifier {
     public SignerIdentifier() {
     }
 
-    public SignerIdentifier(IssuerAndSerialNumber issuerAndSerialNumber) {
+    public SignerIdentifier(final IssuerAndSerialNumber issuerAndSerialNumber) {
         this.issuerAndSerialNumber = issuerAndSerialNumber;
     }
 }

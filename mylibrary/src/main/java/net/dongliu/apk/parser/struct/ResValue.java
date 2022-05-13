@@ -36,10 +36,10 @@ public class ResValue {
     @Override
     public String toString() {
         return "ResValue{" +
-                "size=" + size +
-                ", res0=" + res0 +
-                ", dataType=" + dataType +
-                ", data=" + data +
+                "size=" + this.size +
+                ", res0=" + this.res0 +
+                ", dataType=" + this.dataType +
+                ", data=" + this.data +
                 '}';
     }
 

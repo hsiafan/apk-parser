@@ -22,11 +22,11 @@ public class Attribute {
     // the final value as string
     private String value;
 
-    public String toStringValue(ResourceTable resourceTable, Locale locale) {
-        if (rawValue != null) {
-            return rawValue;
-        } else if (typedValue != null) {
-            return typedValue.toStringValue(resourceTable, locale);
+    public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+        if (this.rawValue != null) {
+            return this.rawValue;
+        } else if (this.typedValue != null) {
+            return this.typedValue.toStringValue(resourceTable, locale);
         } else {
             // something happen;
             return "";
@@ -42,8 +42,8 @@ public class Attribute {
 
         private static final Map<Integer, String> ids = ResourceLoader.loadSystemAttrIds();
 
-        public static String getString(long id) {
-            String value = ids.get((int) id);
+        public static String getString(final long id) {
+            String value = AttrIds.ids.get((int) id);
             if (value == null) {
                 value = "AttrId:0x" + Long.toHexString(id);
             }
@@ -53,50 +53,50 @@ public class Attribute {
     }
 
     public String getNamespace() {
-        return namespace;
+        return this.namespace;
     }
 
-    public void setNamespace(String namespace) {
+    public void setNamespace(final String namespace) {
         this.namespace = namespace;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     public String getRawValue() {
-        return rawValue;
+        return this.rawValue;
     }
 
-    public void setRawValue(String rawValue) {
+    public void setRawValue(final String rawValue) {
         this.rawValue = rawValue;
     }
 
     public ResourceValue getTypedValue() {
-        return typedValue;
+        return this.typedValue;
     }
 
-    public void setTypedValue(ResourceValue typedValue) {
+    public void setTypedValue(final ResourceValue typedValue) {
         this.typedValue = typedValue;
     }
 
     public String getValue() {
-        return value;
+        return this.value;
     }
 
-    public void setValue(String value) {
+    public void setValue(final String value) {
         this.value = value;
     }
 
     @Override
     public String toString() {
         return "Attribute{" +
-                "name='" + name + '\'' +
-                ", namespace='" + namespace + '\'' +
+                "name='" + this.name + '\'' +
+                ", namespace='" + this.namespace + '\'' +
                 '}';
     }
 }

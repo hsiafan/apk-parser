@@ -23,7 +23,7 @@ public class ResourcePackage {
     //  contains the names (keys) of the Resources defined in the ResourcePackage.
     private StringPool keyStringPool;
 
-    public ResourcePackage(PackageHeader header) {
+    public ResourcePackage(final PackageHeader header) {
         this.name = header.getName();
         this.id = (short) header.getId();
     }
@@ -32,16 +32,16 @@ public class ResourcePackage {
 
     private Map<Short, List<Type>> typesMap = new HashMap<>();
 
-    public void addTypeSpec(TypeSpec typeSpec) {
+    public void addTypeSpec(final TypeSpec typeSpec) {
         this.typeSpecMap.put(typeSpec.getId(), typeSpec);
     }
 
     @Nullable
-    public TypeSpec getTypeSpec(short id) {
+    public TypeSpec getTypeSpec(final short id) {
         return this.typeSpecMap.get(id);
     }
 
-    public void addType(Type type) {
+    public void addType(final Type type) {
         List<Type> types = this.typesMap.get(type.getId());
         if (types == null) {
             types = new ArrayList<>();
@@ -51,55 +51,55 @@ public class ResourcePackage {
     }
 
     @Nullable
-    public List<Type> getTypes(short id) {
+    public List<Type> getTypes(final short id) {
         return this.typesMap.get(id);
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     public short getId() {
-        return id;
+        return this.id;
     }
 
-    public void setId(short id) {
+    public void setId(final short id) {
         this.id = id;
     }
 
     public StringPool getTypeStringPool() {
-        return typeStringPool;
+        return this.typeStringPool;
     }
 
-    public void setTypeStringPool(StringPool typeStringPool) {
+    public void setTypeStringPool(final StringPool typeStringPool) {
         this.typeStringPool = typeStringPool;
     }
 
     public StringPool getKeyStringPool() {
-        return keyStringPool;
+        return this.keyStringPool;
     }
 
-    public void setKeyStringPool(StringPool keyStringPool) {
+    public void setKeyStringPool(final StringPool keyStringPool) {
         this.keyStringPool = keyStringPool;
     }
 
     public Map<Short, TypeSpec> getTypeSpecMap() {
-        return typeSpecMap;
+        return this.typeSpecMap;
     }
 
-    public void setTypeSpecMap(Map<Short, TypeSpec> typeSpecMap) {
+    public void setTypeSpecMap(final Map<Short, TypeSpec> typeSpecMap) {
         this.typeSpecMap = typeSpecMap;
     }
 
     public Map<Short, List<Type>> getTypesMap() {
-        return typesMap;
+        return this.typesMap;
     }
 
-    public void setTypesMap(Map<Short, List<Type>> typesMap) {
+    public void setTypesMap(final Map<Short, List<Type>> typesMap) {
         this.typesMap = typesMap;
     }
 }

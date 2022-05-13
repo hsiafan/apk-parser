@@ -6,17 +6,17 @@ package net.dongliu.apk.parser.struct;
  * @author dongliu
  */
 public class StringPool {
-    private String[] pool;
+    private final String[] pool;
 
-    public StringPool(int poolSize) {
-        pool = new String[poolSize];
+    public StringPool(final int poolSize) {
+        this.pool = new String[poolSize];
     }
 
-    public String get(int idx) {
-        return pool[idx];
+    public String get(final int idx) {
+        return this.pool[idx];
     }
 
-    public void set(int idx, String value) {
-        pool[idx] = value;
+    public void set(final int idx, final String value) {
+        this.pool[idx] = value;
     }
 }

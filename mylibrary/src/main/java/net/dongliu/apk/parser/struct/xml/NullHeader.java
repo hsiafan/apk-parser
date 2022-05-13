@@ -8,7 +8,7 @@ import net.dongliu.apk.parser.struct.ChunkHeader;
  * @author dongliu
  */
 public class NullHeader extends ChunkHeader {
-    public NullHeader(int chunkType, int headerSize, long chunkSize) {
+    public NullHeader(final int chunkType, final int headerSize, final long chunkSize) {
         super(chunkType, headerSize, chunkSize);
     }
 }

@@ -11,23 +11,23 @@ public class XmlNodeHeader extends ChunkHeader {
     // Optional XML comment string pool ref, -1 if none
     private int commentRef;
 
-    public XmlNodeHeader(int chunkType, int headerSize, long chunkSize) {
+    public XmlNodeHeader(final int chunkType, final int headerSize, final long chunkSize) {
         super(chunkType, headerSize, chunkSize);
     }
 
     public int getLineNum() {
-        return lineNum;
+        return this.lineNum;
     }
 
-    public void setLineNum(int lineNum) {
+    public void setLineNum(final int lineNum) {
         this.lineNum = lineNum;
     }
 
     public int getCommentRef() {
-        return commentRef;
+        return this.commentRef;
     }
 
-    public void setCommentRef(int commentRef) {
+    public void setCommentRef(final int commentRef) {
         this.commentRef = commentRef;
     }
 }

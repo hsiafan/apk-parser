@@ -9,17 +9,17 @@ public class UseFeature {
     private final String name;
     private final boolean required;
 
-    public UseFeature(String name, boolean required) {
+    public UseFeature(final String name, final boolean required) {
         this.name = name;
         this.required = required;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public boolean isRequired() {
-        return required;
+        return this.required;
     }
 
     @Override

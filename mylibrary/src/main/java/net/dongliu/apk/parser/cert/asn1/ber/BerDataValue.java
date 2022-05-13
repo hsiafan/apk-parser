@@ -29,16 +29,16 @@ public class BerDataValue {
     private final int mTagNumber;
 
     BerDataValue(
-            ByteBuffer encoded,
-            ByteBuffer encodedContents,
-            int tagClass,
-            boolean constructed,
-            int tagNumber) {
-        mEncoded = encoded;
-        mEncodedContents = encodedContents;
-        mTagClass = tagClass;
-        mConstructed = constructed;
-        mTagNumber = tagNumber;
+            final ByteBuffer encoded,
+            final ByteBuffer encodedContents,
+            final int tagClass,
+            final boolean constructed,
+            final int tagNumber) {
+        this.mEncoded = encoded;
+        this.mEncodedContents = encodedContents;
+        this.mTagClass = tagClass;
+        this.mConstructed = constructed;
+        this.mTagNumber = tagNumber;
     }
 
     /**
@@ -46,7 +46,7 @@ public class BerDataValue {
      * constants.
      */
     public int getTagClass() {
-        return mTagClass;
+        return this.mTagClass;
     }
 
     /**
@@ -55,7 +55,7 @@ public class BerDataValue {
      * represent the value.
      */
     public boolean isConstructed() {
-        return mConstructed;
+        return this.mConstructed;
     }
 
     /**
@@ -63,28 +63,28 @@ public class BerDataValue {
      * constants.
      */
     public int getTagNumber() {
-        return mTagNumber;
+        return this.mTagNumber;
     }
 
     /**
      * Returns the encoded form of this data value.
      */
     public ByteBuffer getEncoded() {
-        return mEncoded.slice();
+        return this.mEncoded.slice();
     }
 
     /**
      * Returns the encoded contents of this data value.
      */
     public ByteBuffer getEncodedContents() {
-        return mEncodedContents.slice();
+        return this.mEncodedContents.slice();
     }
 
     /**
      * Returns a new reader of the contents of this data value.
      */
     public BerDataValueReader contentsReader() {
-        return new ByteBufferBerDataValueReader(getEncodedContents());
+        return new ByteBufferBerDataValueReader(this.getEncodedContents());
     }
 
     /**
@@ -99,17 +99,17 @@ public class BerDataValue {
         private final BerDataValue mValue;
         private boolean mValueOutput;
 
-        public ParsedValueReader(BerDataValue value) {
-            mValue = value;
+        public ParsedValueReader(final BerDataValue value) {
+            this.mValue = value;
         }
 
         @Override
         public BerDataValue readDataValue() throws BerDataValueFormatException {
-            if (mValueOutput) {
+            if (this.mValueOutput) {
                 return null;
             }
-            mValueOutput = true;
-            return mValue;
+            this.mValueOutput = true;
+            return this.mValue;
         }
     }
 }

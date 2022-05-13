@@ -18,7 +18,7 @@ import java.util.Locale;
 public abstract class ResourceValue {
     protected final int value;
 
-    protected ResourceValue(int value) {
+    protected ResourceValue(final int value) {
         this.value = value;
     }
 
@@ -27,23 +27,23 @@ public abstract class ResourceValue {
      */
     public abstract String toStringValue(ResourceTable resourceTable, Locale locale);
 
-    public static ResourceValue decimal(int value) {
+    public static ResourceValue decimal(final int value) {
         return new DecimalResourceValue(value);
     }
 
-    public static ResourceValue hexadecimal(int value) {
+    public static ResourceValue hexadecimal(final int value) {
         return new HexadecimalResourceValue(value);
     }
 
-    public static ResourceValue bool(int value) {
+    public static ResourceValue bool(final int value) {
         return new BooleanResourceValue(value);
     }
 
-    public static ResourceValue string(int value, StringPool stringPool) {
+    public static ResourceValue string(final int value, final StringPool stringPool) {
         return new StringResourceValue(value, stringPool);
     }
 
-    public static ResourceValue reference(int value) {
+    public static ResourceValue reference(final int value) {
         return new ReferenceResourceValue(value);
     }
 
@@ -51,71 +51,71 @@ public abstract class ResourceValue {
         return NullResourceValue.instance;
     }
 
-    public static ResourceValue rgb(int value, int len) {
+    public static ResourceValue rgb(final int value, final int len) {
         return new RGBResourceValue(value, len);
     }
 
-    public static ResourceValue dimension(int value) {
+    public static ResourceValue dimension(final int value) {
         return new DimensionValue(value);
     }
 
-    public static ResourceValue fraction(int value) {
+    public static ResourceValue fraction(final int value) {
         return new FractionValue(value);
     }
 
-    public static ResourceValue raw(int value, short type) {
+    public static ResourceValue raw(final int value, final short type) {
         return new RawValue(value, type);
     }
 
 
     private static class DecimalResourceValue extends ResourceValue {
 
-        private DecimalResourceValue(int value) {
+        private DecimalResourceValue(final int value) {
             super(value);
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            return String.valueOf(value);
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+            return String.valueOf(this.value);
         }
     }
 
     private static class HexadecimalResourceValue extends ResourceValue {
 
-        private HexadecimalResourceValue(int value) {
+        private HexadecimalResourceValue(final int value) {
             super(value);
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            return "0x" + Integer.toHexString(value);
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+            return "0x" + Integer.toHexString(this.value);
         }
     }
 
     private static class BooleanResourceValue extends ResourceValue {
 
-        private BooleanResourceValue(int value) {
+        private BooleanResourceValue(final int value) {
             super(value);
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            return String.valueOf(value != 0);
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+            return String.valueOf(this.value != 0);
         }
     }
 
     private static class StringResourceValue extends ResourceValue {
         private final StringPool stringPool;
 
-        private StringResourceValue(int value, StringPool stringPool) {
+        private StringResourceValue(final int value, final StringPool stringPool) {
             super(value);
             this.stringPool = stringPool;
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            if (value >= 0) {
-                return stringPool.get(value);
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+            if (this.value >= 0) {
+                return this.stringPool.get(this.value);
             } else {
                 return null;
             }
@@ -123,7 +123,7 @@ public abstract class ResourceValue {
 
         @Override
         public String toString() {
-            return value + ":" + stringPool.get(value);
+            return this.value + ":" + this.stringPool.get(this.value);
         }
     }
 
@@ -132,35 +132,35 @@ public abstract class ResourceValue {
      */
     public static class ReferenceResourceValue extends ResourceValue {
 
-        private ReferenceResourceValue(int value) {
+        private ReferenceResourceValue(final int value) {
             super(value);
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            long resourceId = getReferenceResourceId();
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+            final long resourceId = this.getReferenceResourceId();
             // android system styles.
             if (resourceId > AndroidConstants.SYS_STYLE_ID_START && resourceId < AndroidConstants.SYS_STYLE_ID_END) {
                 return "@android:style/" + ResourceTable.sysStyle.get((int) resourceId);
             }
 
-            String raw = "resourceId:0x" + Long.toHexString(resourceId);
+            final String raw = "resourceId:0x" + Long.toHexString(resourceId);
             if (resourceTable == null) {
                 return raw;
             }
 
-            List<ResourceTable.Resource> resources = resourceTable.getResourcesById(resourceId);
+            final List<ResourceTable.Resource> resources = resourceTable.getResourcesById(resourceId);
             // read from type resource
             ResourceEntry selected = null;
             TypeSpec typeSpec = null;
             int currentLocalMatchLevel = -1;
             int currentDensityLevel = -1;
-            for (ResourceTable.Resource resource : resources) {
-                Type type = resource.getType();
+            for (final ResourceTable.Resource resource : resources) {
+                final Type type = resource.getType();
                 typeSpec = resource.getTypeSpec();
-                ResourceEntry resourceEntry = resource.getResourceEntry();
-                int localMatchLevel = Locales.match(locale, type.getLocale());
-                int densityLevel = densityLevel(type.getDensity());
+                final ResourceEntry resourceEntry = resource.getResourceEntry();
+                final int localMatchLevel = Locales.match(locale, type.getLocale());
+                final int densityLevel = ReferenceResourceValue.densityLevel(type.getDensity());
                 if (localMatchLevel > currentLocalMatchLevel) {
                     selected = resourceEntry;
                     currentLocalMatchLevel = localMatchLevel;
@@ -170,7 +170,7 @@ public abstract class ResourceValue {
                     currentDensityLevel = densityLevel;
                 }
             }
-            String result;
+            final String result;
             if (selected == null) {
                 result = raw;
             } else if (locale == null) {
@@ -182,15 +182,12 @@ public abstract class ResourceValue {
         }
 
         public long getReferenceResourceId() {
-            return value & 0xFFFFFFFFL;
+            return this.value & 0xFFFFFFFFL;
         }
 
-        private static int densityLevel(int density) {
+        private static int densityLevel(final int density) {
             if (density == Densities.ANY || density == Densities.NONE) {
                 return -1;
-            }
-            if (density == Densities.DEFAULT) {
-                return Densities.DEFAULT;
             }
             return density;
         }
@@ -204,7 +201,7 @@ public abstract class ResourceValue {
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
             return "";
         }
     }
@@ -212,16 +209,16 @@ public abstract class ResourceValue {
     private static class RGBResourceValue extends ResourceValue {
         private final int len;
 
-        private RGBResourceValue(int value, int len) {
+        private RGBResourceValue(final int value, final int len) {
             super(value);
             this.len = len;
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = len / 2 - 1; i >= 0; i--) {
-                sb.append(Integer.toHexString((value >> i * 8) & 0xff));
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+            final StringBuilder sb = new StringBuilder();
+            for (int i = this.len / 2 - 1; i >= 0; i--) {
+                sb.append(Integer.toHexString((this.value >> i * 8) & 0xff));
             }
             return sb.toString();
         }
@@ -229,14 +226,14 @@ public abstract class ResourceValue {
 
     private static class DimensionValue extends ResourceValue {
 
-        private DimensionValue(int value) {
+        private DimensionValue(final int value) {
             super(value);
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            short unit = (short) (value & 0xff);
-            String unitStr;
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+            final short unit = (short) (this.value & 0xff);
+            final String unitStr;
             switch (unit) {
                 case ResValue.ResDataCOMPLEX.UNIT_MM:
                     unitStr = "mm";
@@ -259,21 +256,21 @@ public abstract class ResourceValue {
                 default:
                     unitStr = "unknown unit:0x" + Integer.toHexString(unit);
             }
-            return (value >> 8) + unitStr;
+            return (this.value >> 8) + unitStr;
         }
     }
 
     private static class FractionValue extends ResourceValue {
 
-        private FractionValue(int value) {
+        private FractionValue(final int value) {
             super(value);
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
             // The low-order 4 bits of the data value specify the type of the fraction
-            short type = (short) (value & 0xf);
-            String pstr;
+            final short type = (short) (this.value & 0xf);
+            final String pstr;
             switch (type) {
                 case ResValue.ResDataCOMPLEX.UNIT_FRACTION:
                     pstr = "%";
@@ -284,7 +281,7 @@ public abstract class ResourceValue {
                 default:
                     pstr = "unknown type:0x" + Integer.toHexString(type);
             }
-            float f = Float.intBitsToFloat(value >> 4);
+            final float f = Float.intBitsToFloat(this.value >> 4);
             return f + pstr;
         }
     }
@@ -292,14 +289,14 @@ public abstract class ResourceValue {
     private static class RawValue extends ResourceValue {
         private final short dataType;
 
-        private RawValue(int value, short dataType) {
+        private RawValue(final int value, final short dataType) {
             super(value);
             this.dataType = dataType;
         }
 
         @Override
-        public String toStringValue(ResourceTable resourceTable, Locale locale) {
-            return "{" + dataType + ":" + (value & 0xFFFFFFFFL) + "}";
+        public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+            return "{" + this.dataType + ":" + (this.value & 0xFFFFFFFFL) + "}";
         }
     }
 }

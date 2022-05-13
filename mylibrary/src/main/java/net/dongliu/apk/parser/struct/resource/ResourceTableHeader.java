@@ -13,15 +13,15 @@ public class ResourceTableHeader extends ChunkHeader {
     // The number of ResTable_package structures. uint32
     private int packageCount;
 
-    public ResourceTableHeader(int headerSize, int chunkSize) {
+    public ResourceTableHeader(final int headerSize, final int chunkSize) {
         super(ChunkType.TABLE, headerSize, chunkSize);
     }
 
     public long getPackageCount() {
-        return Unsigned.toLong(packageCount);
+        return Unsigned.toLong(this.packageCount);
     }
 
-    public void setPackageCount(long packageCount) {
+    public void setPackageCount(final long packageCount) {
         this.packageCount = Unsigned.toUInt(packageCount);
     }
 }

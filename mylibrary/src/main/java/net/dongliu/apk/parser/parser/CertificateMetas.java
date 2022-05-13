@@ -13,20 +13,20 @@ import java.util.List;
 
 public class CertificateMetas {
 
-    public static List<CertificateMeta> from(List<X509Certificate> certificates) throws CertificateEncodingException {
-        List<CertificateMeta> certificateMetas = new ArrayList<>(certificates.size());
-        for (X509Certificate certificate : certificates) {
-            CertificateMeta certificateMeta = CertificateMetas.from(certificate);
+    public static List<CertificateMeta> from(final List<X509Certificate> certificates) throws CertificateEncodingException {
+        final List<CertificateMeta> certificateMetas = new ArrayList<>(certificates.size());
+        for (final X509Certificate certificate : certificates) {
+            final CertificateMeta certificateMeta = CertificateMetas.from(certificate);
             certificateMetas.add(certificateMeta);
         }
         return certificateMetas;
     }
 
-    public static CertificateMeta from(X509Certificate certificate) throws CertificateEncodingException {
-        byte[] bytes = certificate.getEncoded();
-        String certMd5 = md5Digest(bytes);
-        String publicKeyString = byteToHexString(bytes);
-        String certBase64Md5 = md5Digest(publicKeyString);
+    public static CertificateMeta from(final X509Certificate certificate) throws CertificateEncodingException {
+        final byte[] bytes = certificate.getEncoded();
+        final String certMd5 = CertificateMetas.md5Digest(bytes);
+        final String publicKeyString = CertificateMetas.byteToHexString(bytes);
+        final String certBase64Md5 = CertificateMetas.md5Digest(publicKeyString);
         return new CertificateMeta(
                 certificate.getSigAlgName().toUpperCase(),
                 certificate.getSigAlgOID(),
@@ -35,22 +35,22 @@ public class CertificateMetas {
                 bytes, certBase64Md5, certMd5);
     }
 
-    private static String md5Digest(byte[] input) {
-        MessageDigest digest = getDigest("md5");
+    private static String md5Digest(final byte[] input) {
+        final MessageDigest digest = CertificateMetas.getDigest("md5");
         digest.update(input);
-        return getHexString(digest.digest());
+        return CertificateMetas.getHexString(digest.digest());
     }
 
-    private static String md5Digest(String input) {
-        MessageDigest digest = getDigest("md5");
+    private static String md5Digest(final String input) {
+        final MessageDigest digest = CertificateMetas.getDigest("md5");
         digest.update(input.getBytes(StandardCharsets.UTF_8));
-        return getHexString(digest.digest());
+        return CertificateMetas.getHexString(digest.digest());
     }
 
-    private static String byteToHexString(byte[] bArray) {
-        StringBuilder sb = new StringBuilder(bArray.length);
+    private static String byteToHexString(final byte[] bArray) {
+        final StringBuilder sb = new StringBuilder(bArray.length);
         String sTemp;
-        for (byte aBArray : bArray) {
+        for (final byte aBArray : bArray) {
             sTemp = Integer.toHexString(0xFF & (char) aBArray);
             if (sTemp.length() < 2) {
                 sb.append(0);
@@ -60,15 +60,15 @@ public class CertificateMetas {
         return sb.toString();
     }
 
-    private static String getHexString(byte[] digest) {
-        BigInteger bi = new BigInteger(1, digest);
+    private static String getHexString(final byte[] digest) {
+        final BigInteger bi = new BigInteger(1, digest);
         return String.format("%032x", bi);
     }
 
-    private static MessageDigest getDigest(String algorithm) {
+    private static MessageDigest getDigest(final String algorithm) {
         try {
             return MessageDigest.getInstance(algorithm);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new RuntimeException(e.getMessage());
         }
     }

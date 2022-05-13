@@ -10,7 +10,7 @@ public class GlEsVersion {
     private final int minor;
     private final boolean required;
 
-    public GlEsVersion(int major, int minor, boolean required) {
+    public GlEsVersion(final int major, final int minor, final boolean required) {
         this.major = major;
         this.minor = minor;
         this.required = required;
@@ -18,15 +18,15 @@ public class GlEsVersion {
 
 
     public int getMajor() {
-        return major;
+        return this.major;
     }
 
     public int getMinor() {
-        return minor;
+        return this.minor;
     }
 
     public boolean isRequired() {
-        return required;
+        return this.required;
     }
 
     @Override

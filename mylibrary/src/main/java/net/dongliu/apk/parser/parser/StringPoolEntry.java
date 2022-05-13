@@ -7,24 +7,24 @@ public class StringPoolEntry {
     private int idx;
     private long offset;
 
-    public StringPoolEntry(int idx, long offset) {
+    public StringPoolEntry(final int idx, final long offset) {
         this.idx = idx;
         this.offset = offset;
     }
 
     public int getIdx() {
-        return idx;
+        return this.idx;
     }
 
-    public void setIdx(int idx) {
+    public void setIdx(final int idx) {
         this.idx = idx;
     }
 
     public long getOffset() {
-        return offset;
+        return this.offset;
     }
 
-    public void setOffset(long offset) {
+    public void setOffset(final long offset) {
         this.offset = offset;
     }
 

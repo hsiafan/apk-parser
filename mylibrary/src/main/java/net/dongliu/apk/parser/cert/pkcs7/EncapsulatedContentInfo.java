@@ -42,7 +42,7 @@ public class EncapsulatedContentInfo {
     public EncapsulatedContentInfo() {
     }
 
-    public EncapsulatedContentInfo(String contentTypeOid) {
-        contentType = contentTypeOid;
+    public EncapsulatedContentInfo(final String contentTypeOid) {
+        this.contentType = contentTypeOid;
     }
 }

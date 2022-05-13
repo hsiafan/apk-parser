@@ -30,16 +30,16 @@ import java.nio.ByteBuffer;
 public class InputStreamBerDataValueReader implements BerDataValueReader {
     private final InputStream mIn;
 
-    public InputStreamBerDataValueReader(InputStream in) {
+    public InputStreamBerDataValueReader(final InputStream in) {
         if (in == null) {
             throw new NullPointerException("in == null");
         }
-        mIn = in;
+        this.mIn = in;
     }
 
     @Override
     public BerDataValue readDataValue() throws BerDataValueFormatException {
-        return readDataValue(mIn);
+        return InputStreamBerDataValueReader.readDataValue(this.mIn);
     }
 
     /**
@@ -47,47 +47,47 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
      *
      * @throws BerDataValueFormatException if the value being read is malformed.
      */
-    private static BerDataValue readDataValue(InputStream input)
+    private static BerDataValue readDataValue(final InputStream input)
             throws BerDataValueFormatException {
-        RecordingInputStream in = new RecordingInputStream(input);
+        final RecordingInputStream in = new RecordingInputStream(input);
 
         try {
-            int firstIdentifierByte = in.read();
+            final int firstIdentifierByte = in.read();
             if (firstIdentifierByte == -1) {
                 // End of input
                 return null;
             }
-            int tagNumber = readTagNumber(in, firstIdentifierByte);
+            final int tagNumber = InputStreamBerDataValueReader.readTagNumber(in, firstIdentifierByte);
 
-            int firstLengthByte = in.read();
+            final int firstLengthByte = in.read();
             if (firstLengthByte == -1) {
                 throw new BerDataValueFormatException("Missing length");
             }
 
-            boolean constructed = BerEncoding.isConstructed((byte) firstIdentifierByte);
-            int contentsLength;
-            int contentsOffsetInDataValue;
+            final boolean constructed = BerEncoding.isConstructed((byte) firstIdentifierByte);
+            final int contentsLength;
+            final int contentsOffsetInDataValue;
             if ((firstLengthByte & 0x80) == 0) {
                 // short form length
-                contentsLength = readShortFormLength(firstLengthByte);
+                contentsLength = InputStreamBerDataValueReader.readShortFormLength(firstLengthByte);
                 contentsOffsetInDataValue = in.getReadByteCount();
-                skipDefiniteLengthContents(in, contentsLength);
+                InputStreamBerDataValueReader.skipDefiniteLengthContents(in, contentsLength);
             } else if ((firstLengthByte & 0xff) != 0x80) {
                 // long form length
-                contentsLength = readLongFormLength(in, firstLengthByte);
+                contentsLength = InputStreamBerDataValueReader.readLongFormLength(in, firstLengthByte);
                 contentsOffsetInDataValue = in.getReadByteCount();
-                skipDefiniteLengthContents(in, contentsLength);
+                InputStreamBerDataValueReader.skipDefiniteLengthContents(in, contentsLength);
             } else {
                 // indefinite length
                 contentsOffsetInDataValue = in.getReadByteCount();
                 contentsLength =
                         constructed
-                                ? skipConstructedIndefiniteLengthContents(in)
-                                : skipPrimitiveIndefiniteLengthContents(in);
+                                ? InputStreamBerDataValueReader.skipConstructedIndefiniteLengthContents(in)
+                                : InputStreamBerDataValueReader.skipPrimitiveIndefiniteLengthContents(in);
             }
 
-            byte[] encoded = in.getReadBytes();
-            ByteBuffer encodedContents =
+            final byte[] encoded = in.getReadBytes();
+            final ByteBuffer encodedContents =
                     ByteBuffer.wrap(encoded, contentsOffsetInDataValue, contentsLength);
             return new BerDataValue(
                     ByteBuffer.wrap(encoded),
@@ -95,24 +95,24 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
                     BerEncoding.getTagClass((byte) firstIdentifierByte),
                     constructed,
                     tagNumber);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new BerDataValueFormatException("Failed to read data value", e);
         }
     }
 
-    private static int readTagNumber(InputStream in, int firstIdentifierByte)
+    private static int readTagNumber(final InputStream in, final int firstIdentifierByte)
             throws IOException, BerDataValueFormatException {
-        int tagNumber = BerEncoding.getTagNumber((byte) firstIdentifierByte);
+        final int tagNumber = BerEncoding.getTagNumber((byte) firstIdentifierByte);
         if (tagNumber == 0x1f) {
             // high-tag-number form
-            return readHighTagNumber(in);
+            return InputStreamBerDataValueReader.readHighTagNumber(in);
         } else {
             // low-tag-number form
             return tagNumber;
         }
     }
 
-    private static int readHighTagNumber(InputStream in)
+    private static int readHighTagNumber(final InputStream in)
             throws IOException, BerDataValueFormatException {
         // Base-128 big-endian form, where each byte has the highest bit set, except for the last
         // byte where the highest bit is not set
@@ -132,21 +132,21 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
         return result;
     }
 
-    private static int readShortFormLength(int firstLengthByte) {
+    private static int readShortFormLength(final int firstLengthByte) {
         return firstLengthByte & 0x7f;
     }
 
-    private static int readLongFormLength(InputStream in, int firstLengthByte)
+    private static int readLongFormLength(final InputStream in, final int firstLengthByte)
             throws IOException, BerDataValueFormatException {
         // The low 7 bits of the first byte represent the number of bytes (following the first
         // byte) in which the length is in big-endian base-256 form
-        int byteCount = firstLengthByte & 0x7f;
+        final int byteCount = firstLengthByte & 0x7f;
         if (byteCount > 4) {
             throw new BerDataValueFormatException("Length too large: " + byteCount + " bytes");
         }
         int result = 0;
         for (int i = 0; i < byteCount; i++) {
-            int b = in.read();
+            final int b = in.read();
             if (b == -1) {
                 throw new BerDataValueFormatException("Truncated length");
             }
@@ -159,11 +159,11 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
         return result;
     }
 
-    private static void skipDefiniteLengthContents(InputStream in, int len)
+    private static void skipDefiniteLengthContents(final InputStream in, int len)
             throws IOException, BerDataValueFormatException {
         long bytesRead = 0;
         while (len > 0) {
-            int skipped = (int) in.skip(len);
+            final int skipped = (int) in.skip(len);
             if (skipped <= 0) {
                 throw new BerDataValueFormatException(
                         "Truncated definite-length contents: " + bytesRead + " bytes read"
@@ -174,13 +174,13 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
         }
     }
 
-    private static int skipPrimitiveIndefiniteLengthContents(InputStream in)
+    private static int skipPrimitiveIndefiniteLengthContents(final InputStream in)
             throws IOException, BerDataValueFormatException {
         // Contents are terminated by 0x00 0x00
         boolean prevZeroByte = false;
         int bytesRead = 0;
         while (true) {
-            int b = in.read();
+            final int b = in.read();
             if (b == -1) {
                 throw new BerDataValueFormatException(
                         "Truncated indefinite-length contents: " + bytesRead + " bytes read");
@@ -202,18 +202,18 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
         }
     }
 
-    private static int skipConstructedIndefiniteLengthContents(RecordingInputStream in)
+    private static int skipConstructedIndefiniteLengthContents(final RecordingInputStream in)
             throws BerDataValueFormatException {
         // Contents are terminated by 0x00 0x00. However, this data value is constructed, meaning it
         // can contain data values which are indefinite length encoded as well. As a result, we
         // must parse the direct children of this data value to correctly skip over the contents of
         // this data value.
-        int readByteCountBefore = in.getReadByteCount();
+        final int readByteCountBefore = in.getReadByteCount();
         while (true) {
             // We can't easily peek for the 0x00 0x00 terminator using the provided InputStream.
             // Thus, we use the fact that 0x00 0x00 parses as a data value whose encoded form we
             // then check below to see whether it's 0x00 0x00.
-            BerDataValue dataValue = readDataValue(in);
+            final BerDataValue dataValue = InputStreamBerDataValueReader.readDataValue(in);
             if (dataValue == null) {
                 throw new BerDataValueFormatException(
                         "Truncated indefinite-length contents: "
@@ -222,7 +222,7 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
             if (in.getReadByteCount() <= 0) {
                 throw new BerDataValueFormatException("Indefinite-length contents too long");
             }
-            ByteBuffer encoded = dataValue.getEncoded();
+            final ByteBuffer encoded = dataValue.getEncoded();
             if ((encoded.remaining() == 2) && (encoded.get(0) == 0) && (encoded.get(1) == 0)) {
                 // 0x00 0x00 encountered
                 return in.getReadByteCount() - readByteCountBefore - 2;
@@ -234,72 +234,62 @@ public class InputStreamBerDataValueReader implements BerDataValueReader {
         private final InputStream mIn;
         private final ByteArrayOutputStream mBuf;
 
-        private RecordingInputStream(InputStream in) {
-            mIn = in;
-            mBuf = new ByteArrayOutputStream();
+        private RecordingInputStream(final InputStream in) {
+            this.mIn = in;
+            this.mBuf = new ByteArrayOutputStream();
         }
 
         public byte[] getReadBytes() {
-            return mBuf.toByteArray();
+            return this.mBuf.toByteArray();
         }
 
         public int getReadByteCount() {
-            return mBuf.size();
+            return this.mBuf.size();
         }
 
         @Override
         public int read() throws IOException {
-            int b = mIn.read();
+            final int b = this.mIn.read();
             if (b != -1) {
-                mBuf.write(b);
+                this.mBuf.write(b);
             }
             return b;
         }
 
         @Override
-        public int read(@NotNull byte[] b) throws IOException {
-            int len = mIn.read(b);
+        public int read(@NotNull final byte[] b) throws IOException {
+            final int len = this.mIn.read(b);
             if (len > 0) {
-                mBuf.write(b, 0, len);
+                this.mBuf.write(b, 0, len);
             }
             return len;
         }
 
         @Override
-        public int read(@NotNull byte[] b, int off, int len) throws IOException {
-            len = mIn.read(b, off, len);
+        public int read(@NotNull final byte[] b, final int off, int len) throws IOException {
+            len = this.mIn.read(b, off, len);
             if (len > 0) {
-                mBuf.write(b, off, len);
+                this.mBuf.write(b, off, len);
             }
             return len;
         }
 
         @Override
-        public long skip(long n) throws IOException {
+        public long skip(final long n) throws IOException {
             if (n <= 0) {
-                return mIn.skip(n);
+                return this.mIn.skip(n);
             }
 
-            byte[] buf = new byte[4096];
-            int len = mIn.read(buf, 0, (int) Math.min(buf.length, n));
+            final byte[] buf = new byte[4096];
+            final int len = this.mIn.read(buf, 0, (int) Math.min(buf.length, n));
             if (len > 0) {
-                mBuf.write(buf, 0, len);
+                this.mBuf.write(buf, 0, len);
             }
             return Math.max(len, 0);
         }
 
         @Override
-        public int available() throws IOException {
-            return super.available();
-        }
-
-        @Override
-        public void close() throws IOException {
-            super.close();
-        }
-
-        @Override
-        public synchronized void mark(int readlimit) {
+        public synchronized void mark(final int readlimit) {
         }
 
         @Override

@@ -25,61 +25,61 @@ import java.nio.ByteBuffer;
 public class ByteBufferBerDataValueReader implements BerDataValueReader {
     private final ByteBuffer mBuf;
 
-    public ByteBufferBerDataValueReader(ByteBuffer buf) {
+    public ByteBufferBerDataValueReader(final ByteBuffer buf) {
         if (buf == null) {
             throw new NullPointerException("buf == null");
         }
-        mBuf = buf;
+        this.mBuf = buf;
     }
 
     @Override
     public BerDataValue readDataValue() throws BerDataValueFormatException {
-        int startPosition = mBuf.position();
-        if (!mBuf.hasRemaining()) {
+        final int startPosition = this.mBuf.position();
+        if (!this.mBuf.hasRemaining()) {
             return null;
         }
-        byte firstIdentifierByte = mBuf.get();
-        int tagNumber = readTagNumber(firstIdentifierByte);
-        boolean constructed = BerEncoding.isConstructed(firstIdentifierByte);
+        final byte firstIdentifierByte = this.mBuf.get();
+        final int tagNumber = this.readTagNumber(firstIdentifierByte);
+        final boolean constructed = BerEncoding.isConstructed(firstIdentifierByte);
 
-        if (!mBuf.hasRemaining()) {
+        if (!this.mBuf.hasRemaining()) {
             throw new BerDataValueFormatException("Missing length");
         }
-        int firstLengthByte = mBuf.get() & 0xff;
-        int contentsLength;
-        int contentsOffsetInTag;
+        final int firstLengthByte = this.mBuf.get() & 0xff;
+        final int contentsLength;
+        final int contentsOffsetInTag;
         if ((firstLengthByte & 0x80) == 0) {
             // short form length
-            contentsLength = readShortFormLength(firstLengthByte);
-            contentsOffsetInTag = mBuf.position() - startPosition;
-            skipDefiniteLengthContents(contentsLength);
+            contentsLength = this.readShortFormLength(firstLengthByte);
+            contentsOffsetInTag = this.mBuf.position() - startPosition;
+            this.skipDefiniteLengthContents(contentsLength);
         } else if (firstLengthByte != 0x80) {
             // long form length
-            contentsLength = readLongFormLength(firstLengthByte);
-            contentsOffsetInTag = mBuf.position() - startPosition;
-            skipDefiniteLengthContents(contentsLength);
+            contentsLength = this.readLongFormLength(firstLengthByte);
+            contentsOffsetInTag = this.mBuf.position() - startPosition;
+            this.skipDefiniteLengthContents(contentsLength);
         } else {
             // indefinite length -- value ends with 0x00 0x00
-            contentsOffsetInTag = mBuf.position() - startPosition;
+            contentsOffsetInTag = this.mBuf.position() - startPosition;
             contentsLength =
                     constructed
-                            ? skipConstructedIndefiniteLengthContents()
-                            : skipPrimitiveIndefiniteLengthContents();
+                            ? this.skipConstructedIndefiniteLengthContents()
+                            : this.skipPrimitiveIndefiniteLengthContents();
         }
 
         // Create the encoded data value ByteBuffer
-        int endPosition = mBuf.position();
-        mBuf.position(startPosition);
-        int bufOriginalLimit = mBuf.limit();
-        mBuf.limit(endPosition);
-        ByteBuffer encoded = mBuf.slice();
-        mBuf.position(mBuf.limit());
-        mBuf.limit(bufOriginalLimit);
+        final int endPosition = this.mBuf.position();
+        this.mBuf.position(startPosition);
+        final int bufOriginalLimit = this.mBuf.limit();
+        this.mBuf.limit(endPosition);
+        final ByteBuffer encoded = this.mBuf.slice();
+        this.mBuf.position(this.mBuf.limit());
+        this.mBuf.limit(bufOriginalLimit);
 
         // Create the encoded contents ByteBuffer
         encoded.position(contentsOffsetInTag);
         encoded.limit(contentsOffsetInTag + contentsLength);
-        ByteBuffer encodedContents = encoded.slice();
+        final ByteBuffer encodedContents = encoded.slice();
         encoded.clear();
 
         return new BerDataValue(
@@ -90,13 +90,13 @@ public class ByteBufferBerDataValueReader implements BerDataValueReader {
                 tagNumber);
     }
 
-    private int readTagNumber(byte firstIdentifierByte) throws BerDataValueFormatException {
-        int tagNumber = BerEncoding.getTagNumber(firstIdentifierByte);
+    private int readTagNumber(final byte firstIdentifierByte) throws BerDataValueFormatException {
+        final int tagNumber = BerEncoding.getTagNumber(firstIdentifierByte);
         if (tagNumber == 0x1f) {
             // high-tag-number form, where the tag number follows this byte in base-128
             // big-endian form, where each byte has the highest bit set, except for the last
             // byte
-            return readHighTagNumber();
+            return this.readHighTagNumber();
         } else {
             // low-tag-number form
             return tagNumber;
@@ -109,10 +109,10 @@ public class ByteBufferBerDataValueReader implements BerDataValueReader {
         int b;
         int result = 0;
         do {
-            if (!mBuf.hasRemaining()) {
+            if (!this.mBuf.hasRemaining()) {
                 throw new BerDataValueFormatException("Truncated tag number");
             }
-            b = mBuf.get();
+            b = this.mBuf.get();
             if (result > Integer.MAX_VALUE >>> 7) {
                 throw new BerDataValueFormatException("Tag number too large");
             }
@@ -122,23 +122,23 @@ public class ByteBufferBerDataValueReader implements BerDataValueReader {
         return result;
     }
 
-    private int readShortFormLength(int firstLengthByte) {
+    private int readShortFormLength(final int firstLengthByte) {
         return firstLengthByte & 0x7f;
     }
 
-    private int readLongFormLength(int firstLengthByte) throws BerDataValueFormatException {
+    private int readLongFormLength(final int firstLengthByte) throws BerDataValueFormatException {
         // The low 7 bits of the first byte represent the number of bytes (following the first
         // byte) in which the length is in big-endian base-256 form
-        int byteCount = firstLengthByte & 0x7f;
+        final int byteCount = firstLengthByte & 0x7f;
         if (byteCount > 4) {
             throw new BerDataValueFormatException("Length too large: " + byteCount + " bytes");
         }
         int result = 0;
         for (int i = 0; i < byteCount; i++) {
-            if (!mBuf.hasRemaining()) {
+            if (!this.mBuf.hasRemaining()) {
                 throw new BerDataValueFormatException("Truncated length");
             }
-            int b = mBuf.get();
+            final int b = this.mBuf.get();
             if (result > Integer.MAX_VALUE >>> 8) {
                 throw new BerDataValueFormatException("Length too large");
             }
@@ -148,13 +148,13 @@ public class ByteBufferBerDataValueReader implements BerDataValueReader {
         return result;
     }
 
-    private void skipDefiniteLengthContents(int contentsLength) throws BerDataValueFormatException {
-        if (mBuf.remaining() < contentsLength) {
+    private void skipDefiniteLengthContents(final int contentsLength) throws BerDataValueFormatException {
+        if (this.mBuf.remaining() < contentsLength) {
             throw new BerDataValueFormatException(
                     "Truncated contents. Need: " + contentsLength + " bytes, available: "
-                            + mBuf.remaining());
+                            + this.mBuf.remaining());
         }
-        mBuf.position(mBuf.position() + contentsLength);
+        this.mBuf.position(this.mBuf.position() + contentsLength);
     }
 
     private int skipPrimitiveIndefiniteLengthContents() throws BerDataValueFormatException {
@@ -162,12 +162,12 @@ public class ByteBufferBerDataValueReader implements BerDataValueReader {
         boolean prevZeroByte = false;
         int bytesRead = 0;
         while (true) {
-            if (!mBuf.hasRemaining()) {
+            if (!this.mBuf.hasRemaining()) {
                 throw new BerDataValueFormatException(
                         "Truncated indefinite-length contents: " + bytesRead + " bytes read");
 
             }
-            int b = mBuf.get();
+            final int b = this.mBuf.get();
             bytesRead++;
             if (bytesRead < 0) {
                 throw new BerDataValueFormatException("Indefinite-length contents too long");
@@ -189,20 +189,20 @@ public class ByteBufferBerDataValueReader implements BerDataValueReader {
         // can contain data values which are themselves indefinite length encoded. As a result, we
         // must parse the direct children of this data value to correctly skip over the contents of
         // this data value.
-        int startPos = mBuf.position();
-        while (mBuf.hasRemaining()) {
+        final int startPos = this.mBuf.position();
+        while (this.mBuf.hasRemaining()) {
             // Check whether the 0x00 0x00 terminator is at current position
-            if ((mBuf.remaining() > 1) && (mBuf.getShort(mBuf.position()) == 0)) {
-                int contentsLength = mBuf.position() - startPos;
-                mBuf.position(mBuf.position() + 2);
+            if ((this.mBuf.remaining() > 1) && (this.mBuf.getShort(this.mBuf.position()) == 0)) {
+                final int contentsLength = this.mBuf.position() - startPos;
+                this.mBuf.position(this.mBuf.position() + 2);
                 return contentsLength;
             }
             // No luck. This must be a BER-encoded data value -- skip over it by parsing it
-            readDataValue();
+            this.readDataValue();
         }
 
         throw new BerDataValueFormatException(
                 "Truncated indefinite-length contents: "
-                        + (mBuf.position() - startPos) + " bytes read");
+                        + (this.mBuf.position() - startPos) + " bytes read");
     }
 }

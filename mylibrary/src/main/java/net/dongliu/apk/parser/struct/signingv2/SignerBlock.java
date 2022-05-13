@@ -4,25 +4,25 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 
 public class SignerBlock {
-    private List<Digest> digests;
-    private List<X509Certificate> certificates;
-    private List<Signature> signatures;
+    private final List<Digest> digests;
+    private final List<X509Certificate> certificates;
+    private final List<Signature> signatures;
 
-    public SignerBlock(List<Digest> digests, List<X509Certificate> certificates, List<Signature> signatures) {
+    public SignerBlock(final List<Digest> digests, final List<X509Certificate> certificates, final List<Signature> signatures) {
         this.digests = digests;
         this.certificates = certificates;
         this.signatures = signatures;
     }
 
     public List<Digest> getDigests() {
-        return digests;
+        return this.digests;
     }
 
     public List<X509Certificate> getCertificates() {
-        return certificates;
+        return this.certificates;
     }
 
     public List<Signature> getSignatures() {
-        return signatures;
+        return this.signatures;
     }
 }

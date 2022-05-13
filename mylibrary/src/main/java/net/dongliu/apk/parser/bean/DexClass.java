@@ -15,23 +15,23 @@ public class DexClass {
     private final String superClass;
     private final int accessFlags;
 
-    public DexClass(String classType, String superClass, int accessFlags) {
+    public DexClass(final String classType, final String superClass, final int accessFlags) {
         this.classType = classType;
         this.superClass = superClass;
         this.accessFlags = accessFlags;
     }
 
     public String getPackageName() {
-        String packageName = classType;
+        String packageName = this.classType;
         if (packageName.length() > 0) {
             if (packageName.charAt(0) == 'L') {
                 packageName = packageName.substring(1);
             }
         }
         if (packageName.length() > 0) {
-            int idx = classType.lastIndexOf('/');
+            final int idx = this.classType.lastIndexOf('/');
             if (idx > 0) {
-                packageName = packageName.substring(0, classType.lastIndexOf('/') - 1);
+                packageName = packageName.substring(0, this.classType.lastIndexOf('/') - 1);
             } else if (packageName.charAt(packageName.length() - 1) == ';') {
                 packageName = packageName.substring(0, packageName.length() - 1);
             }
@@ -40,12 +40,12 @@ public class DexClass {
     }
 
     public String getClassType() {
-        return classType;
+        return this.classType;
     }
 
     @Nullable
     public String getSuperClass() {
-        return superClass;
+        return this.superClass;
     }
 
     public boolean isInterface() {
@@ -74,6 +74,6 @@ public class DexClass {
 
     @Override
     public String toString() {
-        return classType;
+        return this.classType;
     }
 }

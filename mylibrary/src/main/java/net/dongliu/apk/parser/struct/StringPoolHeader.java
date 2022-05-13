@@ -8,7 +8,7 @@ import net.dongliu.apk.parser.utils.Unsigned;
  * @author dongliu
  */
 public class StringPoolHeader extends ChunkHeader {
-    public StringPoolHeader(int headerSize, long chunkSize) {
+    public StringPoolHeader(final int headerSize, final long chunkSize) {
         super(ChunkType.STRING_POOL, headerSize, chunkSize);
     }
 
@@ -31,42 +31,42 @@ public class StringPoolHeader extends ChunkHeader {
     private long stylesStart;
 
     public int getStringCount() {
-        return stringCount;
+        return this.stringCount;
     }
 
-    public void setStringCount(long stringCount) {
+    public void setStringCount(final long stringCount) {
         this.stringCount = Unsigned.ensureUInt(stringCount);
     }
 
     public int getStyleCount() {
-        return styleCount;
+        return this.styleCount;
     }
 
-    public void setStyleCount(long styleCount) {
+    public void setStyleCount(final long styleCount) {
         this.styleCount = Unsigned.ensureUInt(styleCount);
     }
 
     public long getFlags() {
-        return flags;
+        return this.flags;
     }
 
-    public void setFlags(long flags) {
+    public void setFlags(final long flags) {
         this.flags = flags;
     }
 
     public long getStringsStart() {
-        return stringsStart;
+        return this.stringsStart;
     }
 
-    public void setStringsStart(long stringsStart) {
+    public void setStringsStart(final long stringsStart) {
         this.stringsStart = stringsStart;
     }
 
     public long getStylesStart() {
-        return stylesStart;
+        return this.stylesStart;
     }
 
-    public void setStylesStart(long stylesStart) {
+    public void setStylesStart(final long stylesStart) {
         this.stylesStart = stylesStart;
     }
 }

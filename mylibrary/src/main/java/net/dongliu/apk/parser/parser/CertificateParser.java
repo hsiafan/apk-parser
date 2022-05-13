@@ -16,11 +16,11 @@ public abstract class CertificateParser {
 
     protected final byte[] data;
 
-    public CertificateParser(byte[] data) {
+    public CertificateParser(final byte[] data) {
         this.data = data;
     }
 
-    public static CertificateParser getInstance(byte[] data) {
+    public static CertificateParser getInstance(final byte[] data) {
         if (ApkParsers.useBouncyCastle()) {
             return new BCCertificateParser(data);
         }

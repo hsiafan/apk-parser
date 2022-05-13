@@ -27,43 +27,43 @@ public class XmlCData {
      *
      * @return
      */
-    public String toStringValue(ResourceTable resourceTable, Locale locale) {
-        if (data != null) {
-            return CDATA_START + data + CDATA_END;
+    public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+        if (this.data != null) {
+            return XmlCData.CDATA_START + this.data + XmlCData.CDATA_END;
         } else {
-            return CDATA_START + typedData.toStringValue(resourceTable, locale) + CDATA_END;
+            return XmlCData.CDATA_START + this.typedData.toStringValue(resourceTable, locale) + XmlCData.CDATA_END;
         }
     }
 
     public String getData() {
-        return data;
+        return this.data;
     }
 
-    public void setData(String data) {
+    public void setData(final String data) {
         this.data = data;
     }
 
     public ResourceValue getTypedData() {
-        return typedData;
+        return this.typedData;
     }
 
-    public void setTypedData(ResourceValue typedData) {
+    public void setTypedData(final ResourceValue typedData) {
         this.typedData = typedData;
     }
 
     public String getValue() {
-        return value;
+        return this.value;
     }
 
-    public void setValue(String value) {
+    public void setValue(final String value) {
         this.value = value;
     }
 
     @Override
     public String toString() {
         return "XmlCData{" +
-                "data='" + data + '\'' +
-                ", typedData=" + typedData +
+                "data='" + this.data + '\'' +
+                ", typedData=" + this.typedData +
                 '}';
     }
 }

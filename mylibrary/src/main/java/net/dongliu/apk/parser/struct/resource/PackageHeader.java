@@ -44,55 +44,55 @@ public class PackageHeader extends ChunkHeader {
     // uint32_t
     private int lastPublicKey;
 
-    public PackageHeader(int headerSize, long chunkSize) {
+    public PackageHeader(final int headerSize, final long chunkSize) {
         super(ChunkType.TABLE_PACKAGE, headerSize, chunkSize);
     }
 
     public long getId() {
-        return Unsigned.toLong(id);
+        return Unsigned.toLong(this.id);
     }
 
-    public void setId(long id) {
+    public void setId(final long id) {
         this.id = Unsigned.toUInt(id);
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     public int getTypeStrings() {
-        return typeStrings;
+        return this.typeStrings;
     }
 
-    public void setTypeStrings(long typeStrings) {
+    public void setTypeStrings(final long typeStrings) {
         this.typeStrings = Unsigned.ensureUInt(typeStrings);
     }
 
     public int getLastPublicType() {
-        return lastPublicType;
+        return this.lastPublicType;
     }
 
-    public void setLastPublicType(long lastPublicType) {
+    public void setLastPublicType(final long lastPublicType) {
         this.lastPublicType = Unsigned.ensureUInt(lastPublicType);
     }
 
     public int getKeyStrings() {
-        return keyStrings;
+        return this.keyStrings;
     }
 
-    public void setKeyStrings(long keyStrings) {
+    public void setKeyStrings(final long keyStrings) {
         this.keyStrings = Unsigned.ensureUInt(keyStrings);
     }
 
     public int getLastPublicKey() {
-        return lastPublicKey;
+        return this.lastPublicKey;
     }
 
-    public void setLastPublicKey(long lastPublicKey) {
+    public void setLastPublicKey(final long lastPublicKey) {
         this.lastPublicKey = Unsigned.ensureUInt(lastPublicKey);
     }
 }

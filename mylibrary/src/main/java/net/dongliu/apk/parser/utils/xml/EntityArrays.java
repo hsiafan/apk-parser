@@ -30,7 +30,7 @@ public class EntityArrays {
      * @return the mapping table
      */
     public static String[][] BASIC_ESCAPE() {
-        return BASIC_ESCAPE.clone();
+        return EntityArrays.BASIC_ESCAPE.clone();
     }
 
     private static final String[][] BASIC_ESCAPE = {
@@ -46,7 +46,7 @@ public class EntityArrays {
      * @return the mapping table
      */
     public static String[][] APOS_ESCAPE() {
-        return APOS_ESCAPE.clone();
+        return EntityArrays.APOS_ESCAPE.clone();
     }
 
     private static final String[][] APOS_ESCAPE = {

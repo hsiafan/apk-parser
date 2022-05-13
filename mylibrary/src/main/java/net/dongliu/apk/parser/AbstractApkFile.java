@@ -74,7 +74,7 @@ public abstract class AbstractApkFile implements Closeable {
     /**
      * default use empty locale
      */
-    private Locale preferredLocale = DEFAULT_LOCALE;
+    private Locale preferredLocale = AbstractApkFile.DEFAULT_LOCALE;
 
     /**
      * return decoded AndroidManifest.xml
@@ -82,7 +82,7 @@ public abstract class AbstractApkFile implements Closeable {
      * @return decoded AndroidManifest.xml
      */
     public String getManifestXml() throws IOException {
-        parseManifest();
+        this.parseManifest();
         return this.manifestXml;
     }
 
@@ -92,7 +92,7 @@ public abstract class AbstractApkFile implements Closeable {
      * @return decoded AndroidManifest.xml
      */
     public ApkMeta getApkMeta() throws IOException {
-        parseManifest();
+        this.parseManifest();
         return this.apkMeta;
     }
 
@@ -103,7 +103,7 @@ public abstract class AbstractApkFile implements Closeable {
      * @throws IOException
      */
     public Set<Locale> getLocales() throws IOException {
-        parseResourceTable();
+        this.parseResourceTable();
         return this.locales;
     }
 
@@ -114,13 +114,13 @@ public abstract class AbstractApkFile implements Closeable {
      */
     @Deprecated
     public List<CertificateMeta> getCertificateMetaList() throws IOException, CertificateException {
-        if (apkSigners == null) {
-            parseCertificates();
+        if (this.apkSigners == null) {
+            this.parseCertificates();
         }
-        if (apkSigners.isEmpty()) {
+        if (this.apkSigners.isEmpty()) {
             throw new ParserException("ApkFile certificate not found");
         }
-        return apkSigners.get(0).getCertificateMetas();
+        return this.apkSigners.get(0).getCertificateMetas();
     }
 
     /**
@@ -131,9 +131,9 @@ public abstract class AbstractApkFile implements Closeable {
      */
     @Deprecated
     public Map<String, List<CertificateMeta>> getAllCertificateMetas() throws IOException, CertificateException {
-        List<ApkSigner> apkSigners = getApkSingers();
-        Map<String, List<CertificateMeta>> map = new LinkedHashMap<>();
-        for (ApkSigner apkSigner : apkSigners) {
+        final List<ApkSigner> apkSigners = this.getApkSingers();
+        final Map<String, List<CertificateMeta>> map = new LinkedHashMap<>();
+        for (final ApkSigner apkSigner : apkSigners) {
             map.put(apkSigner.getPath(), apkSigner.getCertificateMetas());
         }
         return map;
@@ -144,18 +144,18 @@ public abstract class AbstractApkFile implements Closeable {
      * If cert faile not exist, return empty list.
      */
     public List<ApkSigner> getApkSingers() throws IOException, CertificateException {
-        if (apkSigners == null) {
-            parseCertificates();
+        if (this.apkSigners == null) {
+            this.parseCertificates();
         }
         return this.apkSigners;
     }
 
     private void parseCertificates() throws IOException, CertificateException {
         this.apkSigners = new ArrayList<>();
-        for (CertificateFile file : getAllCertificateData()) {
-            CertificateParser parser = CertificateParser.getInstance(file.getData());
-            List<CertificateMeta> certificateMetas = parser.parse();
-            apkSigners.add(new ApkSigner(file.getPath(), certificateMetas));
+        for (final CertificateFile file : this.getAllCertificateData()) {
+            final CertificateParser parser = CertificateParser.getInstance(file.getData());
+            final List<CertificateMeta> certificateMetas = parser.parse();
+            this.apkSigners.add(new ApkSigner(file.getPath(), certificateMetas));
         }
     }
 
@@ -164,22 +164,22 @@ public abstract class AbstractApkFile implements Closeable {
      * If apk v2 signing block not exists, return empty list.
      */
     public List<ApkV2Signer> getApkV2Singers() throws IOException, CertificateException {
-        if (apkV2Signers == null) {
-            parseApkSigningBlock();
+        if (this.apkV2Signers == null) {
+            this.parseApkSigningBlock();
         }
         return this.apkV2Signers;
     }
 
     private void parseApkSigningBlock() throws IOException, CertificateException {
-        List<ApkV2Signer> list = new ArrayList<>();
-        ByteBuffer apkSignBlockBuf = findApkSignBlock();
+        final List<ApkV2Signer> list = new ArrayList<>();
+        final ByteBuffer apkSignBlockBuf = this.findApkSignBlock();
         if (apkSignBlockBuf != null) {
-            ApkSignBlockParser parser = new ApkSignBlockParser(apkSignBlockBuf);
-            ApkSigningBlock apkSigningBlock = parser.parse();
-            for (SignerBlock signerBlock : apkSigningBlock.getSignerBlocks()) {
-                List<X509Certificate> certificates = signerBlock.getCertificates();
-                List<CertificateMeta> certificateMetas = CertificateMetas.from(certificates);
-                ApkV2Signer apkV2Signer = new ApkV2Signer(certificateMetas);
+            final ApkSignBlockParser parser = new ApkSignBlockParser(apkSignBlockBuf);
+            final ApkSigningBlock apkSigningBlock = parser.parse();
+            for (final SignerBlock signerBlock : apkSigningBlock.getSignerBlocks()) {
+                final List<X509Certificate> certificates = signerBlock.getCertificates();
+                final List<CertificateMeta> certificateMetas = CertificateMetas.from(certificates);
+                final ApkV2Signer apkV2Signer = new ApkV2Signer(certificateMetas);
                 list.add(apkV2Signer);
             }
         }
@@ -190,41 +190,41 @@ public abstract class AbstractApkFile implements Closeable {
     protected abstract List<CertificateFile> getAllCertificateData() throws IOException;
 
     protected static class CertificateFile {
-        private String path;
-        private byte[] data;
+        private final String path;
+        private final byte[] data;
 
-        public CertificateFile(String path, byte[] data) {
+        public CertificateFile(final String path, final byte[] data) {
             this.path = path;
             this.data = data;
         }
 
         public String getPath() {
-            return path;
+            return this.path;
         }
 
         public byte[] getData() {
-            return data;
+            return this.data;
         }
     }
 
     private void parseManifest() throws IOException {
-        if (manifestParsed) {
+        if (this.manifestParsed) {
             return;
         }
-        parseResourceTable();
-        XmlTranslator xmlTranslator = new XmlTranslator();
-        ApkMetaTranslator apkTranslator = new ApkMetaTranslator(this.resourceTable, this.preferredLocale);
-        XmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator, apkTranslator);
+        this.parseResourceTable();
+        final XmlTranslator xmlTranslator = new XmlTranslator();
+        final ApkMetaTranslator apkTranslator = new ApkMetaTranslator(this.resourceTable, this.preferredLocale);
+        final XmlStreamer xmlStreamer = new CompositeXmlStreamer(xmlTranslator, apkTranslator);
 
-        byte[] data = getFileData(AndroidConstants.MANIFEST_FILE);
+        final byte[] data = this.getFileData(AndroidConstants.MANIFEST_FILE);
         if (data == null) {
             throw new ParserException("Manifest file not found");
         }
-        transBinaryXml(data, xmlStreamer);
+        this.transBinaryXml(data, xmlStreamer);
         this.manifestXml = xmlTranslator.getXml();
         this.apkMeta = apkTranslator.getApkMeta();
         this.iconPaths = apkTranslator.getIconPaths();
-        manifestParsed = true;
+        this.manifestParsed = true;
     }
 
     /**
@@ -245,24 +245,24 @@ public abstract class AbstractApkFile implements Closeable {
      * @return the text. null if file not exists
      * @throws IOException
      */
-    public String transBinaryXml(String path) throws IOException {
-        byte[] data = getFileData(path);
+    public String transBinaryXml(final String path) throws IOException {
+        final byte[] data = this.getFileData(path);
         if (data == null) {
             return null;
         }
-        parseResourceTable();
+        this.parseResourceTable();
 
-        XmlTranslator xmlTranslator = new XmlTranslator();
-        transBinaryXml(data, xmlTranslator);
+        final XmlTranslator xmlTranslator = new XmlTranslator();
+        this.transBinaryXml(data, xmlTranslator);
         return xmlTranslator.getXml();
     }
 
-    private void transBinaryXml(byte[] data, XmlStreamer xmlStreamer) throws IOException {
-        parseResourceTable();
+    private void transBinaryXml(final byte[] data, final XmlStreamer xmlStreamer) throws IOException {
+        this.parseResourceTable();
 
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        BinaryXmlParser binaryXmlParser = new BinaryXmlParser(buffer, resourceTable);
-        binaryXmlParser.setLocale(preferredLocale);
+        final ByteBuffer buffer = ByteBuffer.wrap(data);
+        final BinaryXmlParser binaryXmlParser = new BinaryXmlParser(buffer, this.resourceTable);
+        binaryXmlParser.setLocale(this.preferredLocale);
         binaryXmlParser.setXmlStreamer(xmlStreamer);
         binaryXmlParser.parse();
     }
@@ -274,43 +274,43 @@ public abstract class AbstractApkFile implements Closeable {
      * @return icon files.
      */
     public List<IconFace> getAllIcons() throws IOException {
-        List<IconPath> iconPaths = getIconPaths();
+        final List<IconPath> iconPaths = this.getIconPaths();
         if (iconPaths.isEmpty()) {
             return Collections.emptyList();
         }
-        List<IconFace> iconFaces = new ArrayList<>(iconPaths.size());
-        for (IconPath iconPath : iconPaths) {
-            String filePath = iconPath.getPath();
+        final List<IconFace> iconFaces = new ArrayList<>(iconPaths.size());
+        for (final IconPath iconPath : iconPaths) {
+            final String filePath = iconPath.getPath();
             if (filePath.endsWith(".xml")) {
                 // adaptive icon?
-                byte[] data = getFileData(filePath);
+                final byte[] data = this.getFileData(filePath);
                 if (data == null) {
                     continue;
                 }
-                parseResourceTable();
+                this.parseResourceTable();
 
-                AdaptiveIconParser iconParser = new AdaptiveIconParser();
-                transBinaryXml(data, iconParser);
+                final AdaptiveIconParser iconParser = new AdaptiveIconParser();
+                this.transBinaryXml(data, iconParser);
                 Icon backgroundIcon = null;
                 if (iconParser.getBackground() != null) {
-                    backgroundIcon = newFileIcon(iconParser.getBackground(), iconPath.getDensity());
+                    backgroundIcon = this.newFileIcon(iconParser.getBackground(), iconPath.getDensity());
                 }
                 Icon foregroundIcon = null;
                 if (iconParser.getForeground() != null) {
-                    foregroundIcon = newFileIcon(iconParser.getForeground(), iconPath.getDensity());
+                    foregroundIcon = this.newFileIcon(iconParser.getForeground(), iconPath.getDensity());
                 }
-                AdaptiveIcon icon = new AdaptiveIcon(foregroundIcon, backgroundIcon);
+                final AdaptiveIcon icon = new AdaptiveIcon(foregroundIcon, backgroundIcon);
                 iconFaces.add(icon);
             } else {
-                Icon icon = newFileIcon(filePath, iconPath.getDensity());
+                final Icon icon = this.newFileIcon(filePath, iconPath.getDensity());
                 iconFaces.add(icon);
             }
         }
         return iconFaces;
     }
 
-    private Icon newFileIcon(String filePath, int density) throws IOException {
-        return new Icon(filePath, density, getFileData(filePath));
+    private Icon newFileIcon(final String filePath, final int density) throws IOException {
+        return new Icon(filePath, density, this.getFileData(filePath));
     }
 
     /**
@@ -320,12 +320,12 @@ public abstract class AbstractApkFile implements Closeable {
      */
     @Deprecated
     public Icon getIconFile() throws IOException {
-        ApkMeta apkMeta = getApkMeta();
-        String iconPath = apkMeta.getIcon();
+        final ApkMeta apkMeta = this.getApkMeta();
+        final String iconPath = apkMeta.getIcon();
         if (iconPath == null) {
             return null;
         }
-        return new Icon(iconPath, Densities.DEFAULT, getFileData(iconPath));
+        return new Icon(iconPath, Densities.DEFAULT, this.getFileData(iconPath));
     }
 
     /**
@@ -335,7 +335,7 @@ public abstract class AbstractApkFile implements Closeable {
      */
     @Deprecated
     public List<IconPath> getIconPaths() throws IOException {
-        parseManifest();
+        this.parseManifest();
         return this.iconPaths;
     }
 
@@ -346,10 +346,10 @@ public abstract class AbstractApkFile implements Closeable {
      */
     @Deprecated
     public List<Icon> getIconFiles() throws IOException {
-        List<IconPath> iconPaths = getIconPaths();
-        List<Icon> icons = new ArrayList<>(iconPaths.size());
-        for (IconPath iconPath : iconPaths) {
-            Icon icon = newFileIcon(iconPath.getPath(), iconPath.getDensity());
+        final List<IconPath> iconPaths = this.getIconPaths();
+        final List<Icon> icons = new ArrayList<>(iconPaths.size());
+        for (final IconPath iconPath : iconPaths) {
+            final Icon icon = this.newFileIcon(iconPath.getPath(), iconPath.getDensity());
             icons.add(icon);
         }
         return icons;
@@ -360,37 +360,37 @@ public abstract class AbstractApkFile implements Closeable {
      */
     public DexClass[] getDexClasses() throws IOException {
         if (this.dexClasses == null) {
-            parseDexFiles();
+            this.parseDexFiles();
         }
         return this.dexClasses;
     }
 
-    private DexClass[] mergeDexClasses(DexClass[] first, DexClass[] second) {
-        DexClass[] result = new DexClass[first.length + second.length];
+    private DexClass[] mergeDexClasses(final DexClass[] first, final DexClass[] second) {
+        final DexClass[] result = new DexClass[first.length + second.length];
         arraycopy(first, 0, result, 0, first.length);
         arraycopy(second, 0, result, first.length, second.length);
         return result;
     }
 
-    private DexClass[] parseDexFile(String path) throws IOException {
-        byte[] data = getFileData(path);
+    private DexClass[] parseDexFile(final String path) throws IOException {
+        final byte[] data = this.getFileData(path);
         if (data == null) {
-            String msg = String.format("Dex file %s not found", path);
+            final String msg = String.format("Dex file %s not found", path);
             throw new ParserException(msg);
         }
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        DexParser dexParser = new DexParser(buffer);
+        final ByteBuffer buffer = ByteBuffer.wrap(data);
+        final DexParser dexParser = new DexParser(buffer);
         return dexParser.parse();
     }
 
     private void parseDexFiles() throws IOException {
-        this.dexClasses = parseDexFile(AndroidConstants.DEX_FILE);
+        this.dexClasses = this.parseDexFile(AndroidConstants.DEX_FILE);
         for (int i = 2; i < 1000; i++) {
-            String path = String.format(AndroidConstants.DEX_ADDITIONAL, i);
+            final String path = String.format(Locale.ROOT, AndroidConstants.DEX_ADDITIONAL, i);
             try {
-                DexClass[] classes = parseDexFile(path);
-                this.dexClasses = mergeDexClasses(this.dexClasses, classes);
-            } catch (ParserException e) {
+                final DexClass[] classes = this.parseDexFile(path);
+                this.dexClasses = this.mergeDexClasses(this.dexClasses, classes);
+            } catch (final ParserException e) {
                 break;
             }
         }
@@ -400,11 +400,11 @@ public abstract class AbstractApkFile implements Closeable {
      * parse resource table.
      */
     private void parseResourceTable() throws IOException {
-        if (resourceTableParsed) {
+        if (this.resourceTableParsed) {
             return;
         }
-        resourceTableParsed = true;
-        byte[] data = getFileData(AndroidConstants.RESOURCE_FILE);
+        this.resourceTableParsed = true;
+        final byte[] data = this.getFileData(AndroidConstants.RESOURCE_FILE);
         if (data == null) {
             // if no resource entry has been found, we assume it is not needed by this APK
             this.resourceTable = new ResourceTable();
@@ -412,8 +412,8 @@ public abstract class AbstractApkFile implements Closeable {
             return;
         }
 
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        ResourceTableParser resourceTableParser = new ResourceTableParser(buffer);
+        final ByteBuffer buffer = ByteBuffer.wrap(data);
+        final ResourceTableParser resourceTableParser = new ResourceTableParser(buffer);
         resourceTableParser.parse();
         this.resourceTable = resourceTableParser.getResourceTable();
         this.locales = resourceTableParser.getLocales();
@@ -438,7 +438,7 @@ public abstract class AbstractApkFile implements Closeable {
      * The local used to parse apk
      */
     public Locale getPreferredLocale() {
-        return preferredLocale;
+        return this.preferredLocale;
     }
 
 
@@ -446,7 +446,7 @@ public abstract class AbstractApkFile implements Closeable {
      * The locale preferred. Will cause getManifestXml / getApkMeta to return different values.
      * The default value is from os default locale setting.
      */
-    public void setPreferredLocale(Locale preferredLocale) {
+    public void setPreferredLocale(final Locale preferredLocale) {
         if (!Objects.equals(this.preferredLocale, preferredLocale)) {
             this.preferredLocale = preferredLocale;
             this.manifestXml = null;
@@ -461,18 +461,18 @@ public abstract class AbstractApkFile implements Closeable {
      * @return null if do not have sign block
      */
     protected ByteBuffer findApkSignBlock() throws IOException {
-        ByteBuffer buffer = fileData().order(ByteOrder.LITTLE_ENDIAN);
-        int len = buffer.limit();
+        final ByteBuffer buffer = this.fileData().order(ByteOrder.LITTLE_ENDIAN);
+        final int len = buffer.limit();
 
         // first find zip end of central directory entry
         if (len < 22) {
             // should not happen
             throw new RuntimeException("Not zip file");
         }
-        int maxEOCDSize = 1024 * 100;
+        final int maxEOCDSize = 1024 * 100;
         EOCD eocd = null;
         for (int i = len - 22; i > Math.max(0, len - maxEOCDSize); i--) {
-            int v = buffer.getInt(i);
+            final int v = buffer.getInt(i);
             if (v == EOCD.SIGNATURE) {
                 Buffers.position(buffer, i + 4);
                 eocd = new EOCD();
@@ -490,18 +490,18 @@ public abstract class AbstractApkFile implements Closeable {
             return null;
         }
 
-        int magicStrLen = 16;
-        long cdStart = eocd.getCdStart();
+        final int magicStrLen = 16;
+        final long cdStart = eocd.getCdStart();
         // find apk sign block
         Buffers.position(buffer, cdStart - magicStrLen);
-        String magic = Buffers.readAsciiString(buffer, magicStrLen);
+        final String magic = Buffers.readAsciiString(buffer, magicStrLen);
         if (!magic.equals(ApkSigningBlock.MAGIC)) {
             return null;
         }
         Buffers.position(buffer, cdStart - 24);
-        int blockSize = Unsigned.ensureUInt(buffer.getLong());
+        final int blockSize = Unsigned.ensureUInt(buffer.getLong());
         Buffers.position(buffer, cdStart - blockSize - 8);
-        long size2 = Unsigned.ensureULong(buffer.getLong());
+        final long size2 = Unsigned.ensureULong(buffer.getLong());
         if (blockSize != size2) {
             return null;
         }

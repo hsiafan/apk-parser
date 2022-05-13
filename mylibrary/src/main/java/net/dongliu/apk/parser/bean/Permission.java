@@ -16,8 +16,8 @@ public class Permission {
     private final String group;
     private final String protectionLevel;
 
-    public Permission(String name, String label, String icon, String description, String group,
-                      String protectionLevel) {
+    public Permission(final String name, final String label, final String icon, final String description, final String group,
+                      final String protectionLevel) {
         this.name = name;
         this.label = label;
         this.icon = icon;
@@ -27,28 +27,28 @@ public class Permission {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getLabel() {
-        return label;
+        return this.label;
     }
 
     public String getIcon() {
-        return icon;
+        return this.icon;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public String getGroup() {
-        return group;
+        return this.group;
     }
 
     @Nullable
     public String getProtectionLevel() {
-        return protectionLevel;
+        return this.protectionLevel;
     }
 
 }

@@ -23,58 +23,58 @@ public class EOCD {
 //    private List<String> commentList;
 
     public short getDiskNum() {
-        return diskNum;
+        return this.diskNum;
     }
 
-    public void setDiskNum(int diskNum) {
+    public void setDiskNum(final int diskNum) {
         this.diskNum = (short) diskNum;
     }
 
     public int getCdStartDisk() {
-        return cdStartDisk & 0xffff;
+        return this.cdStartDisk & 0xffff;
     }
 
-    public void setCdStartDisk(int cdStartDisk) {
+    public void setCdStartDisk(final int cdStartDisk) {
         this.cdStartDisk = (short) cdStartDisk;
     }
 
     public int getCdRecordNum() {
-        return cdRecordNum & 0xffff;
+        return this.cdRecordNum & 0xffff;
     }
 
-    public void setCdRecordNum(int cdRecordNum) {
+    public void setCdRecordNum(final int cdRecordNum) {
         this.cdRecordNum = (short) cdRecordNum;
     }
 
     public int getTotalCDRecordNum() {
-        return totalCDRecordNum & 0xffff;
+        return this.totalCDRecordNum & 0xffff;
     }
 
-    public void setTotalCDRecordNum(int totalCDRecordNum) {
+    public void setTotalCDRecordNum(final int totalCDRecordNum) {
         this.totalCDRecordNum = (short) totalCDRecordNum;
     }
 
     public long getCdSize() {
-        return cdSize & 0xffffffffL;
+        return this.cdSize & 0xffffffffL;
     }
 
-    public void setCdSize(long cdSize) {
+    public void setCdSize(final long cdSize) {
         this.cdSize = (int) cdSize;
     }
 
     public long getCdStart() {
-        return cdStart & 0xffffffffL;
+        return this.cdStart & 0xffffffffL;
     }
 
-    public void setCdStart(long cdStart) {
+    public void setCdStart(final long cdStart) {
         this.cdStart = (int) cdStart;
     }
 
     public int getCommentLen() {
-        return commentLen & 0xffff;
+        return this.commentLen & 0xffff;
     }
 
-    public void setCommentLen(int commentLen) {
+    public void setCommentLen(final int commentLen) {
         this.commentLen = (short) commentLen;
     }
 

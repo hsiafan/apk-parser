@@ -12,13 +12,13 @@ public class ApkSigningBlock {
 
     public static final String MAGIC = "APK Sig Block 42";
 
-    private List<SignerBlock> signerBlocks;
+    private final List<SignerBlock> signerBlocks;
 
-    public ApkSigningBlock(List<SignerBlock> signerBlocks) {
+    public ApkSigningBlock(final List<SignerBlock> signerBlocks) {
         this.signerBlocks = signerBlocks;
     }
 
     public List<SignerBlock> getSignerBlocks() {
-        return signerBlocks;
+        return this.signerBlocks;
     }
 }

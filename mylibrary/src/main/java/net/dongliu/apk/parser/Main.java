@@ -10,10 +10,10 @@ import java.util.Locale;
  * @author Liu Dong {@literal <dongliu@live.cn>}
  */
 public class Main {
-    public static void main(String[] args) throws IOException, CertificateException {
-        String action = args[0];
-        String apkPath = args[1];
-        try (ApkFile apkFile = new ApkFile(apkPath)) {
+    public static void main(final String[] args) throws IOException, CertificateException {
+        final String action = args[0];
+        final String apkPath = args[1];
+        try (final ApkFile apkFile = new ApkFile(apkPath)) {
             apkFile.setPreferredLocale(Locale.getDefault());
             switch (action) {
                 case "meta":

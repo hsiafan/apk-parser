@@ -10,7 +10,7 @@ package net.dongliu.apk.parser;
 @Deprecated
 public class ByteArrayApkParser extends ByteArrayApkFile {
 
-    public ByteArrayApkParser(byte[] apkData) {
+    public ByteArrayApkParser(final byte[] apkData) {
         super(apkData);
     }
 }

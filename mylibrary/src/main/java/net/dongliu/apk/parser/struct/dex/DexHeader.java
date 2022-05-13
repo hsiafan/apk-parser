@@ -9,7 +9,7 @@ package net.dongliu.apk.parser.struct.dex;
 public class DexHeader {
 
     public static final int kSHA1DigestLen = 20;
-    public static final int kSHA1DigestOutputLen = kSHA1DigestLen * 2 + 1;
+    public static final int kSHA1DigestOutputLen = DexHeader.kSHA1DigestLen * 2 + 1;
 
     // includes version number. 8 bytes.
     //public short magic;
@@ -17,7 +17,7 @@ public class DexHeader {
     // adler32 checksum. u4
     //public long checksum;
     // SHA-1 hash len = kSHA1DigestLen
-    private byte signature[];
+    private byte[] signature;
     // length of entire file. u4
     private long fileSize;
     // len of header.offset to start of next section. u4
@@ -61,170 +61,170 @@ public class DexHeader {
 
 
     public int getVersion() {
-        return version;
+        return this.version;
     }
 
-    public void setVersion(int version) {
+    public void setVersion(final int version) {
         this.version = version;
     }
 
     public byte[] getSignature() {
-        return signature;
+        return this.signature;
     }
 
-    public void setSignature(byte[] signature) {
+    public void setSignature(final byte[] signature) {
         this.signature = signature;
     }
 
     public long getFileSize() {
-        return fileSize;
+        return this.fileSize;
     }
 
-    public void setFileSize(long fileSize) {
+    public void setFileSize(final long fileSize) {
         this.fileSize = fileSize;
     }
 
     public long getHeaderSize() {
-        return headerSize;
+        return this.headerSize;
     }
 
-    public void setHeaderSize(long headerSize) {
+    public void setHeaderSize(final long headerSize) {
         this.headerSize = headerSize;
     }
 
     public long getLinkSize() {
-        return linkSize;
+        return this.linkSize;
     }
 
-    public void setLinkSize(long linkSize) {
+    public void setLinkSize(final long linkSize) {
         this.linkSize = linkSize;
     }
 
     public long getLinkOff() {
-        return linkOff;
+        return this.linkOff;
     }
 
-    public void setLinkOff(long linkOff) {
+    public void setLinkOff(final long linkOff) {
         this.linkOff = linkOff;
     }
 
     public long getMapOff() {
-        return mapOff;
+        return this.mapOff;
     }
 
-    public void setMapOff(long mapOff) {
+    public void setMapOff(final long mapOff) {
         this.mapOff = mapOff;
     }
 
     public int getStringIdsSize() {
-        return stringIdsSize;
+        return this.stringIdsSize;
     }
 
-    public void setStringIdsSize(int stringIdsSize) {
+    public void setStringIdsSize(final int stringIdsSize) {
         this.stringIdsSize = stringIdsSize;
     }
 
     public long getStringIdsOff() {
-        return stringIdsOff;
+        return this.stringIdsOff;
     }
 
-    public void setStringIdsOff(long stringIdsOff) {
+    public void setStringIdsOff(final long stringIdsOff) {
         this.stringIdsOff = stringIdsOff;
     }
 
     public int getTypeIdsSize() {
-        return typeIdsSize;
+        return this.typeIdsSize;
     }
 
-    public void setTypeIdsSize(int typeIdsSize) {
+    public void setTypeIdsSize(final int typeIdsSize) {
         this.typeIdsSize = typeIdsSize;
     }
 
     public long getTypeIdsOff() {
-        return typeIdsOff;
+        return this.typeIdsOff;
     }
 
-    public void setTypeIdsOff(long typeIdsOff) {
+    public void setTypeIdsOff(final long typeIdsOff) {
         this.typeIdsOff = typeIdsOff;
     }
 
     public int getProtoIdsSize() {
-        return protoIdsSize;
+        return this.protoIdsSize;
     }
 
-    public void setProtoIdsSize(int protoIdsSize) {
+    public void setProtoIdsSize(final int protoIdsSize) {
         this.protoIdsSize = protoIdsSize;
     }
 
     public long getProtoIdsOff() {
-        return protoIdsOff;
+        return this.protoIdsOff;
     }
 
-    public void setProtoIdsOff(long protoIdsOff) {
+    public void setProtoIdsOff(final long protoIdsOff) {
         this.protoIdsOff = protoIdsOff;
     }
 
     public int getFieldIdsSize() {
-        return fieldIdsSize;
+        return this.fieldIdsSize;
     }
 
-    public void setFieldIdsSize(int fieldIdsSize) {
+    public void setFieldIdsSize(final int fieldIdsSize) {
         this.fieldIdsSize = fieldIdsSize;
     }
 
     public long getFieldIdsOff() {
-        return fieldIdsOff;
+        return this.fieldIdsOff;
     }
 
-    public void setFieldIdsOff(long fieldIdsOff) {
+    public void setFieldIdsOff(final long fieldIdsOff) {
         this.fieldIdsOff = fieldIdsOff;
     }
 
     public int getMethodIdsSize() {
-        return methodIdsSize;
+        return this.methodIdsSize;
     }
 
-    public void setMethodIdsSize(int methodIdsSize) {
+    public void setMethodIdsSize(final int methodIdsSize) {
         this.methodIdsSize = methodIdsSize;
     }
 
     public long getMethodIdsOff() {
-        return methodIdsOff;
+        return this.methodIdsOff;
     }
 
-    public void setMethodIdsOff(long methodIdsOff) {
+    public void setMethodIdsOff(final long methodIdsOff) {
         this.methodIdsOff = methodIdsOff;
     }
 
     public int getClassDefsSize() {
-        return classDefsSize;
+        return this.classDefsSize;
     }
 
-    public void setClassDefsSize(int classDefsSize) {
+    public void setClassDefsSize(final int classDefsSize) {
         this.classDefsSize = classDefsSize;
     }
 
     public long getClassDefsOff() {
-        return classDefsOff;
+        return this.classDefsOff;
     }
 
-    public void setClassDefsOff(long classDefsOff) {
+    public void setClassDefsOff(final long classDefsOff) {
         this.classDefsOff = classDefsOff;
     }
 
     public int getDataSize() {
-        return dataSize;
+        return this.dataSize;
     }
 
-    public void setDataSize(int dataSize) {
+    public void setDataSize(final int dataSize) {
         this.dataSize = dataSize;
     }
 
     public long getDataOff() {
-        return dataOff;
+        return this.dataOff;
     }
 
-    public void setDataOff(long dataOff) {
+    public void setDataOff(final long dataOff) {
         this.dataOff = dataOff;
     }
 }

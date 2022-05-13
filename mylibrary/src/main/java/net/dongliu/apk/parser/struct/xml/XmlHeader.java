@@ -9,7 +9,7 @@ import net.dongliu.apk.parser.struct.ChunkHeader;
  * @author dongliu
  */
 public class XmlHeader extends ChunkHeader {
-    public XmlHeader(int chunkType, int headerSize, long chunkSize) {
+    public XmlHeader(final int chunkType, final int headerSize, final long chunkSize) {
         super(chunkType, headerSize, chunkSize);
     }
 }

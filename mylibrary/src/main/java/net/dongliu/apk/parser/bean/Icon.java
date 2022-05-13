@@ -16,7 +16,7 @@ public class Icon implements IconFace, Serializable {
     private final int density;
     private final byte[] data;
 
-    public Icon(String path, int density, byte[] data) {
+    public Icon(final String path, final int density, final byte[] data) {
         this.path = path;
         this.density = density;
         this.data = data;
@@ -25,8 +25,9 @@ public class Icon implements IconFace, Serializable {
     /**
      * The icon path in apk file
      */
+    @Override
     public String getPath() {
-        return path;
+        return this.path;
     }
 
     /**
@@ -34,7 +35,7 @@ public class Icon implements IconFace, Serializable {
      * see {@link net.dongliu.apk.parser.struct.resource.Densities} for more density values.
      */
     public int getDensity() {
-        return density;
+        return this.density;
     }
 
     @Override
@@ -45,13 +46,14 @@ public class Icon implements IconFace, Serializable {
     /**
      * Icon data may be null, due to some apk missing the icon file.
      */
+    @Override
     @Nullable
     public byte[] getData() {
-        return data;
+        return this.data;
     }
 
     @Override
     public String toString() {
-        return "Icon{path='" + path + '\'' + ", density=" + density + ", size=" + (data == null ? 0 : data.length) + '}';
+        return "Icon{path='" + this.path + '\'' + ", density=" + this.density + ", size=" + (this.data == null ? 0 : this.data.length) + '}';
     }
 }

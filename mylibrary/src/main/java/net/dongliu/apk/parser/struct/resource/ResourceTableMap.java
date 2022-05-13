@@ -14,32 +14,32 @@ public class ResourceTableMap {
     private String data;
 
     public long getNameRef() {
-        return nameRef;
+        return this.nameRef;
     }
 
-    public void setNameRef(long nameRef) {
+    public void setNameRef(final long nameRef) {
         this.nameRef = nameRef;
     }
 
     public ResourceValue getResValue() {
-        return resValue;
+        return this.resValue;
     }
 
-    public void setResValue(ResourceValue resValue) {
+    public void setResValue(final ResourceValue resValue) {
         this.resValue = resValue;
     }
 
     public String getData() {
-        return data;
+        return this.data;
     }
 
-    public void setData(String data) {
+    public void setData(final String data) {
         this.data = data;
     }
 
     @Override
     public String toString() {
-        return data;
+        return this.data;
     }
 
     public static class MapAttr {
@@ -64,7 +64,7 @@ public class ResourceTableMap {
         public static final int FEW = 0x01000000 | (8 & 0xFFFF);
         public static final int MANY = 0x01000000 | (9 & 0xFFFF);
 
-        public static int makeArray(int entry) {
+        public static int makeArray(final int entry) {
             return (0x02000000 | (entry & 0xFFFF));
         }
 

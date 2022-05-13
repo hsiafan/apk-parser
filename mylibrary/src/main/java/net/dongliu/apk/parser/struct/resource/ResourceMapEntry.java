@@ -17,33 +17,33 @@ public class ResourceMapEntry extends ResourceEntry {
 
     private ResourceTableMap[] resourceTableMaps;
 
-    public ResourceMapEntry(ResourceEntry resourceEntry) {
+    public ResourceMapEntry(final ResourceEntry resourceEntry) {
         this.setSize(resourceEntry.getSize());
         this.setFlags(resourceEntry.getFlags());
         this.setKey(resourceEntry.getKey());
     }
 
     public long getParent() {
-        return parent;
+        return this.parent;
     }
 
-    public void setParent(long parent) {
+    public void setParent(final long parent) {
         this.parent = parent;
     }
 
     public long getCount() {
-        return count;
+        return this.count;
     }
 
-    public void setCount(long count) {
+    public void setCount(final long count) {
         this.count = count;
     }
 
     public ResourceTableMap[] getResourceTableMaps() {
-        return resourceTableMaps;
+        return this.resourceTableMaps;
     }
 
-    public void setResourceTableMaps(ResourceTableMap[] resourceTableMaps) {
+    public void setResourceTableMaps(final ResourceTableMap[] resourceTableMaps) {
         this.resourceTableMaps = resourceTableMaps;
     }
 
@@ -52,9 +52,10 @@ public class ResourceMapEntry extends ResourceEntry {
      *
      * @return
      */
-    public String toStringValue(ResourceTable resourceTable, Locale locale) {
-        if (resourceTableMaps.length > 0) {
-            return resourceTableMaps[0].toString();
+    @Override
+    public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+        if (this.resourceTableMaps.length > 0) {
+            return this.resourceTableMaps[0].toString();
         } else {
             return null;
         }
@@ -63,9 +64,9 @@ public class ResourceMapEntry extends ResourceEntry {
     @Override
     public String toString() {
         return "ResourceMapEntry{" +
-                "parent=" + parent +
-                ", count=" + count +
-                ", resourceTableMaps=" + Arrays.toString(resourceTableMaps) +
+                "parent=" + this.parent +
+                ", count=" + this.count +
+                ", resourceTableMaps=" + Arrays.toString(this.resourceTableMaps) +
                 '}';
     }
 }

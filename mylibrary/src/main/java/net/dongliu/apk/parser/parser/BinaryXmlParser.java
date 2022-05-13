@@ -42,11 +42,11 @@ public class BinaryXmlParser {
      * By default the data buffer Chunks is buffer little-endian byte order both at runtime and when stored buffer
      * files.
      */
-    private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+    private final ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
     private StringPool stringPool;
     // some attribute name stored by resource id
     private String[] resourceMap;
-    private ByteBuffer buffer;
+    private final ByteBuffer buffer;
     private XmlStreamer xmlStreamer;
     private final ResourceTable resourceTable;
     /**
@@ -54,9 +54,9 @@ public class BinaryXmlParser {
      */
     private Locale locale = Locales.any;
 
-    public BinaryXmlParser(ByteBuffer buffer, ResourceTable resourceTable) {
+    public BinaryXmlParser(final ByteBuffer buffer, final ResourceTable resourceTable) {
         this.buffer = buffer.duplicate();
-        this.buffer.order(byteOrder);
+        this.buffer.order(this.byteOrder);
         this.resourceTable = resourceTable;
     }
 
@@ -64,7 +64,7 @@ public class BinaryXmlParser {
      * Parse binary xml.
      */
     public void parse() {
-        ChunkHeader firstChunkHeader = readChunkHeader();
+        final ChunkHeader firstChunkHeader = this.readChunkHeader();
         if (firstChunkHeader == null) {
             return;
         }
@@ -79,74 +79,74 @@ public class BinaryXmlParser {
         }
 
         // read string pool chunk
-        ChunkHeader stringPoolChunkHeader = readChunkHeader();
+        final ChunkHeader stringPoolChunkHeader = this.readChunkHeader();
         if (stringPoolChunkHeader == null) {
             return;
         }
 
         ParseUtils.checkChunkType(ChunkType.STRING_POOL, stringPoolChunkHeader.getChunkType());
-        stringPool = ParseUtils.readStringPool(buffer, (StringPoolHeader) stringPoolChunkHeader);
+        this.stringPool = ParseUtils.readStringPool(this.buffer, (StringPoolHeader) stringPoolChunkHeader);
 
         // read on chunk, check if it was an optional XMLResourceMap chunk
-        ChunkHeader chunkHeader = readChunkHeader();
+        ChunkHeader chunkHeader = this.readChunkHeader();
         if (chunkHeader == null) {
             return;
         }
 
         if (chunkHeader.getChunkType() == ChunkType.XML_RESOURCE_MAP) {
-            long[] resourceIds = readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
-            resourceMap = new String[resourceIds.length];
+            final long[] resourceIds = this.readXmlResourceMap((XmlResourceMapHeader) chunkHeader);
+            this.resourceMap = new String[resourceIds.length];
             for (int i = 0; i < resourceIds.length; i++) {
-                resourceMap[i] = Attribute.AttrIds.getString(resourceIds[i]);
+                this.resourceMap[i] = Attribute.AttrIds.getString(resourceIds[i]);
             }
-            chunkHeader = readChunkHeader();
+            chunkHeader = this.readChunkHeader();
         }
 
         while (chunkHeader != null) {
                 /*if (chunkHeader.chunkType == ChunkType.XML_END_NAMESPACE) {
                     break;
                 }*/
-            long beginPos = buffer.position();
+            final long beginPos = this.buffer.position();
             switch (chunkHeader.getChunkType()) {
                 case ChunkType.XML_END_NAMESPACE:
-                    XmlNamespaceEndTag xmlNamespaceEndTag = readXmlNamespaceEndTag();
-                    xmlStreamer.onNamespaceEnd(xmlNamespaceEndTag);
+                    final XmlNamespaceEndTag xmlNamespaceEndTag = this.readXmlNamespaceEndTag();
+                    this.xmlStreamer.onNamespaceEnd(xmlNamespaceEndTag);
                     break;
                 case ChunkType.XML_START_NAMESPACE:
-                    XmlNamespaceStartTag namespaceStartTag = readXmlNamespaceStartTag();
-                    xmlStreamer.onNamespaceStart(namespaceStartTag);
+                    final XmlNamespaceStartTag namespaceStartTag = this.readXmlNamespaceStartTag();
+                    this.xmlStreamer.onNamespaceStart(namespaceStartTag);
                     break;
                 case ChunkType.XML_START_ELEMENT:
-                    XmlNodeStartTag xmlNodeStartTag = readXmlNodeStartTag();
+                    final XmlNodeStartTag xmlNodeStartTag = this.readXmlNodeStartTag();
                     break;
                 case ChunkType.XML_END_ELEMENT:
-                    XmlNodeEndTag xmlNodeEndTag = readXmlNodeEndTag();
+                    final XmlNodeEndTag xmlNodeEndTag = this.readXmlNodeEndTag();
                     break;
                 case ChunkType.XML_CDATA:
-                    XmlCData xmlCData = readXmlCData();
+                    final XmlCData xmlCData = this.readXmlCData();
                     break;
                 default:
                     if (chunkHeader.getChunkType() >= ChunkType.XML_FIRST_CHUNK &&
                             chunkHeader.getChunkType() <= ChunkType.XML_LAST_CHUNK) {
-                        Buffers.skip(buffer, chunkHeader.getBodySize());
+                        Buffers.skip(this.buffer, chunkHeader.getBodySize());
                     } else {
                         throw new ParserException("Unexpected chunk type:" + chunkHeader.getChunkType());
                     }
             }
-            Buffers.position(buffer, beginPos + chunkHeader.getBodySize());
-            chunkHeader = readChunkHeader();
+            Buffers.position(this.buffer, beginPos + chunkHeader.getBodySize());
+            chunkHeader = this.readChunkHeader();
         }
     }
 
     private XmlCData readXmlCData() {
-        XmlCData xmlCData = new XmlCData();
-        int dataRef = buffer.getInt();
+        final XmlCData xmlCData = new XmlCData();
+        final int dataRef = this.buffer.getInt();
         if (dataRef > 0) {
-            xmlCData.setData(stringPool.get(dataRef));
+            xmlCData.setData(this.stringPool.get(dataRef));
         }
-        xmlCData.setTypedData(ParseUtils.readResValue(buffer, stringPool));
+        xmlCData.setTypedData(ParseUtils.readResValue(this.buffer, this.stringPool));
         //noinspection StatementWithEmptyBody
-        if (xmlStreamer != null) {
+        if (this.xmlStreamer != null) {
             //TODO: to know more about cdata. some cdata appears buffer xml tags
 //            String value = xmlCData.toStringValue(resourceTable, locale);
 //            xmlCData.setValue(value);
@@ -156,47 +156,47 @@ public class BinaryXmlParser {
     }
 
     private XmlNodeEndTag readXmlNodeEndTag() {
-        XmlNodeEndTag xmlNodeEndTag = new XmlNodeEndTag();
-        int nsRef = buffer.getInt();
-        int nameRef = buffer.getInt();
+        final XmlNodeEndTag xmlNodeEndTag = new XmlNodeEndTag();
+        final int nsRef = this.buffer.getInt();
+        final int nameRef = this.buffer.getInt();
         if (nsRef > 0) {
-            xmlNodeEndTag.setNamespace(stringPool.get(nsRef));
+            xmlNodeEndTag.setNamespace(this.stringPool.get(nsRef));
         }
-        xmlNodeEndTag.setName(stringPool.get(nameRef));
-        if (xmlStreamer != null) {
-            xmlStreamer.onEndTag(xmlNodeEndTag);
+        xmlNodeEndTag.setName(this.stringPool.get(nameRef));
+        if (this.xmlStreamer != null) {
+            this.xmlStreamer.onEndTag(xmlNodeEndTag);
         }
         return xmlNodeEndTag;
     }
 
     private XmlNodeStartTag readXmlNodeStartTag() {
-        int nsRef = buffer.getInt();
-        int nameRef = buffer.getInt();
-        XmlNodeStartTag xmlNodeStartTag = new XmlNodeStartTag();
+        final int nsRef = this.buffer.getInt();
+        final int nameRef = this.buffer.getInt();
+        final XmlNodeStartTag xmlNodeStartTag = new XmlNodeStartTag();
         if (nsRef > 0) {
-            xmlNodeStartTag.setNamespace(stringPool.get(nsRef));
+            xmlNodeStartTag.setNamespace(this.stringPool.get(nsRef));
         }
-        xmlNodeStartTag.setName(stringPool.get(nameRef));
+        xmlNodeStartTag.setName(this.stringPool.get(nameRef));
 
         // read attributes.
         // attributeStart and attributeSize are always 20 (0x14)
-        int attributeStart = Buffers.readUShort(buffer);
-        int attributeSize = Buffers.readUShort(buffer);
-        int attributeCount = Buffers.readUShort(buffer);
-        int idIndex = Buffers.readUShort(buffer);
-        int classIndex = Buffers.readUShort(buffer);
-        int styleIndex = Buffers.readUShort(buffer);
+        final int attributeStart = Buffers.readUShort(this.buffer);
+        final int attributeSize = Buffers.readUShort(this.buffer);
+        final int attributeCount = Buffers.readUShort(this.buffer);
+        final int idIndex = Buffers.readUShort(this.buffer);
+        final int classIndex = Buffers.readUShort(this.buffer);
+        final int styleIndex = Buffers.readUShort(this.buffer);
 
         // read attributes
-        Attributes attributes = new Attributes(attributeCount);
+        final Attributes attributes = new Attributes(attributeCount);
         for (int count = 0; count < attributeCount; count++) {
-            Attribute attribute = readAttribute();
-            if (xmlStreamer != null) {
-                String value = attribute.toStringValue(resourceTable, locale);
-                if (intAttributes.contains(attribute.getName()) && Strings.isNumeric(value)) {
+            final Attribute attribute = this.readAttribute();
+            if (this.xmlStreamer != null) {
+                String value = attribute.toStringValue(this.resourceTable, this.locale);
+                if (BinaryXmlParser.intAttributes.contains(attribute.getName()) && Strings.isNumeric(value)) {
                     try {
-                        value = getFinalValueAsString(attribute.getName(), value);
-                    } catch (Exception ignore) {
+                        value = this.getFinalValueAsString(attribute.getName(), value);
+                    } catch (final Exception ignore) {
                     }
                 }
                 attribute.setValue(value);
@@ -205,8 +205,8 @@ public class BinaryXmlParser {
         }
         xmlNodeStartTag.setAttributes(attributes);
 
-        if (xmlStreamer != null) {
-            xmlStreamer.onStartTag(xmlNodeStartTag);
+        if (this.xmlStreamer != null) {
+            this.xmlStreamer.onStartTag(xmlNodeStartTag);
         }
 
         return xmlNodeStartTag;
@@ -217,8 +217,8 @@ public class BinaryXmlParser {
                     "launchMode", "installLocation", "protectionLevel"));
 
     //trans int attr value to string
-    private String getFinalValueAsString(String attributeName, String str) {
-        int value = Integer.parseInt(str);
+    private String getFinalValueAsString(final String attributeName, final String str) {
+        final int value = Integer.parseInt(str);
         switch (attributeName) {
             case "screenOrientation":
                 return AttributeValues.getScreenOrientation(value);
@@ -238,64 +238,64 @@ public class BinaryXmlParser {
     }
 
     private Attribute readAttribute() {
-        int nsRef = buffer.getInt();
-        int nameRef = buffer.getInt();
-        Attribute attribute = new Attribute();
+        final int nsRef = this.buffer.getInt();
+        final int nameRef = this.buffer.getInt();
+        final Attribute attribute = new Attribute();
         if (nsRef > 0) {
-            String namespace = stringPool.get(nsRef);
+            final String namespace = this.stringPool.get(nsRef);
             //TODO fix this part in a better way. Workaround for this: https://github.com/hsiafan/apk-parser/issues/122
             if (!namespace.equals("http://schemas.android.com/apk/res/android"))
                 attribute.setNamespace(namespace);
         }
 
-        attribute.setName(stringPool.get(nameRef));
-        if (attribute.getName().isEmpty() && resourceMap != null && nameRef < resourceMap.length) {
+        attribute.setName(this.stringPool.get(nameRef));
+        if (attribute.getName().isEmpty() && this.resourceMap != null && nameRef < this.resourceMap.length) {
             // some processed apk file make the string pool value empty, if it is a xmlmap attr.
-            attribute.setName(resourceMap[nameRef]);
+            attribute.setName(this.resourceMap[nameRef]);
             //TODO: how to get the namespace of attribute
         }
 
-        int rawValueRef = buffer.getInt();
+        final int rawValueRef = this.buffer.getInt();
         if (rawValueRef > 0) {
-            attribute.setRawValue(stringPool.get(rawValueRef));
+            attribute.setRawValue(this.stringPool.get(rawValueRef));
         }
-        ResourceValue resValue = ParseUtils.readResValue(buffer, stringPool);
+        final ResourceValue resValue = ParseUtils.readResValue(this.buffer, this.stringPool);
         attribute.setTypedValue(resValue);
 
         return attribute;
     }
 
     private XmlNamespaceStartTag readXmlNamespaceStartTag() {
-        int prefixRef = buffer.getInt();
-        int uriRef = buffer.getInt();
-        XmlNamespaceStartTag nameSpace = new XmlNamespaceStartTag();
+        final int prefixRef = this.buffer.getInt();
+        final int uriRef = this.buffer.getInt();
+        final XmlNamespaceStartTag nameSpace = new XmlNamespaceStartTag();
         if (prefixRef > 0) {
-            nameSpace.setPrefix(stringPool.get(prefixRef));
+            nameSpace.setPrefix(this.stringPool.get(prefixRef));
         }
         if (uriRef > 0) {
-            nameSpace.setUri(stringPool.get(uriRef));
+            nameSpace.setUri(this.stringPool.get(uriRef));
         }
         return nameSpace;
     }
 
     private XmlNamespaceEndTag readXmlNamespaceEndTag() {
-        int prefixRef = buffer.getInt();
-        int uriRef = buffer.getInt();
-        XmlNamespaceEndTag nameSpace = new XmlNamespaceEndTag();
+        final int prefixRef = this.buffer.getInt();
+        final int uriRef = this.buffer.getInt();
+        final XmlNamespaceEndTag nameSpace = new XmlNamespaceEndTag();
         if (prefixRef > 0) {
-            nameSpace.setPrefix(stringPool.get(prefixRef));
+            nameSpace.setPrefix(this.stringPool.get(prefixRef));
         }
         if (uriRef > 0) {
-            nameSpace.setUri(stringPool.get(uriRef));
+            nameSpace.setUri(this.stringPool.get(uriRef));
         }
         return nameSpace;
     }
 
-    private long[] readXmlResourceMap(XmlResourceMapHeader chunkHeader) {
-        int count = chunkHeader.getBodySize() / 4;
-        long[] resourceIds = new long[count];
+    private long[] readXmlResourceMap(final XmlResourceMapHeader chunkHeader) {
+        final int count = chunkHeader.getBodySize() / 4;
+        final long[] resourceIds = new long[count];
         for (int i = 0; i < count; i++) {
-            resourceIds[i] = Buffers.readUInt(buffer);
+            resourceIds[i] = Buffers.readUInt(this.buffer);
         }
         return resourceIds;
     }
@@ -303,39 +303,39 @@ public class BinaryXmlParser {
 
     private ChunkHeader readChunkHeader() {
         // finished
-        if (!buffer.hasRemaining()) {
+        if (!this.buffer.hasRemaining()) {
             return null;
         }
 
-        long begin = buffer.position();
-        int chunkType = Buffers.readUShort(buffer);
-        int headerSize = Buffers.readUShort(buffer);
-        long chunkSize = Buffers.readUInt(buffer);
+        final long begin = this.buffer.position();
+        final int chunkType = Buffers.readUShort(this.buffer);
+        final int headerSize = Buffers.readUShort(this.buffer);
+        final long chunkSize = Buffers.readUInt(this.buffer);
 
         switch (chunkType) {
             case ChunkType.XML:
                 return new XmlHeader(chunkType, headerSize, chunkSize);
             case ChunkType.STRING_POOL:
-                StringPoolHeader stringPoolHeader = new StringPoolHeader(headerSize, chunkSize);
-                stringPoolHeader.setStringCount(Buffers.readUInt(buffer));
-                stringPoolHeader.setStyleCount(Buffers.readUInt(buffer));
-                stringPoolHeader.setFlags(Buffers.readUInt(buffer));
-                stringPoolHeader.setStringsStart(Buffers.readUInt(buffer));
-                stringPoolHeader.setStylesStart(Buffers.readUInt(buffer));
-                Buffers.position(buffer, begin + headerSize);
+                final StringPoolHeader stringPoolHeader = new StringPoolHeader(headerSize, chunkSize);
+                stringPoolHeader.setStringCount(Buffers.readUInt(this.buffer));
+                stringPoolHeader.setStyleCount(Buffers.readUInt(this.buffer));
+                stringPoolHeader.setFlags(Buffers.readUInt(this.buffer));
+                stringPoolHeader.setStringsStart(Buffers.readUInt(this.buffer));
+                stringPoolHeader.setStylesStart(Buffers.readUInt(this.buffer));
+                Buffers.position(this.buffer, begin + headerSize);
                 return stringPoolHeader;
             case ChunkType.XML_RESOURCE_MAP:
-                Buffers.position(buffer, begin + headerSize);
+                Buffers.position(this.buffer, begin + headerSize);
                 return new XmlResourceMapHeader(chunkType, headerSize, chunkSize);
             case ChunkType.XML_START_NAMESPACE:
             case ChunkType.XML_END_NAMESPACE:
             case ChunkType.XML_START_ELEMENT:
             case ChunkType.XML_END_ELEMENT:
             case ChunkType.XML_CDATA:
-                XmlNodeHeader header = new XmlNodeHeader(chunkType, headerSize, chunkSize);
-                header.setLineNum((int) Buffers.readUInt(buffer));
-                header.setCommentRef((int) Buffers.readUInt(buffer));
-                Buffers.position(buffer, begin + headerSize);
+                final XmlNodeHeader header = new XmlNodeHeader(chunkType, headerSize, chunkSize);
+                header.setLineNum((int) Buffers.readUInt(this.buffer));
+                header.setCommentRef((int) Buffers.readUInt(this.buffer));
+                Buffers.position(this.buffer, begin + headerSize);
                 return header;
             case ChunkType.NULL:
                 return new NullHeader(chunkType, headerSize, chunkSize);
@@ -344,21 +344,21 @@ public class BinaryXmlParser {
         }
     }
 
-    public void setLocale(Locale locale) {
+    public void setLocale(final Locale locale) {
         if (locale != null) {
             this.locale = locale;
         }
     }
 
     public Locale getLocale() {
-        return locale;
+        return this.locale;
     }
 
     public XmlStreamer getXmlStreamer() {
-        return xmlStreamer;
+        return this.xmlStreamer;
     }
 
-    public void setXmlStreamer(XmlStreamer xmlStreamer) {
+    public void setXmlStreamer(final XmlStreamer xmlStreamer) {
         this.xmlStreamer = xmlStreamer;
     }
 }

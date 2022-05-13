@@ -38,54 +38,54 @@ public class ResourceEntry {
      *
      * @return
      */
-    public String toStringValue(ResourceTable resourceTable, Locale locale) {
-        if (value != null) {
-            return value.toStringValue(resourceTable, locale);
+    public String toStringValue(final ResourceTable resourceTable, final Locale locale) {
+        if (this.value != null) {
+            return this.value.toStringValue(resourceTable, locale);
         } else {
             return "null";
         }
     }
 
     public int getSize() {
-        return size;
+        return this.size;
     }
 
-    public void setSize(int size) {
+    public void setSize(final int size) {
         this.size = size;
     }
 
     public int getFlags() {
-        return flags;
+        return this.flags;
     }
 
-    public void setFlags(int flags) {
+    public void setFlags(final int flags) {
         this.flags = flags;
     }
 
     public String getKey() {
-        return key;
+        return this.key;
     }
 
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
     @Nullable
     public ResourceValue getValue() {
-        return value;
+        return this.value;
     }
 
-    public void setValue(@Nullable ResourceValue value) {
+    public void setValue(@Nullable final ResourceValue value) {
         this.value = value;
     }
 
     @Override
     public String toString() {
         return "ResourceEntry{" +
-                "size=" + size +
-                ", flags=" + flags +
-                ", key='" + key + '\'' +
-                ", value=" + value +
+                "size=" + this.size +
+                ", flags=" + this.flags +
+                ", key='" + this.key + '\'' +
+                ", value=" + this.value +
                 '}';
     }
 }

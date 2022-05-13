@@ -7,12 +7,12 @@ package net.dongliu.apk.parser.struct.resource;
  */
 public class LibraryEntry {
     // uint32. The package-id this shared library was assigned at build time.
-    private int packageId;
+    private final int packageId;
 
     //The package name of the shared library. \0 terminated. max 128
-    private String name;
+    private final String name;
 
-    public LibraryEntry(int packageId, String name) {
+    public LibraryEntry(final int packageId, final String name) {
         this.packageId = packageId;
         this.name = name;
     }

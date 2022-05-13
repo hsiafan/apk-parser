@@ -24,33 +24,34 @@ import java.util.List;
  * @author dongliu
  */
 class JSSECertificateParser extends CertificateParser {
-    public JSSECertificateParser(byte[] data) {
+    public JSSECertificateParser(final byte[] data) {
         super(data);
     }
 
+    @Override
     public List<CertificateMeta> parse() throws CertificateException {
-        ContentInfo contentInfo;
+        final ContentInfo contentInfo;
         try {
-            contentInfo = Asn1BerParser.parse(ByteBuffer.wrap(data), ContentInfo.class);
-        } catch (Asn1DecodingException e) {
+            contentInfo = Asn1BerParser.parse(ByteBuffer.wrap(this.data), ContentInfo.class);
+        } catch (final Asn1DecodingException e) {
             throw new CertificateException(e);
         }
         if (!Pkcs7Constants.OID_SIGNED_DATA.equals(contentInfo.contentType)) {
             throw new CertificateException("Unsupported ContentInfo.contentType: " + contentInfo.contentType);
         }
-        SignedData signedData;
+        final SignedData signedData;
         try {
             signedData = Asn1BerParser.parse(contentInfo.content.getEncoded(), SignedData.class);
-        } catch (Asn1DecodingException e) {
+        } catch (final Asn1DecodingException e) {
             throw new CertificateException(e);
         }
-        List<Asn1OpaqueObject> encodedCertificates = signedData.certificates;
-        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-        List<X509Certificate> result = new ArrayList<>(encodedCertificates.size());
+        final List<Asn1OpaqueObject> encodedCertificates = signedData.certificates;
+        final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        final List<X509Certificate> result = new ArrayList<>(encodedCertificates.size());
         for (int i = 0; i < encodedCertificates.size(); i++) {
-            Asn1OpaqueObject encodedCertificate = encodedCertificates.get(i);
-            byte[] encodedForm = Buffers.readBytes(encodedCertificate.getEncoded());
-            Certificate certificate = certFactory.generateCertificate(new ByteArrayInputStream(encodedForm));
+            final Asn1OpaqueObject encodedCertificate = encodedCertificates.get(i);
+            final byte[] encodedForm = Buffers.readBytes(encodedCertificate.getEncoded());
+            final Certificate certificate = certFactory.generateCertificate(new ByteArrayInputStream(encodedForm));
             result.add((X509Certificate) certificate);
         }
         return CertificateMetas.from(result);
