@@ -15,8 +15,8 @@
             <option value="$PROJECT_DIR$/mylibrary" />
           </set>
         </option>
+        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
-    <option name="offlineMode" value="true" />
   </component>
 </project>

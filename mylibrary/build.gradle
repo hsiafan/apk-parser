@@ -10,8 +10,6 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 31
-        versionCode 1
-        versionName "1.0"
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -28,20 +26,22 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    afterEvaluate {
-        publishing {
-            publications {
-                release(MavenPublication) {
-                    from components.release
-                }
-            }
-        }
-    }
+//    afterEvaluate {
+//        publishing {
+//            publications {
+//                release(MavenPublication) {
+//                    from components.release
+//                }
+//            }
+//        }
+//    }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.69'
+    // https://www.bouncycastle.org/latest_releases.html https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
+    implementation 'androidx.core:core-ktx:1.7.0'
+
 }
