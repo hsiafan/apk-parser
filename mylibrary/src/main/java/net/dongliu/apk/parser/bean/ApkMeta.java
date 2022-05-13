@@ -260,7 +260,7 @@ public class ApkMeta {
         private String sharedUserLabel;
         public String split;
         public String configForSplit;
-        public  boolean isFeatureSplit;
+        public boolean isFeatureSplit;
         public boolean isSplitRequired;
         public boolean isolatedSplits;
         private String installLocation;

@@ -90,9 +90,9 @@ public class Type {
             //read arrays
         } else //noinspection StatementWithEmptyBody
             if ((resourceTableMap.getNameRef() & 0x01000000) != 0) {
-            // read attrs
-        } else {
-        }
+                // read attrs
+            } else {
+            }
 
         return resourceTableMap;
     }

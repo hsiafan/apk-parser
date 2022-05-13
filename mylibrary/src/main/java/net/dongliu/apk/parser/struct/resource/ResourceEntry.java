@@ -3,6 +3,7 @@ package net.dongliu.apk.parser.struct.resource;
 import net.dongliu.apk.parser.struct.ResourceValue;
 
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Locale;
 
 /**

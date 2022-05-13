@@ -197,11 +197,11 @@ public class DexParser {
                 chars[i] = (char) (((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F));
             } else //noinspection StatementWithEmptyBody
                 if ((a & 0xf0) == 0xf0) {
-                //throw new UTFDataFormatException();
+                    //throw new UTFDataFormatException();
 
-            } else {
-                //throw new UTFDataFormatException();
-            }
+                } else {
+                    //throw new UTFDataFormatException();
+                }
             //noinspection StatementWithEmptyBody
             if (chars[i] == 0) {
                 // the end of string.

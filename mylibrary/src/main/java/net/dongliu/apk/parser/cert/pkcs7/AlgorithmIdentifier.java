@@ -34,7 +34,8 @@ public class AlgorithmIdentifier {
     @Asn1Field(index = 1, type = Asn1Type.ANY, optional = true)
     public Asn1OpaqueObject parameters;
 
-    public AlgorithmIdentifier() {}
+    public AlgorithmIdentifier() {
+    }
 
     public AlgorithmIdentifier(String algorithmOid, Asn1OpaqueObject parameters) {
         this.algorithm = algorithmOid;

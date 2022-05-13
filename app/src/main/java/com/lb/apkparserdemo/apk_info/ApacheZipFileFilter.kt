@@ -5,7 +5,8 @@ import java.io.Closeable
 import java.util.*
 
 /**Note seems to perform worse than the built in one of Android. Use only if the built in one has some issues*/
-class ApacheZipFileFilter(private val zipFile: org.apache.commons.compress.archivers.zip.ZipFile) : AbstractZipFilter(), Closeable {
+class ApacheZipFileFilter(private val zipFile: org.apache.commons.compress.archivers.zip.ZipFile) :
+    AbstractZipFilter(), Closeable {
     private var entries: Enumeration<out ZipArchiveEntry>? = null
     var currentEntry: ZipArchiveEntry? = null
 
@@ -17,7 +18,10 @@ class ApacheZipFileFilter(private val zipFile: org.apache.commons.compress.archi
         }
     }
 
-    override fun getByteArrayForEntries(mandatoryEntriesNames: Set<String>, extraEntriesNames: Set<String>?): HashMap<String, ByteArray>? {
+    override fun getByteArrayForEntries(
+        mandatoryEntriesNames: Set<String>,
+        extraEntriesNames: Set<String>?
+    ): HashMap<String, ByteArray>? {
         try {
             val totalItemsCount = mandatoryEntriesNames.size + (extraEntriesNames?.size ?: 0)
             val result = HashMap<String, ByteArray>(totalItemsCount)

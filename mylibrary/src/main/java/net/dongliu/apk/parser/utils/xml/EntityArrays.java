@@ -24,11 +24,15 @@ package net.dongliu.apk.parser.utils.xml;
 public class EntityArrays {
     /**
      * Mapping to escape the basic XML and HTML character entities.
-     *
+     * <p>
      * Namely: {@code " & < >}
+     *
      * @return the mapping table
      */
-    public static String[][] BASIC_ESCAPE() { return BASIC_ESCAPE.clone(); }
+    public static String[][] BASIC_ESCAPE() {
+        return BASIC_ESCAPE.clone();
+    }
+
     private static final String[][] BASIC_ESCAPE = {
             {"\"", "&quot;"}, // " - double-quote
             {"&", "&amp;"},   // & - ampersand
@@ -36,11 +40,15 @@ public class EntityArrays {
             {">", "&gt;"},    // > - greater-than
     };
 
-        /**
+    /**
      * Mapping to escape the apostrophe character to its XML character entity.
+     *
      * @return the mapping table
      */
-    public static String[][] APOS_ESCAPE() { return APOS_ESCAPE.clone(); }
+    public static String[][] APOS_ESCAPE() {
+        return APOS_ESCAPE.clone();
+    }
+
     private static final String[][] APOS_ESCAPE = {
             {"'", "&apos;"}, // XML apostrophe
     };

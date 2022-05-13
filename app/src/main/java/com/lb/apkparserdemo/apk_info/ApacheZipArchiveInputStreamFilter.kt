@@ -5,7 +5,8 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import java.io.Closeable
 
 /**Seems to be the faster choice compared to the built in ZipInputStream*/
-class ApacheZipArchiveInputStreamFilter(private val zipArchiveInputStream: ZipArchiveInputStream) : AbstractZipFilter(), Closeable {
+class ApacheZipArchiveInputStreamFilter(private val zipArchiveInputStream: ZipArchiveInputStream) :
+    AbstractZipFilter(), Closeable {
     private var currentEntry: ArchiveEntry? = null
     private var currentEntryByteArray: ByteArray? = null
 

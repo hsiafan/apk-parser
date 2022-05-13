@@ -23,7 +23,8 @@ import net.dongliu.apk.parser.cert.asn1.Asn1Type;
  * ASN.1 Basic Encoding Rules (BER) constants and helper methods. See {@code X.690}.
  */
 public abstract class BerEncoding {
-    private BerEncoding() {}
+    private BerEncoding() {
+    }
 
     /**
      * Constructed vs primitive flag in the first identifier byte.

@@ -16,8 +16,6 @@
  */
 package net.dongliu.apk.parser.utils.xml;
 
-import net.dongliu.apk.parser.utils.xml.CodePointTranslator;
-
 import java.io.IOException;
 import java.io.Writer;
 
@@ -26,7 +24,7 @@ import java.io.Writer;
  */
 class UnicodeUnpairedSurrogateRemover extends CodePointTranslator {
     /**
-     * Implementation of translate that throws out unpaired surrogates. 
+     * Implementation of translate that throws out unpaired surrogates.
      * {@inheritDoc}
      */
     @Override

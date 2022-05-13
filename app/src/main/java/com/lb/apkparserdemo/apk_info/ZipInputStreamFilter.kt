@@ -4,7 +4,8 @@ import java.io.Closeable
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
-class ZipInputStreamFilter(private val zipInputStream: ZipInputStream) : AbstractZipFilter(), Closeable {
+class ZipInputStreamFilter(private val zipInputStream: ZipInputStream) : AbstractZipFilter(),
+    Closeable {
     private var currentEntry: ZipEntry? = null
     private var currentEntryByteArray: ByteArray? = null
 

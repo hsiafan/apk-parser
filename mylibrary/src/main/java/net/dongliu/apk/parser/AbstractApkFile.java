@@ -1,8 +1,27 @@
 package net.dongliu.apk.parser;
 
-import net.dongliu.apk.parser.bean.*;
+import net.dongliu.apk.parser.bean.AdaptiveIcon;
+import net.dongliu.apk.parser.bean.ApkMeta;
+import net.dongliu.apk.parser.bean.ApkSignStatus;
+import net.dongliu.apk.parser.bean.ApkSigner;
+import net.dongliu.apk.parser.bean.ApkV2Signer;
+import net.dongliu.apk.parser.bean.CertificateMeta;
+import net.dongliu.apk.parser.bean.DexClass;
+import net.dongliu.apk.parser.bean.Icon;
+import net.dongliu.apk.parser.bean.IconFace;
+import net.dongliu.apk.parser.bean.IconPath;
 import net.dongliu.apk.parser.exception.ParserException;
-import net.dongliu.apk.parser.parser.*;
+import net.dongliu.apk.parser.parser.AdaptiveIconParser;
+import net.dongliu.apk.parser.parser.ApkMetaTranslator;
+import net.dongliu.apk.parser.parser.ApkSignBlockParser;
+import net.dongliu.apk.parser.parser.BinaryXmlParser;
+import net.dongliu.apk.parser.parser.CertificateMetas;
+import net.dongliu.apk.parser.parser.CertificateParser;
+import net.dongliu.apk.parser.parser.CompositeXmlStreamer;
+import net.dongliu.apk.parser.parser.DexParser;
+import net.dongliu.apk.parser.parser.ResourceTableParser;
+import net.dongliu.apk.parser.parser.XmlStreamer;
+import net.dongliu.apk.parser.parser.XmlTranslator;
 import net.dongliu.apk.parser.struct.AndroidConstants;
 import net.dongliu.apk.parser.struct.resource.Densities;
 import net.dongliu.apk.parser.struct.resource.ResourceTable;
@@ -18,7 +37,14 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import static java.lang.System.arraycopy;
 

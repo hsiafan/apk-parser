@@ -17,7 +17,10 @@ class ZipFileFilter(private val zipFile: ZipFile) : AbstractZipFilter(), Closeab
         }
     }
 
-    override fun getByteArrayForEntries(mandatoryEntriesNames: Set<String>, extraEntriesNames: Set<String>?): HashMap<String, ByteArray>? {
+    override fun getByteArrayForEntries(
+        mandatoryEntriesNames: Set<String>,
+        extraEntriesNames: Set<String>?
+    ): HashMap<String, ByteArray>? {
         try {
             val totalItemsCount = mandatoryEntriesNames.size + (extraEntriesNames?.size ?: 0)
             val result = HashMap<String, ByteArray>(totalItemsCount)

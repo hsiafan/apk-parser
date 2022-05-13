@@ -6,7 +6,11 @@ import net.dongliu.apk.parser.utils.ResourceLoader;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The apk resource table

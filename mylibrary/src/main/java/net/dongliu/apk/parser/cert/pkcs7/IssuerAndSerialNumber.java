@@ -35,7 +35,8 @@ public class IssuerAndSerialNumber {
     @Asn1Field(index = 1, type = Asn1Type.INTEGER)
     public BigInteger certificateSerialNumber;
 
-    public IssuerAndSerialNumber() {}
+    public IssuerAndSerialNumber() {
+    }
 
     public IssuerAndSerialNumber(Asn1OpaqueObject issuer, BigInteger certificateSerialNumber) {
         this.issuer = issuer;

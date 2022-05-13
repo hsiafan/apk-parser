@@ -20,7 +20,8 @@ package net.dongliu.apk.parser.cert.pkcs7;
  * Assorted PKCS #7 constants from RFC 5652.
  */
 public abstract class Pkcs7Constants {
-    private Pkcs7Constants() {}
+    private Pkcs7Constants() {
+    }
 
     public static final String OID_DATA = "1.2.840.113549.1.7.1";
     public static final String OID_SIGNED_DATA = "1.2.840.113549.1.7.2";

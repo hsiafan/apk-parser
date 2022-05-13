@@ -4,7 +4,11 @@ import android.graphics.BitmapFactory
 import kotlin.math.roundToInt
 
 object BitmapHelper {
-    fun prepareBitmapOptionsForSampling(bitmapOptions: BitmapFactory.Options, reqWidth: Int, reqHeight: Int) {
+    fun prepareBitmapOptionsForSampling(
+        bitmapOptions: BitmapFactory.Options,
+        reqWidth: Int,
+        reqHeight: Int
+    ) {
         bitmapOptions.inTargetDensity = 1
         bitmapOptions.inJustDecodeBounds = false
         if (reqHeight <= 0 && reqWidth <= 0)

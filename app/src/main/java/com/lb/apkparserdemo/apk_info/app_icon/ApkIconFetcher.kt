@@ -15,7 +15,6 @@ import net.dongliu.apk.parser.parser.AdaptiveIconParser
 import net.dongliu.apk.parser.parser.BinaryXmlParser
 import java.nio.ByteBuffer
 import java.util.*
-import kotlin.collections.HashSet
 import kotlin.math.abs
 
 object ApkIconFetcher {
@@ -23,7 +22,13 @@ object ApkIconFetcher {
         fun generateZipFilter(): AbstractZipFilter
     }
 
-    fun getApkIcon(context: Context, locale: Locale, filterGenerator: ZipFilterCreator, apkInfo: ApkInfo, requestedAppIconSize: Int = 0): Bitmap? {
+    fun getApkIcon(
+        context: Context,
+        locale: Locale,
+        filterGenerator: ZipFilterCreator,
+        apkInfo: ApkInfo,
+        requestedAppIconSize: Int = 0
+    ): Bitmap? {
         val iconPaths = apkInfo.apkMetaTranslator.iconPaths
         if (iconPaths.isNullOrEmpty())
             return null
@@ -59,7 +64,7 @@ object ApkIconFetcher {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             iconsToFetch.addAll(xmlIconsPaths)
         val imageIconPath = bestDividedDensityIconImage?.path
-                ?: closestDensityMatchIconImage?.path
+            ?: closestDensityMatchIconImage?.path
         imageIconPath?.let { iconsToFetch.add(it) }
         if (iconsToFetch.isEmpty())
             return null
@@ -81,24 +86,52 @@ object ApkIconFetcher {
                         val backgroundPath: String? = adaptiveIconParser.background
                         val foregroundPath: String? = adaptiveIconParser.foreground
                         if (!backgroundPath.isNullOrBlank() && !foregroundPath.isNullOrBlank()) {
-                            filterGenerator.generateZipFilter().use { adaptiveIconZipFilter: AbstractZipFilter ->
-                                adaptiveIconZipFilter.getByteArrayForEntries(hashSetOf(backgroundPath, foregroundPath))?.let { adaptiveIconByteArrayForEntries ->
-                                    val backgroundIconBytes = adaptiveIconByteArrayForEntries[backgroundPath]
-                                    val foregroundIconBytes = adaptiveIconByteArrayForEntries[foregroundPath]
-                                    if (backgroundIconBytes != null && foregroundIconBytes != null) {
-                                        val backgroundDrawable = if (backgroundPath.endsWith(".xml", true))
-                                            XmlDrawableParser.tryParseDrawable(context, backgroundIconBytes)
-                                        else getAppIconFromByteArray(backgroundIconBytes, requestedAppIconSize)?.let { BitmapDrawable(resources, it) }
-                                        val foregroundDrawable = if (foregroundPath.endsWith(".xml", true))
-                                            XmlDrawableParser.tryParseDrawable(context, foregroundIconBytes)
-                                        else getAppIconFromByteArray(foregroundIconBytes, requestedAppIconSize)?.let { BitmapDrawable(resources, it) }
-                                        if (backgroundDrawable != null && foregroundDrawable != null) {
-                                            val adaptiveIconDrawable = AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable)
-                                            return adaptiveIconDrawable.toBitmap(requestedAppIconSize, requestedAppIconSize)
+                            filterGenerator.generateZipFilter()
+                                .use { adaptiveIconZipFilter: AbstractZipFilter ->
+                                    adaptiveIconZipFilter.getByteArrayForEntries(
+                                        hashSetOf(
+                                            backgroundPath,
+                                            foregroundPath
+                                        )
+                                    )?.let { adaptiveIconByteArrayForEntries ->
+                                        val backgroundIconBytes =
+                                            adaptiveIconByteArrayForEntries[backgroundPath]
+                                        val foregroundIconBytes =
+                                            adaptiveIconByteArrayForEntries[foregroundPath]
+                                        if (backgroundIconBytes != null && foregroundIconBytes != null) {
+                                            val backgroundDrawable =
+                                                if (backgroundPath.endsWith(".xml", true))
+                                                    XmlDrawableParser.tryParseDrawable(
+                                                        context,
+                                                        backgroundIconBytes
+                                                    )
+                                                else getAppIconFromByteArray(
+                                                    backgroundIconBytes,
+                                                    requestedAppIconSize
+                                                )?.let { BitmapDrawable(resources, it) }
+                                            val foregroundDrawable =
+                                                if (foregroundPath.endsWith(".xml", true))
+                                                    XmlDrawableParser.tryParseDrawable(
+                                                        context,
+                                                        foregroundIconBytes
+                                                    )
+                                                else getAppIconFromByteArray(
+                                                    foregroundIconBytes,
+                                                    requestedAppIconSize
+                                                )?.let { BitmapDrawable(resources, it) }
+                                            if (backgroundDrawable != null && foregroundDrawable != null) {
+                                                val adaptiveIconDrawable = AdaptiveIconDrawable(
+                                                    backgroundDrawable,
+                                                    foregroundDrawable
+                                                )
+                                                return adaptiveIconDrawable.toBitmap(
+                                                    requestedAppIconSize,
+                                                    requestedAppIconSize
+                                                )
+                                            }
                                         }
                                     }
                                 }
-                            }
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -116,7 +149,11 @@ object ApkIconFetcher {
             val bitmapOptions = BitmapFactory.Options()
             bitmapOptions.inJustDecodeBounds = true
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bitmapOptions)
-            BitmapHelper.prepareBitmapOptionsForSampling(bitmapOptions, requestedAppIconSize, requestedAppIconSize)
+            BitmapHelper.prepareBitmapOptionsForSampling(
+                bitmapOptions,
+                requestedAppIconSize,
+                requestedAppIconSize
+            )
             return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bitmapOptions)
         }
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)

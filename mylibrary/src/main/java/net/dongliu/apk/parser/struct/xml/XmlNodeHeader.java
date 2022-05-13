@@ -7,7 +7,7 @@ import net.dongliu.apk.parser.struct.ChunkHeader;
  */
 public class XmlNodeHeader extends ChunkHeader {
     // Line number in original source file at which this element appeared.
-    private  int lineNum;
+    private int lineNum;
     // Optional XML comment string pool ref, -1 if none
     private int commentRef;
 

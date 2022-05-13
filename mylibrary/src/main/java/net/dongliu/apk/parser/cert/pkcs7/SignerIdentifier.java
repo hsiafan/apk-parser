@@ -35,7 +35,8 @@ public class SignerIdentifier {
     @Asn1Field(type = Asn1Type.OCTET_STRING, tagging = Asn1Tagging.IMPLICIT, tagNumber = 0)
     public ByteBuffer subjectKeyIdentifier;
 
-    public SignerIdentifier() {}
+    public SignerIdentifier() {
+    }
 
     public SignerIdentifier(IssuerAndSerialNumber issuerAndSerialNumber) {
         this.issuerAndSerialNumber = issuerAndSerialNumber;

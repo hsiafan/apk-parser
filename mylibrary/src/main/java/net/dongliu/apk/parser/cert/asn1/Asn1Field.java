@@ -24,22 +24,32 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Asn1Field {
-    /** Index used to order fields in a container. Required for fields of SEQUENCE containers. */
+    /**
+     * Index used to order fields in a container. Required for fields of SEQUENCE containers.
+     */
     int index() default 0;
 
     Asn1TagClass cls() default Asn1TagClass.AUTOMATIC;
 
     Asn1Type type();
 
-    /** Tagging mode. Default: NORMAL. */
+    /**
+     * Tagging mode. Default: NORMAL.
+     */
     Asn1Tagging tagging() default Asn1Tagging.NORMAL;
 
-    /** Tag number. Required when IMPLICIT and EXPLICIT tagging mode is used.*/
+    /**
+     * Tag number. Required when IMPLICIT and EXPLICIT tagging mode is used.
+     */
     int tagNumber() default -1;
 
-    /** {@code true} if this field is optional. Ignored for fields of CHOICE containers. */
+    /**
+     * {@code true} if this field is optional. Ignored for fields of CHOICE containers.
+     */
     boolean optional() default false;
 
-    /** Type of elements. Used only for SET_OF or SEQUENCE_OF. */
+    /**
+     * Type of elements. Used only for SET_OF or SEQUENCE_OF.
+     */
     Asn1Type elementType() default Asn1Type.ANY;
 }

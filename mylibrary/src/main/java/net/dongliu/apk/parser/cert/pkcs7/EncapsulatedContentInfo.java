@@ -39,7 +39,8 @@ public class EncapsulatedContentInfo {
             optional = true)
     public ByteBuffer content;
 
-    public EncapsulatedContentInfo() {}
+    public EncapsulatedContentInfo() {
+    }
 
     public EncapsulatedContentInfo(String contentTypeOid) {
         contentType = contentTypeOid;

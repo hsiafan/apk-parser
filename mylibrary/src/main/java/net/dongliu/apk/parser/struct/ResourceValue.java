@@ -1,6 +1,10 @@
 package net.dongliu.apk.parser.struct;
 
-import net.dongliu.apk.parser.struct.resource.*;
+import net.dongliu.apk.parser.struct.resource.Densities;
+import net.dongliu.apk.parser.struct.resource.ResourceEntry;
+import net.dongliu.apk.parser.struct.resource.ResourceTable;
+import net.dongliu.apk.parser.struct.resource.Type;
+import net.dongliu.apk.parser.struct.resource.TypeSpec;
 import net.dongliu.apk.parser.utils.Locales;
 
 import java.util.List;

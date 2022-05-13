@@ -16,7 +16,11 @@
 
 package net.dongliu.apk.parser.cert.pkcs7;
 
-import net.dongliu.apk.parser.cert.asn1.*;
+import net.dongliu.apk.parser.cert.asn1.Asn1Class;
+import net.dongliu.apk.parser.cert.asn1.Asn1Field;
+import net.dongliu.apk.parser.cert.asn1.Asn1OpaqueObject;
+import net.dongliu.apk.parser.cert.asn1.Asn1Tagging;
+import net.dongliu.apk.parser.cert.asn1.Asn1Type;
 
 import java.nio.ByteBuffer;
 import java.util.List;
