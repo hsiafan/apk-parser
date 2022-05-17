@@ -53,6 +53,7 @@ public class ApkMetaTranslator implements XmlStreamer {
         final Attributes attributes = xmlNodeStartTag.getAttributes();
         switch (xmlNodeStartTag.getName()) {
             case "application":
+                this.apkMetaBuilder.setDebuggable(attributes.getBoolean("debuggable", false));
                 //TODO fix this part in a better way. Workaround for this: https://github.com/hsiafan/apk-parser/issues/119
                 if (this.apkMetaBuilder.split == null)
                     this.apkMetaBuilder.setSplit(attributes.getString("split"));

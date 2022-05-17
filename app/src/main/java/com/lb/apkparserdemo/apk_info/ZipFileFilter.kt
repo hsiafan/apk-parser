@@ -7,6 +7,7 @@ import java.util.zip.ZipFile
 
 class ZipFileFilter(private val zipFile: ZipFile) : AbstractZipFilter(), Closeable {
     private var entries: Enumeration<out ZipEntry>? = null
+
     @Suppress("MemberVisibilityCanBePrivate")
     var currentEntry: ZipEntry? = null
 

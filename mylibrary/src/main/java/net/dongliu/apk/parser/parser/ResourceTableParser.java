@@ -68,9 +68,10 @@ public class ResourceTableParser {
         this.resourceTable = new ResourceTable();
         this.resourceTable.setStringPool(this.stringPool);
 
-        if (resourceTableHeader.getPackageCount() != 0) {
+        final long packageCount = resourceTableHeader.getPackageCount();
+        if (packageCount != 0) {
             PackageHeader packageHeader = (PackageHeader) this.readChunkHeader();
-            for (int i = 0; i < resourceTableHeader.getPackageCount(); i++) {
+            for (int i = 0; i < packageCount; i++) {
                 final Pair<ResourcePackage, PackageHeader> pair = this.readPackage(packageHeader);
                 this.resourceTable.addPackage(pair.getLeft());
                 packageHeader = pair.getRight();

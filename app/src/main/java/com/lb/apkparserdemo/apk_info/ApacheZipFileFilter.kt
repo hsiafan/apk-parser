@@ -8,6 +8,7 @@ import java.util.*
 class ApacheZipFileFilter(private val zipFile: org.apache.commons.compress.archivers.zip.ZipFile) :
     AbstractZipFilter(), Closeable {
     private var entries: Enumeration<out ZipArchiveEntry>? = null
+
     @Suppress("MemberVisibilityCanBePrivate")
     var currentEntry: ZipArchiveEntry? = null
 

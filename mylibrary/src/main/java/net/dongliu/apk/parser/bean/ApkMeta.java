@@ -2,10 +2,10 @@ package net.dongliu.apk.parser.bean;
 
 import net.dongliu.apk.parser.AbstractApkFile;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 /**
  * Apk meta info
@@ -45,6 +45,7 @@ public class ApkMeta {
     private final boolean smallScreens;
     private final boolean normalScreens;
     private final boolean largeScreens;
+    private final boolean debuggable;
 
     private final List<String> usesPermissions;
     private final List<UseFeature> usesFeatures;
@@ -77,6 +78,7 @@ public class ApkMeta {
         this.smallScreens = builder.smallScreens;
         this.normalScreens = builder.normalScreens;
         this.largeScreens = builder.largeScreens;
+        this.debuggable = builder.debuggable;
         this.usesPermissions = builder.usesPermissions;
         this.usesFeatures = builder.usesFeatures;
         this.permissions = builder.permissions;
@@ -212,6 +214,10 @@ public class ApkMeta {
         return this.largeScreens;
     }
 
+    public boolean isDebuggable() {
+        return this.debuggable;
+    }
+
     public GlEsVersion getGlEsVersion() {
         return this.glEsVersion;
     }
@@ -276,6 +282,7 @@ public class ApkMeta {
         private boolean smallScreens;
         private boolean normalScreens;
         private boolean largeScreens;
+        private boolean debuggable;
         private final List<String> usesPermissions = new ArrayList<>();
         private final List<UseFeature> usesFeatures = new ArrayList<>();
         private final List<Permission> permissions = new ArrayList<>();
@@ -410,6 +417,11 @@ public class ApkMeta {
 
         public Builder setLargeScreens(final boolean largeScreens) {
             this.largeScreens = largeScreens;
+            return this;
+        }
+
+        public Builder setDebuggable(final boolean debuggable) {
+            this.debuggable = debuggable;
             return this;
         }
 
