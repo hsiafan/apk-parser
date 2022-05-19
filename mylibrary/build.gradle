@@ -21,7 +21,6 @@ android {
         }
         debug {
             minifyEnabled true
-            shrinkResources true
         }
     }
 
