@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
-    id 'maven-publish'
+//    id 'maven-publish'
 }
 
 android {
@@ -16,12 +16,12 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        debug {
-            minifyEnabled true
-        }
+//        debug {
+//            minifyEnabled true
+//        }
     }
 
     compileOptions {
@@ -31,6 +31,7 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    namespace 'net.dongliu.apk.parser'
 }
 
 dependencies {

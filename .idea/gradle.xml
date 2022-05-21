@@ -15,7 +15,6 @@
             <option value="$PROJECT_DIR$/mylibrary" />
           </set>
         </option>
-        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>
